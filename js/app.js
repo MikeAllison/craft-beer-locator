@@ -2,7 +2,11 @@
 
   var httpRequest;
 
-  document.getElementById("submitButton").onclick = function() {
+  document.getElementById('cityStateForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+  });
+
+  document.getElementById('submitButton').onclick = function() {
     var cityState = document.getElementById("cityState").value;
     getLocation(cityState);
   };
@@ -18,18 +22,18 @@
       return false;
     }
 
-    httpRequest.onreadystatechange = alertContents;
+    httpRequest.onreadystatechange = updatePage;
     httpRequest.open('GET', url, true);
     httpRequest.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
     httpRequest.send();
   }
 
-  function alertContents() {
+  function updatePage() {
     if (httpRequest.readyState === XMLHttpRequest.DONE) {
       if (httpRequest.status === 200) {
         var response = JSON.parse(httpRequest.responseText);
-        var lat = response.results[0].geometry.location.lat
-        var lng = response.results[0].geometry.location.lng
+        var lat = response.results[0].geometry.location.lat;
+        var lng = response.results[0].geometry.location.lng;
         console.log(lat + ' ' + lng);
       } else {
         alert('Sorry, please try again.');
