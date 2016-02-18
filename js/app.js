@@ -27,8 +27,6 @@
         if (httpRequest.status === 200) {
           var response = JSON.parse(httpRequest.responseText);
           var bounds = response.results[0].geometry.bounds;
-          //var lat = response.results[0].geometry.location.lat;
-          //var lng = response.results[0].geometry.location.lng;
           listNearbyPlaces(bounds);
         } else {
           alert('Sorry, please try again.');
@@ -52,14 +50,21 @@
       type: 'university'
     };
 
-    resultsList = new google.maps.Map(document.getElementById("results-list"));
-    service = new google.maps.places.PlacesService(resultsList);
+    resultsDiv = new google.maps.Map(document.getElementById("results"));
+    service = new google.maps.places.PlacesService(resultsDiv);
+
     service.nearbySearch(params, function(results, status) {
       if (status !== google.maps.places.PlacesServiceStatus.OK) {
         alert('Sorry, please try again.');
         return;
       }
-      console.log(results);
+
+      for (var i = 0; i < results.length; i++) {
+        var newLi = document.createElement("li");
+        var result = document.createTextNode(results[i].name);
+        newLi.appendChild(result);
+        document.getElementById("results-list").appendChild(newLi);
+      }
     });
   }
 
