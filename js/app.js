@@ -11,6 +11,7 @@
     getLocation(cityState);
   };
 
+  // Send form data to Google Geocoding API
   function getLocation(cityState) {
     var apiKey = 'AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo';
     var params = '?key=' + apiKey + '&address=' + encodeURIComponent(cityState);
@@ -38,6 +39,7 @@
     httpRequest.send();
   }
 
+  // Send bounds from Google Geocoding API to their Google Maps Places API
   function listNearbyPlaces(bounds) {
 
     var latLngBounds = new google.maps.LatLngBounds(
@@ -59,6 +61,7 @@
         return;
       }
 
+      // REFACTOR - This code updates DOM
       var newUl = document.createElement('ul');
       newUl.classList.add('list-unstyled');
 
@@ -70,7 +73,11 @@
       }
 
       resultsDiv = document.getElementById('results');
+      // Removes results 'hidden' class ('hidden' is set on page load)
       resultsDiv.classList.remove('hidden');
+      // Removes the ul if it exists
+      resultsDiv.lastChild.remove();
+      // Adds the new ul to div#results
       resultsDiv.appendChild(newUl);
     });
   }
