@@ -19,6 +19,7 @@
 
     httpRequest = new XMLHttpRequest();
     if (!httpRequest) {
+      // REFACTOR - Change to flash notice
       alert('Sorry, your request could not be completed.');
       return false;
     }
@@ -30,6 +31,7 @@
           var bounds = response.results[0].geometry.bounds;
           listNearbyPlaces(bounds);
         } else {
+          // REFACTOR - Change to flash notice
           alert('Sorry, please try again.');
         }
       }
@@ -55,31 +57,35 @@
     mapDiv = new google.maps.Map(document.getElementById('map'));
     service = new google.maps.places.PlacesService(mapDiv);
 
-    service.nearbySearch(params, function(results, status) {
-      if (status !== google.maps.places.PlacesServiceStatus.OK) {
-        alert('Sorry, please try again.');
-        return;
-      }
+    // Pass search results to callback updateDom
+    service.nearbySearch(params, updateDom);
+  }
 
-      // REFACTOR - This code updates DOM
-      var newUl = document.createElement('ul');
-      newUl.classList.add('list-unstyled');
+  // Updates the results on the DOM (results & status come from .nearbySearch)
+  function updateDom(results, status) {
+    if (status !== google.maps.places.PlacesServiceStatus.OK) {
+      // REFACTOR - Change to flash notice
+      alert('Sorry, please try again.');
+      return;
+    }
 
-      for (var i = 0; i < results.length; i++) {
-        var newLi = document.createElement('li');
-        var result = document.createTextNode(results[i].name);
-        newLi.appendChild(result);
-        newUl.appendChild(newLi);
-      }
+    var newUl = document.createElement('ul');
+    newUl.classList.add('list-unstyled');
 
-      resultsDiv = document.getElementById('results');
-      // Removes results 'hidden' class ('hidden' is set on page load)
-      resultsDiv.classList.remove('hidden');
-      // Removes the ul if it exists
-      resultsDiv.lastChild.remove();
-      // Adds the new ul to div#results
-      resultsDiv.appendChild(newUl);
-    });
+    for (var i = 0; i < results.length; i++) {
+      var newLi = document.createElement('li');
+      var result = document.createTextNode(results[i].name);
+      newLi.appendChild(result);
+      newUl.appendChild(newLi);
+    }
+
+    resultsDiv = document.getElementById('results');
+    // Removes results 'hidden' class ('hidden' is set on page load)
+    resultsDiv.classList.remove('hidden');
+    // Removes the ul if it exists
+    resultsDiv.lastChild.remove();
+    // Adds the new ul to div#results
+    resultsDiv.appendChild(newUl);
   }
 
 })();
