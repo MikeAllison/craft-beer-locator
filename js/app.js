@@ -2,10 +2,6 @@
 
   var httpRequest;
 
-  document.getElementById('cityStateForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-  });
-
   document.getElementById('submitButton').onclick = function() {
     var cityState = document.getElementById('cityState').value;
     getLocation(cityState);
