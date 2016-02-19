@@ -7,7 +7,7 @@
   });
 
   document.getElementById('submitButton').onclick = function() {
-    var cityState = document.getElementById("cityState").value;
+    var cityState = document.getElementById('cityState').value;
     getLocation(cityState);
   };
 
@@ -50,7 +50,7 @@
       type: 'university'
     };
 
-    mapDiv = new google.maps.Map(document.getElementById("map"));
+    mapDiv = new google.maps.Map(document.getElementById('map'));
     service = new google.maps.places.PlacesService(mapDiv);
 
     service.nearbySearch(params, function(results, status) {
@@ -59,16 +59,19 @@
         return;
       }
 
-      var newUl = document.createElement("ul");
+      var newUl = document.createElement('ul');
+      newUl.classList.add('list-unstyled');
 
       for (var i = 0; i < results.length; i++) {
-        var newLi = document.createElement("li");
+        var newLi = document.createElement('li');
         var result = document.createTextNode(results[i].name);
         newLi.appendChild(result);
         newUl.appendChild(newLi);
       }
 
-      document.getElementById("results").appendChild(newUl);
+      resultsDiv = document.getElementById('results');
+      resultsDiv.classList.remove('hidden');
+      resultsDiv.appendChild(newUl);
     });
   }
 

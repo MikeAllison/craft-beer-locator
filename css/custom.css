@@ -1,0 +1,17 @@
+.heading {
+  margin-bottom: 20px;
+}
+
+.search {
+  margin-bottom: 20px;
+}
+
+.city-state-heading {
+  color: #7F8C8D;
+}
+
+li {
+  color: #7F8C8D;
+  border-bottom: 1px solid #ECF0F1;
+  padding: 10px 0 10px 0;
+}
