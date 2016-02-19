@@ -50,8 +50,8 @@
       type: 'university'
     };
 
-    resultsDiv = new google.maps.Map(document.getElementById("results"));
-    service = new google.maps.places.PlacesService(resultsDiv);
+    mapDiv = new google.maps.Map(document.getElementById("map"));
+    service = new google.maps.places.PlacesService(mapDiv);
 
     service.nearbySearch(params, function(results, status) {
       if (status !== google.maps.places.PlacesServiceStatus.OK) {
@@ -59,12 +59,16 @@
         return;
       }
 
+      var newUl = document.createElement("ul");
+
       for (var i = 0; i < results.length; i++) {
         var newLi = document.createElement("li");
         var result = document.createTextNode(results[i].name);
         newLi.appendChild(result);
-        document.getElementById("results-list").appendChild(newLi);
+        newUl.appendChild(newLi);
       }
+
+      document.getElementById("results").appendChild(newUl);
     });
   }
 
