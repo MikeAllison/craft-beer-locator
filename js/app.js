@@ -62,7 +62,7 @@
     service.nearbySearch(params, updateDom);
   }
 
-  // Updates the results on the DOM (results & status come from .nearbySearch)
+  // Updates the results on the DOM (results & status are passed from .nearbySearch)
   function updateDom(results, status) {
     if (status !== google.maps.places.PlacesServiceStatus.OK) {
       // REFACTOR - Change to flash notice
