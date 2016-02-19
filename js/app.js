@@ -1,10 +1,18 @@
 (function() {
 
   var httpRequest;
+  resultsDiv = document.getElementById('results');
+
+  function clearResults() {
+    while (resultsDiv.firstChild) {
+      resultsDiv.removeChild(resultsDiv.firstChild);
+    }
+  }
 
   document.getElementById('submitButton').onclick = function() {
     var cityState = document.getElementById('cityState').value;
     getLocation(cityState);
+    clearResults();
   };
 
   // Send form data to Google Geocoding API
@@ -55,18 +63,23 @@
 
     // Pass updateDom function to nearbySearch
     // !! JS allows functions to be passed as an agrument !!
-    service.nearbySearch(params, updateDom);
+    service.nearbySearch(params, addResultsToDom);
   }
 
   // Updates the results on the DOM (results & status are passed from .nearbySearch)
-  function updateDom(results, status) {
+  function addResultsToDom(results, status) {
     if (status !== google.maps.places.PlacesServiceStatus.OK) {
       // REFACTOR - Change to flash notice
       alert('Sorry, please try again.');
       return;
     }
 
+    var newH5 = document.createElement('h5');
+    headingText = document.createTextNode('Results');
+    newH5.appendChild(headingText);
+
     var newUl = document.createElement('ul');
+    newUl.setAttribute('id', 'resultsList')
     newUl.classList.add('list-unstyled');
 
     for (var i = 0; i < results.length; i++) {
@@ -76,11 +89,9 @@
       newUl.appendChild(newLi);
     }
 
-    resultsDiv = document.getElementById('results');
-    // Removes results 'hidden' class ('hidden' is set on page load)
-    resultsDiv.classList.remove('hidden');
-    // Removes the ul if it exists
-    resultsDiv.lastChild.remove();
+    // Adds the new heading to div#results
+    resultsDiv.appendChild(newH5);
+
     // Adds the new ul to div#results
     resultsDiv.appendChild(newUl);
   }
