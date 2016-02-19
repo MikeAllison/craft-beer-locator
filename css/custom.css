@@ -10,8 +10,13 @@
   color: #7F8C8D;
 }
 
+ul {
+  border: 1px solid #34495E;
+  border-radius: 6px;
+}
+
 li {
   color: #7F8C8D;
-  border-bottom: 1px solid #ECF0F1;
+  border-bottom: 1px dashed #ECF0F1;
   padding: 10px 0 10px 0;
 }
