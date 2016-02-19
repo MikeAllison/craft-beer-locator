@@ -57,7 +57,8 @@
     mapDiv = new google.maps.Map(document.getElementById('map'));
     service = new google.maps.places.PlacesService(mapDiv);
 
-    // Pass search results to callback updateDom
+    // Pass updateDom function to nearbySearch
+    // !! JS allows functions to be passed as an agrument !!
     service.nearbySearch(params, updateDom);
   }
 
