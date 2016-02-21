@@ -4,12 +4,14 @@
   }
 }
 
-.city-state-heading {
-  color: #7F8C8D;
+@media (min-width: 768px) {
+  .search-col {
+    padding-right: 0;
+  }  
 }
 
-.search-col {
-  padding-right: 0;
+.city-state-heading {
+  color: #7F8C8D;
 }
 
 .search {
