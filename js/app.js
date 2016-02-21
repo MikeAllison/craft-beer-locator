@@ -1,7 +1,13 @@
 (function() {
 
   var httpRequest;
-  resultsDiv = document.getElementById('results');
+  var alertDiv = document.getElementById('alertDiv');
+  var cityStateTextbox = document.getElementById('cityStateTextbox');
+  var resultsDiv = document.getElementById('results');
+
+  function clearAlerts() {
+    alertDiv.classList.add('hidden');
+  }
 
   function clearResults() {
     while (resultsDiv.firstChild) {
@@ -9,10 +15,29 @@
     }
   }
 
+  function createAlert(alertType, alertMessage) {
+    var type = 'alert-' + alertType;
+    var message = document.createTextNode(alertMessage);
+    alertDiv.appendChild(message);
+    alertDiv.classList.add(type);
+    alertDiv.classList.remove('hidden');
+  }
+
+  cityStateTextbox.onclick = function() {
+    cityStateTextbox.value = null;
+  };
+
   document.getElementById('submitButton').onclick = function() {
-    var cityState = document.getElementById('cityState').value;
-    getLocation(cityState);
+    var cityState = cityStateTextbox.value;
+    clearAlerts();
     clearResults();
+
+    if (!cityStateTextbox.value) {
+      createAlert('danger', 'Please enter a city and state.');
+      return;
+    }
+
+    getLocation(cityState);
   };
 
   // Send form data to Google Geocoding API
@@ -32,6 +57,7 @@
       if (httpRequest.readyState === XMLHttpRequest.DONE) {
         if (httpRequest.status === 200) {
           var response = JSON.parse(httpRequest.responseText);
+          console.log(response);
           var bounds = response.results[0].geometry.bounds;
           listNearbyPlaces(bounds);
         } else {
@@ -75,7 +101,7 @@
     }
 
     var newH5 = document.createElement('h5');
-    headingText = document.createTextNode('Results');
+    var headingText = document.createTextNode('Results');
     newH5.appendChild(headingText);
 
     var newUl = document.createElement('ul');

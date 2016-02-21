@@ -8,8 +8,16 @@
   color: #7F8C8D;
 }
 
+.search-col {
+  padding-right: 0;
+}
+
 .search {
   margin-bottom: 20px;
+}
+
+#submitButton {
+  width: 100%;
 }
 
 ul {
