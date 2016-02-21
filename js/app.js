@@ -79,7 +79,7 @@
     newH5.appendChild(headingText);
 
     var newUl = document.createElement('ul');
-    newUl.setAttribute('id', 'resultsList')
+    newUl.setAttribute('id', 'resultsList');
     newUl.classList.add('list-unstyled');
 
     for (var i = 0; i < results.length; i++) {
