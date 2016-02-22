@@ -150,7 +150,7 @@
     if (status !== google.maps.places.PlacesServiceStatus.OK) {
       createAlert('info', 'Sorry, please try again.');
       enableSubmitButton();
-      return;;
+      return;
     }
 
     var newH5 = document.createElement('h5');
