@@ -117,9 +117,11 @@
   function clearAlerts() {
     alertDiv.innerHTML = null;
     alertDiv.classList.add('hidden');
-    alertDiv.classList.remove('alert-danger');
-    alertDiv.classList.remove('alert-info');
-    alertDiv.classList.remove('alert-success');
+
+    var alertTypes = ['alert-danger', 'alert-info', 'alert-success'];
+    for (var i = 0; i < alertTypes.length; i++) {
+      alertDiv.classList.remove(alertTypes[i]);
+    }
   }
 
   function clearResults() {
@@ -180,7 +182,7 @@
 
     var successMessage = 'Your search found ' + totalResults + ' result(s).';
     createAlert('success', successMessage);
-    
+
     // Adds the new heading to div#results
     resultsDiv.appendChild(newH5);
 
