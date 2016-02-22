@@ -6,6 +6,7 @@
   var resultsDiv = document.getElementById('results');
 
   function clearAlerts() {
+    alertDiv.innerHTML = null;
     alertDiv.classList.add('hidden');
   }
 
