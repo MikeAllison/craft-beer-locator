@@ -94,7 +94,7 @@
 
     var params = {
       bounds: latLngBounds,
-      type: 'university'
+      keyword: 'brewery'
     };
 
     var mapDiv = new google.maps.Map(document.getElementById('map'));
