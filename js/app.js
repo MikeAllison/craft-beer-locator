@@ -11,11 +11,6 @@
     cityStateTextbox.value = null;
   };
 
-  cityStateTextbox.touchstart = function() {
-    cityStateTextbox.value = null;
-    console.log("touch");
-  };
-
   // Handle pressing Enter key for submission
   cityStateTextbox.onkeyup = function(event) {
     if (event.keyCode === 13) {
