@@ -8,6 +8,8 @@
   function clearAlerts() {
     alertDiv.innerHTML = null;
     alertDiv.classList.add('hidden');
+    alertDiv.classList.remove('alert-danger');
+    alertDiv.classList.remove('alert-info');
   }
 
   function clearResults() {
@@ -55,12 +57,19 @@
 
     httpRequest.onload = function() {
       if (httpRequest.readyState === XMLHttpRequest.DONE) {
-        if (httpRequest.status === 200) {
-          var response = JSON.parse(httpRequest.responseText);
-          var bounds = response.results[0].geometry.bounds;
-          listNearbyPlaces(bounds);
-        } else {
+        if (httpRequest.status !== 200) {
           createAlert('info', 'Sorry, please try again.');
+          return;
+        } else {
+          var response = JSON.parse(httpRequest.responseText);
+
+          if (!response.results[0].geometry.bounds) {
+            createAlert('info', 'Sorry, that location could not be found.');
+            return;
+          } else {
+            var bounds = response.results[0].geometry.bounds;
+            listNearbyPlaces(bounds);
+          }
         }
       }
     };
