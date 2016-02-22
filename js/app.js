@@ -66,7 +66,7 @@
         } else {
           var response = JSON.parse(httpRequest.responseText);
 
-          if (!response.results[0].geometry.bounds) {
+          if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
             createAlert('info', 'Sorry, that location could not be found.');
             enableSubmitButton();
             return;
