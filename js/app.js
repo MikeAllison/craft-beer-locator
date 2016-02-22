@@ -57,7 +57,6 @@
       if (httpRequest.readyState === XMLHttpRequest.DONE) {
         if (httpRequest.status === 200) {
           var response = JSON.parse(httpRequest.responseText);
-          console.log(response);
           var bounds = response.results[0].geometry.bounds;
           listNearbyPlaces(bounds);
         } else {
