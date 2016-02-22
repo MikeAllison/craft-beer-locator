@@ -14,12 +14,14 @@
   // Handle pressing Enter key for submission
   cityStateTextbox.onkeyup = function(event) {
     if (event.keyCode === 13) {
+      disableSubmitButton();
       submitData();
     }
   };
 
   // Handle clicking search button for submission
   submitButton.onclick = function() {
+    disableSubmitButton();
     submitData();
   };
   // END EVENT HANDLING FUNCTIONS
@@ -33,6 +35,7 @@
 
     if (!cityStateTextbox.value) {
       createAlert('danger', 'Please enter a city and state.');
+      enableSubmitButton();
       return;
     }
 
@@ -50,6 +53,7 @@
     httpRequest = new XMLHttpRequest();
     if (!httpRequest) {
       createAlert('info', 'Sorry, please try again.');
+      enableSubmitButton();
       return false;
     }
 
@@ -57,12 +61,14 @@
       if (httpRequest.readyState === XMLHttpRequest.DONE) {
         if (httpRequest.status !== 200) {
           createAlert('info', 'Sorry, please try again.');
+          enableSubmitButton();
           return;
         } else {
           var response = JSON.parse(httpRequest.responseText);
 
           if (!response.results[0].geometry.bounds) {
             createAlert('info', 'Sorry, that location could not be found.');
+            enableSubmitButton();
             return;
           } else {
             var bounds = response.results[0].geometry.bounds;
@@ -99,6 +105,14 @@
   // END GOOGLE SERVICE FUNCTIONS
 
   // BEGIN DOM UPDATING FUNCTIONS
+  function disableSubmitButton() {
+    submitButton.disabled = true;
+  }
+
+  function enableSubmitButton() {
+    submitButton.disabled = false;
+  }
+
   function clearAlerts() {
     alertDiv.innerHTML = null;
     alertDiv.classList.add('hidden');
@@ -152,6 +166,8 @@
 
     // Adds the new ul to div#results
     resultsDiv.appendChild(newUl);
+
+    enableSubmitButton();
   }
   // END DOM UPDATING FUNCTIONS
 
