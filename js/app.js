@@ -177,6 +177,7 @@
         clearResults();
         clearAlerts();
         pagination.nextPage();
+        window.scroll(0, 0);
       };
     }
 
