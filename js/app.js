@@ -169,13 +169,11 @@
     }
 
     // Add a success alert and handle > 20 results
-    var totalResults;
+    var totalResults = results.length;
     var successMessage;
 
     if (pagination.hasNextPage) {
       totalResults = 'more than 20';
-      successMessage = 'Your search found ' + totalResults + ' result(s).';
-      createAlert('success', successMessage);
 
       // Google Places search requires 2 seconds between searches
       window.setTimeout(function() {
@@ -188,11 +186,10 @@
         pagination.nextPage();
         window.scroll(0, 0);
       };
-    } else {
-      totalResults = results.length;
-      successMessage = 'Your search found ' + totalResults + ' result(s).';
-      createAlert('success', successMessage);
     }
+
+    successMessage = 'Your search found ' + totalResults + ' result(s).';
+    createAlert('success', successMessage);
 
     // Adds the new heading to div#results
     resultsDiv.appendChild(newH5);
