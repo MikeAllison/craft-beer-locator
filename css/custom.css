@@ -1,13 +1,26 @@
 @media (max-width: 767px) {
   #submitButton {
     margin-top: 10px;
+    width: 100%;
   }
 }
 
 @media (min-width: 768px) {
   .search-col {
     padding-right: 0;
-  }  
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .alert-col {
+    padding-right: 0;
+  }
+}
+
+@media (min-width: 992px) {
+  #submitButton {
+    width: 100%;
+  }
 }
 
 .city-state-heading {
@@ -16,10 +29,6 @@
 
 .search {
   margin-bottom: 20px;
-}
-
-#submitButton {
-  width: 100%;
 }
 
 ul {
