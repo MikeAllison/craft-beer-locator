@@ -3,6 +3,7 @@
   var httpRequest;
   var alertDiv = document.getElementById('alertDiv');
   var cityStateTextbox = document.getElementById('cityStateTextbox');
+  var submitButton = document.getElementById('submitButton');
   var resultsDiv = document.getElementById('results');
 
   function clearAlerts() {
@@ -31,7 +32,20 @@
     cityStateTextbox.value = null;
   };
 
-  document.getElementById('submitButton').onclick = function() {
+  // Handle pressing Enter key for submission
+  cityStateTextbox.onkeyup = function(event) {
+    if (event.keyCode === 13) {
+      submitData();
+    }
+  };
+
+  // Handle clicking search button for submission
+  submitButton.onclick = function() {
+    submitData();
+  };
+
+  // Get value from textbox and process
+  function submitData() {
     var cityState = cityStateTextbox.value;
     clearAlerts();
     clearResults();
@@ -42,7 +56,7 @@
     }
 
     getLocation(cityState);
-  };
+  }
 
   // Send form data to Google Geocoding API
   function getLocation(cityState) {
