@@ -6,6 +6,7 @@
   var submitButton = document.getElementById('submitButton');
   var resultsDiv = document.getElementById('results');
   var moreResultsButton = document.getElementById('moreResults');
+  var showAlerts = true;
 
   // BEGIN EVENT HANDLING FUNCTIONS
   cityStateTextbox.onclick = function() {
@@ -114,7 +115,16 @@
     submitButton.disabled = false;
   }
 
+  function createAlert(alertType, alertMessage) {
+    var type = 'alert-' + alertType;
+    var message = document.createTextNode(alertMessage);
+    alertDiv.appendChild(message);
+    alertDiv.classList.add(type);
+    alertDiv.classList.remove('hidden');
+  }
+
   function clearAlerts() {
+    showAlerts = true;
     alertDiv.innerHTML = null;
     alertDiv.classList.add('hidden');
 
@@ -129,14 +139,6 @@
     while (resultsDiv.firstChild) {
       resultsDiv.removeChild(resultsDiv.firstChild);
     }
-  }
-
-  function createAlert(alertType, alertMessage) {
-    var type = 'alert-' + alertType;
-    var message = document.createTextNode(alertMessage);
-    alertDiv.appendChild(message);
-    alertDiv.classList.add(type);
-    alertDiv.classList.remove('hidden');
   }
 
   // Updates the results on the DOM (results & status are passed from .nearbySearch)
@@ -185,11 +187,14 @@
         clearAlerts();
         pagination.nextPage();
         window.scroll(0, 0);
+        showAlerts = false;
       };
     }
 
-    successMessage = 'Your search found ' + totalResults + ' result(s).';
-    createAlert('success', successMessage);
+    if (showAlerts) {
+      successMessage = 'Your search found ' + totalResults + ' result(s).';
+      createAlert('success', successMessage);
+    }
 
     // Adds the new heading to div#results
     resultsDiv.appendChild(newH5);
