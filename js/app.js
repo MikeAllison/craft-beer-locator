@@ -10,6 +10,7 @@
     alertDiv.classList.add('hidden');
     alertDiv.classList.remove('alert-danger');
     alertDiv.classList.remove('alert-info');
+    alertDiv.classList.remove('alert-success');
   }
 
   function clearResults() {
@@ -120,6 +121,10 @@
       newLi.appendChild(result);
       newUl.appendChild(newLi);
     }
+
+    // Add a success alert
+    successMessage = 'Your search found ' + results.length + ' results.';
+    createAlert('success', successMessage);
 
     // Adds the new heading to div#results
     resultsDiv.appendChild(newH5);
