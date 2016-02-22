@@ -6,28 +6,7 @@
   var submitButton = document.getElementById('submitButton');
   var resultsDiv = document.getElementById('results');
 
-  function clearAlerts() {
-    alertDiv.innerHTML = null;
-    alertDiv.classList.add('hidden');
-    alertDiv.classList.remove('alert-danger');
-    alertDiv.classList.remove('alert-info');
-    alertDiv.classList.remove('alert-success');
-  }
-
-  function clearResults() {
-    while (resultsDiv.firstChild) {
-      resultsDiv.removeChild(resultsDiv.firstChild);
-    }
-  }
-
-  function createAlert(alertType, alertMessage) {
-    var type = 'alert-' + alertType;
-    var message = document.createTextNode(alertMessage);
-    alertDiv.appendChild(message);
-    alertDiv.classList.add(type);
-    alertDiv.classList.remove('hidden');
-  }
-
+  // BEGIN EVENT HANDLING FUNCTIONS
   cityStateTextbox.onclick = function() {
     cityStateTextbox.value = null;
   };
@@ -43,7 +22,9 @@
   submitButton.onclick = function() {
     submitData();
   };
+  // END EVENT HANDLING FUNCTIONS
 
+  // BEGIN USER DATA FUNCTIONS
   // Get value from textbox and process
   function submitData() {
     var cityState = cityStateTextbox.value;
@@ -57,7 +38,9 @@
 
     getLocation(cityState);
   }
+  // END USER DATA FUNCTIONS
 
+  // BEGIN GOOGLE SERVICE FUNCTIONS
   // Send form data to Google Geocoding API
   function getLocation(cityState) {
     var apiKey = 'AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo';
@@ -113,6 +96,30 @@
     // !! JS allows functions to be passed as an agrument !!
     service.nearbySearch(params, addResultsToDom);
   }
+  // END GOOGLE SERVICE FUNCTIONS
+
+  // BEGIN DOM UPDATING FUNCTIONS
+  function clearAlerts() {
+    alertDiv.innerHTML = null;
+    alertDiv.classList.add('hidden');
+    alertDiv.classList.remove('alert-danger');
+    alertDiv.classList.remove('alert-info');
+    alertDiv.classList.remove('alert-success');
+  }
+
+  function clearResults() {
+    while (resultsDiv.firstChild) {
+      resultsDiv.removeChild(resultsDiv.firstChild);
+    }
+  }
+
+  function createAlert(alertType, alertMessage) {
+    var type = 'alert-' + alertType;
+    var message = document.createTextNode(alertMessage);
+    alertDiv.appendChild(message);
+    alertDiv.classList.add(type);
+    alertDiv.classList.remove('hidden');
+  }
 
   // Updates the results on the DOM (results & status are passed from .nearbySearch)
   function addResultsToDom(results, status) {
@@ -146,5 +153,6 @@
     // Adds the new ul to div#results
     resultsDiv.appendChild(newUl);
   }
+  // END DOM UPDATING FUNCTIONS
 
 })();
