@@ -141,9 +141,16 @@
 
   // Updates the results on the DOM (results & status are passed from .nearbySearch)
   function addResultsToDom(results, status, pagination) {
+    if (status === 'ZERO_RESULTS') {
+      createAlert('info', 'Sorry, no results could be found for that city and state.');
+      enableSubmitButton();
+      return;
+    }
+
     if (status !== google.maps.places.PlacesServiceStatus.OK) {
       createAlert('info', 'Sorry, please try again.');
-      return;
+      enableSubmitButton();
+      return;;
     }
 
     var newH5 = document.createElement('h5');
@@ -162,11 +169,13 @@
     }
 
     // Add a success alert and handle > 20 results
-    var firstRequest = true;
-    var totalResults = results.length;
+    var totalResults;
+    var successMessage;
 
     if (pagination.hasNextPage) {
       totalResults = 'more than 20';
+      successMessage = 'Your search found ' + totalResults + ' result(s).';
+      createAlert('success', successMessage);
 
       // Google Places search requires 2 seconds between searches
       window.setTimeout(function() {
@@ -179,10 +188,11 @@
         pagination.nextPage();
         window.scroll(0, 0);
       };
+    } else {
+      totalResults = results.length;
+      successMessage = 'Your search found ' + totalResults + ' result(s).';
+      createAlert('success', successMessage);
     }
-
-    var successMessage = 'Your search found ' + totalResults + ' result(s).';
-    createAlert('success', successMessage);
 
     // Adds the new heading to div#results
     resultsDiv.appendChild(newH5);
