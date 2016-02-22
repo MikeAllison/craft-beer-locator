@@ -49,8 +49,7 @@
 
     httpRequest = new XMLHttpRequest();
     if (!httpRequest) {
-      // REFACTOR - Change to flash notice
-      alert('Sorry, your request could not be completed.');
+      createAlert('info', 'Sorry, please try again.');
       return false;
     }
 
@@ -62,8 +61,7 @@
           var bounds = response.results[0].geometry.bounds;
           listNearbyPlaces(bounds);
         } else {
-          // REFACTOR - Change to flash notice
-          alert('Sorry, please try again.');
+          createAlert('info', 'Sorry, please try again.');
         }
       }
     };
@@ -96,8 +94,7 @@
   // Updates the results on the DOM (results & status are passed from .nearbySearch)
   function addResultsToDom(results, status) {
     if (status !== google.maps.places.PlacesServiceStatus.OK) {
-      // REFACTOR - Change to flash notice
-      alert('Sorry, please try again.');
+      createAlert('info', 'Sorry, please try again.');
       return;
     }
 
