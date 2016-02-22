@@ -5,6 +5,7 @@
   var cityStateTextbox = document.getElementById('cityStateTextbox');
   var submitButton = document.getElementById('submitButton');
   var resultsDiv = document.getElementById('results');
+  var moreResultsButton = document.getElementById('moreResults');
 
   // BEGIN EVENT HANDLING FUNCTIONS
   cityStateTextbox.onclick = function() {
@@ -95,8 +96,8 @@
       type: 'university'
     };
 
-    mapDiv = new google.maps.Map(document.getElementById('map'));
-    service = new google.maps.places.PlacesService(mapDiv);
+    var mapDiv = new google.maps.Map(document.getElementById('map'));
+    var service = new google.maps.places.PlacesService(mapDiv);
 
     // Pass updateDom function to nearbySearch
     // !! JS allows functions to be passed as an agrument !!
@@ -122,6 +123,7 @@
   }
 
   function clearResults() {
+    moreResultsButton.classList.add('hidden');
     while (resultsDiv.firstChild) {
       resultsDiv.removeChild(resultsDiv.firstChild);
     }
@@ -136,7 +138,7 @@
   }
 
   // Updates the results on the DOM (results & status are passed from .nearbySearch)
-  function addResultsToDom(results, status) {
+  function addResultsToDom(results, status, pagination) {
     if (status !== google.maps.places.PlacesServiceStatus.OK) {
       createAlert('info', 'Sorry, please try again.');
       return;
@@ -157,10 +159,28 @@
       newUl.appendChild(newLi);
     }
 
-    // Add a success alert
-    successMessage = 'Your search found ' + results.length + ' results.';
-    createAlert('success', successMessage);
+    // Add a success alert and handle > 20 results
+    var firstRequest = true;
+    var totalResults = results.length;
 
+    if (pagination.hasNextPage) {
+      totalResults = 'more than 20';
+
+      // Google Places search requires 2 seconds between searches
+      window.setTimeout(function() {
+        moreResultsButton.classList.remove('hidden');
+      }, 2000);
+
+      moreResultsButton.onclick = function() {
+        clearResults();
+        clearAlerts();
+        pagination.nextPage();
+      };
+    }
+
+    var successMessage = 'Your search found ' + totalResults + ' result(s).';
+    createAlert('success', successMessage);
+    
     // Adds the new heading to div#results
     resultsDiv.appendChild(newH5);
 

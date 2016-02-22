@@ -23,6 +23,10 @@
   }
 }
 
+.container {
+  margin-bottom: 20px;
+}
+
 .city-state-heading {
   color: #7F8C8D;
 }
