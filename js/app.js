@@ -136,6 +136,7 @@
 
   function clearResults() {
     moreResultsButton.classList.add('hidden');
+    moreResultsButton.setAttribute('disabled', 'disabled');
     while (resultsDiv.firstChild) {
       resultsDiv.removeChild(resultsDiv.firstChild);
     }
@@ -176,10 +177,11 @@
 
     if (pagination.hasNextPage) {
       totalResults = 'more than 20';
+      moreResultsButton.classList.remove('hidden');
 
       // Google Places search requires 2 seconds between searches
       window.setTimeout(function() {
-        moreResultsButton.classList.remove('hidden');
+        moreResultsButton.removeAttribute('disabled');
       }, 2000);
 
       moreResultsButton.onclick = function() {
