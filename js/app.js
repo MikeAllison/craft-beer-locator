@@ -16,14 +16,14 @@
   // Handle pressing Enter key for submission
   cityStateTbox.onkeyup = function(event) {
     if (event.keyCode === 13) {
-      disablesubmitBtn();
+      disableSubmitBtn();
       submitData();
     }
   };
 
   // Handle clicking search button for submission
   submitBtn.onclick = function() {
-    disablesubmitBtn();
+    disableSubmitBtn();
     submitData();
   };
   // END EVENT HANDLING FUNCTIONS
@@ -37,7 +37,7 @@
 
     if (!cityStateTbox.value) {
       createAlert('danger', 'Please enter a city and state.');
-      enablesubmitBtn();
+      enableSubmitBtn();
       return;
     }
 
@@ -55,7 +55,7 @@
     httpRequest = new XMLHttpRequest();
     if (!httpRequest) {
       createAlert('info', 'Sorry, please try again.');
-      enablesubmitBtn();
+      enableSubmitBtn();
       return false;
     }
 
@@ -63,14 +63,14 @@
       if (httpRequest.readyState === XMLHttpRequest.DONE) {
         if (httpRequest.status !== 200) {
           createAlert('info', 'Sorry, please try again.');
-          enablesubmitBtn();
+          enableSubmitBtn();
           return;
         } else {
           var response = JSON.parse(httpRequest.responseText);
 
           if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
             createAlert('info', 'Sorry, that location could not be found.');
-            enablesubmitBtn();
+            enableSubmitBtn();
             return;
           } else {
             var bounds = response.results[0].geometry.bounds;
@@ -107,11 +107,11 @@
   // END GOOGLE SERVICE FUNCTIONS
 
   // BEGIN DOM UPDATING FUNCTIONS
-  function disablesubmitBtn() {
+  function disableSubmitBtn() {
     submitBtn.disabled = true;
   }
 
-  function enablesubmitBtn() {
+  function enableSubmitBtn() {
     submitBtn.disabled = false;
   }
 
@@ -146,13 +146,13 @@
   function addResultsToDom(results, status, pagination) {
     if (status === 'ZERO_RESULTS') {
       createAlert('info', 'Sorry, no results could be found for that city and state.');
-      enablesubmitBtn();
+      enableSubmitBtn();
       return;
     }
 
     if (status !== google.maps.places.PlacesServiceStatus.OK) {
       createAlert('info', 'Sorry, please try again.');
-      enablesubmitBtn();
+      enableSubmitBtn();
       return;
     }
 
@@ -204,7 +204,7 @@
     // Adds the new ul to div#results
     resultsDiv.appendChild(newUl);
 
-    enablesubmitBtn();
+    enableSubmitBtn();
   }
   // END DOM UPDATING FUNCTIONS
 
