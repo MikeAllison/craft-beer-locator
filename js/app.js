@@ -2,28 +2,28 @@
 
   var httpRequest;
   var alertDiv = document.getElementById('alertDiv');
-  var cityStateTextbox = document.getElementById('cityStateTextbox');
-  var submitButton = document.getElementById('submitButton');
+  var cityStateTbox = document.getElementById('cityStateTbox');
+  var submitBtn = document.getElementById('submitBtn');
   var resultsDiv = document.getElementById('results');
-  var moreResultsButton = document.getElementById('moreResults');
+  var moreResultsBtn = document.getElementById('moreResultsBtn');
   var showAlerts = true;
 
   // BEGIN EVENT HANDLING FUNCTIONS
-  cityStateTextbox.onclick = function() {
-    cityStateTextbox.value = null;
+  cityStateTbox.onclick = function() {
+    cityStateTbox.value = null;
   };
 
   // Handle pressing Enter key for submission
-  cityStateTextbox.onkeyup = function(event) {
+  cityStateTbox.onkeyup = function(event) {
     if (event.keyCode === 13) {
-      disableSubmitButton();
+      disablesubmitBtn();
       submitData();
     }
   };
 
   // Handle clicking search button for submission
-  submitButton.onclick = function() {
-    disableSubmitButton();
+  submitBtn.onclick = function() {
+    disablesubmitBtn();
     submitData();
   };
   // END EVENT HANDLING FUNCTIONS
@@ -31,13 +31,13 @@
   // BEGIN USER DATA FUNCTIONS
   // Get value from textbox and process
   function submitData() {
-    var cityState = cityStateTextbox.value;
+    var cityState = cityStateTbox.value;
     clearAlerts();
     clearResults();
 
-    if (!cityStateTextbox.value) {
+    if (!cityStateTbox.value) {
       createAlert('danger', 'Please enter a city and state.');
-      enableSubmitButton();
+      enablesubmitBtn();
       return;
     }
 
@@ -55,7 +55,7 @@
     httpRequest = new XMLHttpRequest();
     if (!httpRequest) {
       createAlert('info', 'Sorry, please try again.');
-      enableSubmitButton();
+      enablesubmitBtn();
       return false;
     }
 
@@ -63,14 +63,14 @@
       if (httpRequest.readyState === XMLHttpRequest.DONE) {
         if (httpRequest.status !== 200) {
           createAlert('info', 'Sorry, please try again.');
-          enableSubmitButton();
+          enablesubmitBtn();
           return;
         } else {
           var response = JSON.parse(httpRequest.responseText);
 
           if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
             createAlert('info', 'Sorry, that location could not be found.');
-            enableSubmitButton();
+            enablesubmitBtn();
             return;
           } else {
             var bounds = response.results[0].geometry.bounds;
@@ -107,12 +107,12 @@
   // END GOOGLE SERVICE FUNCTIONS
 
   // BEGIN DOM UPDATING FUNCTIONS
-  function disableSubmitButton() {
-    submitButton.disabled = true;
+  function disablesubmitBtn() {
+    submitBtn.disabled = true;
   }
 
-  function enableSubmitButton() {
-    submitButton.disabled = false;
+  function enablesubmitBtn() {
+    submitBtn.disabled = false;
   }
 
   function createAlert(alertType, alertMessage) {
@@ -135,8 +135,8 @@
   }
 
   function clearResults() {
-    moreResultsButton.classList.add('hidden');
-    moreResultsButton.setAttribute('disabled', 'disabled');
+    moreResultsBtn.classList.add('hidden');
+    moreResultsBtn.setAttribute('disabled', 'disabled');
     while (resultsDiv.firstChild) {
       resultsDiv.removeChild(resultsDiv.firstChild);
     }
@@ -146,13 +146,13 @@
   function addResultsToDom(results, status, pagination) {
     if (status === 'ZERO_RESULTS') {
       createAlert('info', 'Sorry, no results could be found for that city and state.');
-      enableSubmitButton();
+      enablesubmitBtn();
       return;
     }
 
     if (status !== google.maps.places.PlacesServiceStatus.OK) {
       createAlert('info', 'Sorry, please try again.');
-      enableSubmitButton();
+      enablesubmitBtn();
       return;
     }
 
@@ -177,14 +177,14 @@
 
     if (pagination.hasNextPage) {
       totalResults = 'more than 20';
-      moreResultsButton.classList.remove('hidden');
+      moreResultsBtn.classList.remove('hidden');
 
       // Google Places search requires 2 seconds between searches
       window.setTimeout(function() {
-        moreResultsButton.removeAttribute('disabled');
+        moreResultsBtn.removeAttribute('disabled');
       }, 2000);
 
-      moreResultsButton.onclick = function() {
+      moreResultsBtn.onclick = function() {
         clearResults();
         clearAlerts();
         pagination.nextPage();
@@ -204,7 +204,7 @@
     // Adds the new ul to div#results
     resultsDiv.appendChild(newUl);
 
-    enableSubmitButton();
+    enablesubmitBtn();
   }
   // END DOM UPDATING FUNCTIONS
 
