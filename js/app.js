@@ -24,6 +24,8 @@
         this.cityStateTbox.setAttribute('placeholder', 'New York, NY');
         this.searchBtn = document.getElementById('searchBtn');
         this.geoLocationBtn = document.getElementById('geoLocationBtn');
+        this.moreResultsBtn = document.getElementById('moreResultsBtn');
+        this.moreResultsBtn.classList.add('hidden');
       }
     },
     results: {
