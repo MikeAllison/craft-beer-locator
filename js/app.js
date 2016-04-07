@@ -12,12 +12,22 @@
       // Initialize Model
       model.init();
       // Initialize Views
+      views.form.init();
     }
   };
 
   views = {
-    init: function() {
-      // Collect DOM elements
+    form: {
+      init: function() {
+        this.cityStateTbox = document.getElementById('cityStateTbox');
+        this.cityStateTbox.setAttribute('autofocus', true);
+        this.cityStateTbox.setAttribute('placeholder', 'New York, NY');
+        this.searchBtn = document.getElementById('searchBtn');
+        this.geoLocationBtn = document.getElementById('geoLocationBtn');
+      }
+    },
+    results: {
+
     }
   };
 
