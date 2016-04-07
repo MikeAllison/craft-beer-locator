@@ -9,9 +9,7 @@
 
   controller = {
     init: function() {
-      // Initialize Model
       model.init();
-      // Initialize Views
       views.form.init();
     }
   };
