@@ -3,7 +3,7 @@
 
   model = {
     init: function() {
-      this.currentLoc = 'Orlando, FL';
+      this.currentLoc = { lat: null, lng: null };
     }
   };
 
@@ -11,19 +11,31 @@
     init: function() {
       model.init();
       views.form.init();
+    },
+    getCurrentLocation: function() {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        // Store this position
+        console.log(position);
+      });
     }
   };
 
   views = {
     form: {
       init: function() {
+        // Store DOM elements
         this.cityStateTbox = document.getElementById('cityStateTbox');
-        this.cityStateTbox.setAttribute('autofocus', true);
-        this.cityStateTbox.setAttribute('placeholder', 'New York, NY');
         this.searchBtn = document.getElementById('searchBtn');
         this.geoLocationBtn = document.getElementById('geoLocationBtn');
         this.moreResultsBtn = document.getElementById('moreResultsBtn');
+        // Set default values on DOM elements
+        this.cityStateTbox.setAttribute('autofocus', true);
+        this.cityStateTbox.setAttribute('placeholder', 'New York, NY');
         this.moreResultsBtn.classList.add('hidden');
+        // Add click handlers
+        this.geoLocationBtn.addEventListener('click', function(){
+          controller.getCurrentLocation();
+        });
       }
     },
     results: {
