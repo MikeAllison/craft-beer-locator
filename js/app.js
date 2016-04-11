@@ -15,7 +15,11 @@
       this.apiKey = 'AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo';
       model.init();
       views.form.init();
+      // TO-DO: DON'T SHOW CURRENT LOCATION BUTTON IF GEOLOCATION ISN't AVAILABLE
+      views.locationBtn.init();
       views.alerts.init();
+      views.results.init();
+      views.moreResultsBtn.init();
     },
     getCurrentLocation: function() {
       views.alerts.clear();
@@ -74,17 +78,22 @@
         // Collect DOM elements
         this.cityStateTbox = document.getElementById('cityStateTbox');
         this.searchBtn = document.getElementById('searchBtn');
-        this.geoLocationBtn = document.getElementById('geoLocationBtn');
-        this.moreResultsBtn = document.getElementById('moreResultsBtn');
         // Set default values on DOM elements
         this.cityStateTbox.setAttribute('autofocus', true);
         this.cityStateTbox.setAttribute('placeholder', 'New York, NY');
-        this.moreResultsBtn.classList.add('hidden');
         // Add click handlers
         this.searchBtn.addEventListener('click', function() {
           controller.getGeocode();
         });
-        this.geoLocationBtn.addEventListener('click', function(){
+
+      }
+    },
+    locationBtn: {
+      init: function() {
+        // Collect DOM elements
+        this.locationBtn = document.getElementById('locationBtn');
+        // Add click handlers
+        this.locationBtn.addEventListener('click', function(){
           controller.getCurrentLocation();
         });
       }
@@ -105,24 +114,46 @@
         }
         this.alertDiv.textContent = null;
       },
+      geolocationDisabled: function() {
+        // TO-DO: REFACTOR
+        this.alertDiv.textContent = 'Please allow this device to detect your location.';
+        this.alertDiv.classList.add('alert-info');
+        this.alertDiv.classList.remove('hidden');
+      },
       noLocation: function() {
+        // TO-DO: REFACTOR
         this.alertDiv.textContent = 'Please enter a location';
         this.alertDiv.classList.add('alert-danger');
         this.alertDiv.classList.remove('hidden');
       },
       tryAgain: function() {
+        // TO-DO: REFACTOR
         this.alertDiv.textContent = 'Sorry, please try again.';
         this.alertDiv.classList.add('alert-danger');
         this.alertDiv.classList.remove('hidden');
       },
       notFound: function() {
+        // TO-DO: REFACTOR
         this.alertDiv.textContent = 'Sorry, that location could not be found.';
         this.alertDiv.classList.add('alert-danger');
         this.alertDiv.classList.remove('hidden');
       }
     },
     results: {
-
+      init: function() {
+        // Collect DOM elements
+        this.resultsDiv = document.getElementById('resultsDiv');
+        // Set default values on DOM elements
+        this.resultsDiv.classList.add('hidden');
+      }
+    },
+    moreResultsBtn: {
+      init: function() {
+        // Collect DOM elements
+        this.moreResultsBtn = document.getElementById('moreResultsBtn');
+        // Set default values on DOM elements
+        this.moreResultsBtn.classList.add('hidden');
+      }
     }
   };
 
