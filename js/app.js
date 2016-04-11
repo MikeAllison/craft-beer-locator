@@ -12,19 +12,30 @@
     }
   };
 
-  model = {
-    init: function() {
-      this.location = {};
+  models = {
+    location: {
+      init: function() {
+        this.lat = null;
+        this.lng = null;
+      },
+      setLat: function(lat) {
+        this.lat = lat;
+      },
+      setLng: function(lng) {
+        this.lng = lng;
+      }
     },
-    setLatLng: function(lat, lng) {
-      this.location = { lat: lat, lng: lng };
+    brewery: {
+      init: function() {
+      }
     }
   };
 
   controller = {
     init: function() {
       app.init();
-      model.init();
+      models.location.init();
+      models.brewery.init();
       views.form.init();
       // TO-DO: DON'T SHOW CURRENT LOCATION BUTTON IF GEOLOCATION ISN't AVAILABLE
       views.locationBtn.init();
@@ -38,7 +49,8 @@
 
       // TO-DO:  HANDLE ERROR FOR GEOLOCATION TURNED OFF
       navigator.geolocation.getCurrentPosition(function(position) {
-        model.setLatLng(position.coords.latitude, position.coords.longitude);
+        models.location.setLat(position.coords.latitude);
+        models.location.setLng(position.coords.longitude);
       });
     },
     getGeocode: function() {
@@ -47,14 +59,16 @@
       var tboxVal = views.form.cityStateTbox.value;
 
       if (tboxVal) {
-        var params = 'key=' + app.google.apiKey + '&address=' + encodeURIComponent(tboxVal);
-
         // AJAX request for lat/lng for form submission
         var httpRequest = new XMLHttpRequest();
         if (!httpRequest) {
           views.alerts.tryAgain();
           return false;
         }
+
+        var params = 'key=' + app.google.apiKey + '&address=' + encodeURIComponent(tboxVal);
+        httpRequest.open('GET', app.google.geocodingAPI.reqURL + params, true);
+        httpRequest.send();
 
         httpRequest.onload = function() {
           if (httpRequest.readyState === XMLHttpRequest.DONE) {
@@ -68,14 +82,12 @@
                 views.alerts.notFound();
                 return;
               } else {
-                model.setLatLng(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng);
+                models.location.setLat(response.results[0].geometry.location.lat);
+                models.location.setLng(response.results[0].geometry.location.lng);
               }
             }
           }
         };
-
-        httpRequest.open('GET', app.google.geocodingAPI.reqURL + params, true);
-        httpRequest.send();
       } else {
         views.alerts.noLocation();
       }
@@ -95,7 +107,6 @@
         this.searchBtn.addEventListener('click', function() {
           controller.getGeocode();
         });
-
       }
     },
     locationBtn: {
