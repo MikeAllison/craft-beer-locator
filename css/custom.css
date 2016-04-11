@@ -1,11 +1,9 @@
 @media (max-width: 767px) {
-  #submitBtn {
-    margin-top: 10px;
+  #searchBtn {
     width: 100%;
   }
   #geoLocationBtn {
     width: 100%;
-    margin-top: -10px;
   }
 }
 
@@ -22,7 +20,7 @@
 }
 
 @media (min-width: 992px) {
-  #submitBtn {
+  #searchBtn {
     width: 100%;
   }
 }
@@ -33,10 +31,6 @@
 
 .city-state-heading {
   color: #7F8C8D;
-}
-
-.search {
-  margin-bottom: 20px;
 }
 
 ul {
