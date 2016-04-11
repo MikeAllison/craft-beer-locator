@@ -99,8 +99,11 @@
       clear: function() {
         this.alertDiv = document.getElementById('alertDiv');
         this.alertDiv.classList.add('hidden');
+        var alertTypes = ['alert-danger', 'alert-info', 'alert-success'];
+        for (var i = 0; i < alertTypes.length; i++) {
+          this.alertDiv.classList.remove(alertTypes[i]);
+        }
         this.alertDiv.textContent = null;
-        // TO-DO: CLEAR ALL ALERT CLASSES
       },
       noLocation: function() {
         this.alertDiv.textContent = 'Please enter a location';
