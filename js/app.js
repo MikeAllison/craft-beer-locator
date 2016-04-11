@@ -1,5 +1,16 @@
 (function(){
-  var model, controller, views;
+  var app, model, controller, views;
+
+  app = {
+    init: function() {
+      this.google = {
+        apiKey: 'AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo'
+      };
+      this.google.geocodingAPI = {
+        reqURL: 'https://maps.googleapis.com/maps/api/geocode/json?'
+      };
+    }
+  };
 
   model = {
     init: function() {
@@ -12,7 +23,7 @@
 
   controller = {
     init: function() {
-      this.apiKey = 'AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo';
+      app.init();
       model.init();
       views.form.init();
       // TO-DO: DON'T SHOW CURRENT LOCATION BUTTON IF GEOLOCATION ISN't AVAILABLE
@@ -36,8 +47,7 @@
       var tboxVal = views.form.cityStateTbox.value;
 
       if (tboxVal) {
-        var url = 'https://maps.googleapis.com/maps/api/geocode/json?';
-        var params = 'key=' + controller.apiKey + '&address=' + encodeURIComponent(tboxVal);
+        var params = 'key=' + app.google.apiKey + '&address=' + encodeURIComponent(tboxVal);
 
         // AJAX request for lat/lng for form submission
         var httpRequest = new XMLHttpRequest();
@@ -64,7 +74,7 @@
           }
         };
 
-        httpRequest.open('GET', url + params, true);
+        httpRequest.open('GET', app.google.geocodingAPI.reqURL + params, true);
         httpRequest.send();
       } else {
         views.alerts.noLocation();
