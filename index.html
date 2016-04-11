@@ -29,29 +29,35 @@
 
       <div class="row search">
         <div class="col-sm-5 col-sm-offset-3 search-col">
-          <input type="text" id="cityStateTbox" value="Orlando, FL" class="form-control">
+          <input type="text" id="cityStateTbox" class="form-control">
         </div>
         <div class="col-sm-1">
-          <button type="button" id="submitBtn" class="btn btn-inverse fui-search center-block"></button>
+          <button type="button" id="searchBtn" class="btn btn-inverse fui-search center-block"></button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12 text-center">
+          <button type="button" id="locationBtn" class="btn btn-info">Use My Location</button>
         </div>
       </div>
 
       <div class="row">
         <div class="col-sm-6 col-sm-offset-3 alert-col">
-          <div id="alertDiv" class="alert hidden text-center" role="alert"></div>
+          <div id="alertDiv" class="alert text-center" role="alert"></div>
         </div>
       </div>
 
       <div class="row">
         <div class="col-sm-8 col-sm-offset-2">
-          <div id="results" class="text-center">
+          <div id="resultsDiv" class="text-center">
           </div>
         </div>
       </div>
 
       <div class="row">
         <div class="col-xs-12 text-center">
-          <button type="button" id="moreResultsBtn" class="btn btn-inverse hidden" disabled>More Results</button>
+          <button type="button" id="moreResultsBtn" class="btn btn-inverse" disabled>More Results</button>
         </div>
       </div>
 

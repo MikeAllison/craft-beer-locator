@@ -1,211 +1,162 @@
-(function() {
+(function(){
+  var model, controller, views;
 
-  var httpRequest;
-  var alertDiv = document.getElementById('alertDiv');
-  var cityStateTbox = document.getElementById('cityStateTbox');
-  var submitBtn = document.getElementById('submitBtn');
-  var resultsDiv = document.getElementById('results');
-  var moreResultsBtn = document.getElementById('moreResultsBtn');
-  var showAlerts = true;
-
-  // BEGIN EVENT HANDLING FUNCTIONS
-  cityStateTbox.onclick = function() {
-    cityStateTbox.value = null;
-  };
-
-  // Handle pressing Enter key for submission
-  cityStateTbox.onkeyup = function(event) {
-    if (event.keyCode === 13) {
-      disableSubmitBtn();
-      submitData();
+  model = {
+    init: function() {
+      this.location = {};
+    },
+    setLatLng: function(lat, lng) {
+      this.location = { lat: lat, lng: lng };
     }
   };
 
-  // Handle clicking search button for submission
-  submitBtn.onclick = function() {
-    disableSubmitBtn();
-    submitData();
-  };
-  // END EVENT HANDLING FUNCTIONS
+  controller = {
+    init: function() {
+      this.apiKey = 'AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo';
+      model.init();
+      views.form.init();
+      // TO-DO: DON'T SHOW CURRENT LOCATION BUTTON IF GEOLOCATION ISN't AVAILABLE
+      views.locationBtn.init();
+      views.alerts.init();
+      views.results.init();
+      views.moreResultsBtn.init();
+    },
+    getCurrentLocation: function() {
+      views.alerts.clear();
+      // HTML5 geocoding request for lat/lng for 'My Location' button
 
-  // BEGIN USER DATA FUNCTIONS
-  // Get value from textbox and process
-  function submitData() {
-    var cityState = cityStateTbox.value;
-    clearAlerts();
-    clearResults();
+      // TO-DO:  HANDLE ERROR FOR GEOLOCATION TURNED OFF
+      navigator.geolocation.getCurrentPosition(function(position) {
+        model.setLatLng(position.coords.latitude, position.coords.longitude);
+      });
+    },
+    getGeocode: function() {
+      views.alerts.clear();
 
-    if (!cityStateTbox.value) {
-      createAlert('danger', 'Please enter a city and state.');
-      enableSubmitBtn();
-      return;
-    }
+      var tboxVal = views.form.cityStateTbox.value;
 
-    getLocation(cityState);
-  }
-  // END USER DATA FUNCTIONS
+      if (tboxVal) {
+        var url = 'https://maps.googleapis.com/maps/api/geocode/json?';
+        var params = 'key=' + controller.apiKey + '&address=' + encodeURIComponent(tboxVal);
 
-  // BEGIN GOOGLE SERVICE FUNCTIONS
-  // Send form data to Google Geocoding API
-  function getLocation(cityState) {
-    var apiKey = 'AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo';
-    var params = '?key=' + apiKey + '&address=' + encodeURIComponent(cityState);
-    var url = 'https://maps.googleapis.com/maps/api/geocode/json' + params;
-
-    httpRequest = new XMLHttpRequest();
-    if (!httpRequest) {
-      createAlert('info', 'Sorry, please try again.');
-      enableSubmitBtn();
-      return false;
-    }
-
-    httpRequest.onload = function() {
-      if (httpRequest.readyState === XMLHttpRequest.DONE) {
-        if (httpRequest.status !== 200) {
-          createAlert('info', 'Sorry, please try again.');
-          enableSubmitBtn();
-          return;
-        } else {
-          var response = JSON.parse(httpRequest.responseText);
-
-          if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
-            createAlert('info', 'Sorry, that location could not be found.');
-            enableSubmitBtn();
-            return;
-          } else {
-            var bounds = response.results[0].geometry.bounds;
-            listNearbyPlaces(bounds);
-          }
+        // AJAX request for lat/lng for form submission
+        var httpRequest = new XMLHttpRequest();
+        if (!httpRequest) {
+          views.alerts.tryAgain();
+          return false;
         }
+
+        httpRequest.onload = function() {
+          if (httpRequest.readyState === XMLHttpRequest.DONE) {
+            if (httpRequest.status !== 200) {
+              views.alerts.tryAgain();
+              return;
+            } else {
+              var response = JSON.parse(httpRequest.responseText);
+
+              if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
+                views.alerts.notFound();
+                return;
+              } else {
+                model.setLatLng(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng);
+              }
+            }
+          }
+        };
+
+        httpRequest.open('GET', url + params, true);
+        httpRequest.send();
+      } else {
+        views.alerts.noLocation();
       }
-    };
-
-    httpRequest.open('GET', url, true);
-    httpRequest.send();
-  }
-
-  // Send bounds from Google Geocoding API to their Google Maps Places API
-  function listNearbyPlaces(bounds) {
-
-    var latLngBounds = new google.maps.LatLngBounds(
-      new google.maps.LatLng(bounds.southwest.lat, bounds.southwest.lng),
-      new google.maps.LatLng(bounds.northeast.lat, bounds.northeast.lng)
-    );
-
-    var params = {
-      bounds: latLngBounds,
-      keyword: 'brewery'
-    };
-
-    var mapDiv = new google.maps.Map(document.getElementById('map'));
-    var service = new google.maps.places.PlacesService(mapDiv);
-
-    // Pass updateDom function to nearbySearch
-    // !! JS allows functions to be passed as an agrument !!
-    service.nearbySearch(params, addResultsToDom);
-  }
-  // END GOOGLE SERVICE FUNCTIONS
-
-  // BEGIN DOM UPDATING FUNCTIONS
-  function disableSubmitBtn() {
-    submitBtn.disabled = true;
-  }
-
-  function enableSubmitBtn() {
-    submitBtn.disabled = false;
-  }
-
-  function createAlert(alertType, alertMessage) {
-    var type = 'alert-' + alertType;
-    var message = document.createTextNode(alertMessage);
-    alertDiv.appendChild(message);
-    alertDiv.classList.add(type);
-    alertDiv.classList.remove('hidden');
-  }
-
-  function clearAlerts() {
-    showAlerts = true;
-    alertDiv.innerHTML = null;
-    alertDiv.classList.add('hidden');
-
-    var alertTypes = ['alert-danger', 'alert-info', 'alert-success'];
-    for (var i = 0; i < alertTypes.length; i++) {
-      alertDiv.classList.remove(alertTypes[i]);
     }
-  }
+  };
 
-  function clearResults() {
-    moreResultsBtn.classList.add('hidden');
-    moreResultsBtn.setAttribute('disabled', 'disabled');
-    while (resultsDiv.firstChild) {
-      resultsDiv.removeChild(resultsDiv.firstChild);
+  views = {
+    form: {
+      init: function() {
+        // Collect DOM elements
+        this.cityStateTbox = document.getElementById('cityStateTbox');
+        this.searchBtn = document.getElementById('searchBtn');
+        // Set default values on DOM elements
+        this.cityStateTbox.setAttribute('autofocus', true);
+        this.cityStateTbox.setAttribute('placeholder', 'New York, NY');
+        // Add click handlers
+        this.searchBtn.addEventListener('click', function() {
+          controller.getGeocode();
+        });
+
+      }
+    },
+    locationBtn: {
+      init: function() {
+        // Collect DOM elements
+        this.locationBtn = document.getElementById('locationBtn');
+        // Add click handlers
+        this.locationBtn.addEventListener('click', function(){
+          controller.getCurrentLocation();
+        });
+      }
+    },
+    alerts: {
+      init: function() {
+        // Collect DOM elements
+        this.alertDiv = document.getElementById('alertDiv');
+        // Set default values on DOM elements
+        this.alertDiv.classList.add('hidden');
+      },
+      clear: function() {
+        this.alertDiv = document.getElementById('alertDiv');
+        this.alertDiv.classList.add('hidden');
+        var alertTypes = ['alert-danger', 'alert-info', 'alert-success'];
+        for (var i = 0; i < alertTypes.length; i++) {
+          this.alertDiv.classList.remove(alertTypes[i]);
+        }
+        this.alertDiv.textContent = null;
+      },
+      geolocationDisabled: function() {
+        // TO-DO: REFACTOR
+        this.alertDiv.textContent = 'Please allow this device to detect your location.';
+        this.alertDiv.classList.add('alert-info');
+        this.alertDiv.classList.remove('hidden');
+      },
+      noLocation: function() {
+        // TO-DO: REFACTOR
+        this.alertDiv.textContent = 'Please enter a location';
+        this.alertDiv.classList.add('alert-danger');
+        this.alertDiv.classList.remove('hidden');
+      },
+      tryAgain: function() {
+        // TO-DO: REFACTOR
+        this.alertDiv.textContent = 'Sorry, please try again.';
+        this.alertDiv.classList.add('alert-danger');
+        this.alertDiv.classList.remove('hidden');
+      },
+      notFound: function() {
+        // TO-DO: REFACTOR
+        this.alertDiv.textContent = 'Sorry, that location could not be found.';
+        this.alertDiv.classList.add('alert-danger');
+        this.alertDiv.classList.remove('hidden');
+      }
+    },
+    results: {
+      init: function() {
+        // Collect DOM elements
+        this.resultsDiv = document.getElementById('resultsDiv');
+        // Set default values on DOM elements
+        this.resultsDiv.classList.add('hidden');
+      }
+    },
+    moreResultsBtn: {
+      init: function() {
+        // Collect DOM elements
+        this.moreResultsBtn = document.getElementById('moreResultsBtn');
+        // Set default values on DOM elements
+        this.moreResultsBtn.classList.add('hidden');
+      }
     }
-  }
+  };
 
-  // Updates the results on the DOM (results & status are passed from .nearbySearch)
-  function addResultsToDom(results, status, pagination) {
-    if (status === 'ZERO_RESULTS') {
-      createAlert('info', 'Sorry, no results could be found for that city and state.');
-      enableSubmitBtn();
-      return;
-    }
-
-    if (status !== google.maps.places.PlacesServiceStatus.OK) {
-      createAlert('info', 'Sorry, please try again.');
-      enableSubmitBtn();
-      return;
-    }
-
-    var newH5 = document.createElement('h5');
-    var headingText = document.createTextNode('Results');
-    newH5.appendChild(headingText);
-
-    var newUl = document.createElement('ul');
-    newUl.setAttribute('id', 'resultsList');
-    newUl.classList.add('list-unstyled');
-
-    for (var i = 0; i < results.length; i++) {
-      var newLi = document.createElement('li');
-      var result = document.createTextNode(results[i].name);
-      newLi.appendChild(result);
-      newUl.appendChild(newLi);
-    }
-
-    // Add a success alert and handle > 20 results
-    var totalResults = results.length;
-    var successMessage;
-
-    if (pagination.hasNextPage) {
-      totalResults = 'more than 20';
-      moreResultsBtn.classList.remove('hidden');
-
-      // Google Places search requires 2 seconds between searches
-      window.setTimeout(function() {
-        moreResultsBtn.removeAttribute('disabled');
-      }, 2000);
-
-      moreResultsBtn.onclick = function() {
-        clearResults();
-        clearAlerts();
-        pagination.nextPage();
-        window.scroll(0, 0);
-        showAlerts = false;
-      };
-    }
-
-    if (showAlerts) {
-      successMessage = 'Your search found ' + totalResults + ' result(s).';
-      createAlert('success', successMessage);
-    }
-
-    // Adds the new heading to div#results
-    resultsDiv.appendChild(newH5);
-
-    // Adds the new ul to div#results
-    resultsDiv.appendChild(newUl);
-
-    enableSubmitBtn();
-  }
-  // END DOM UPDATING FUNCTIONS
+  controller.init();
 
 })();
