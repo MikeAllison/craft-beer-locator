@@ -18,41 +18,53 @@
       views.alerts.init();
     },
     getCurrentLocation: function() {
+      views.alerts.clear();
+      // HTML5 geocoding request for lat/lng for 'My Location' button
+
+      // TO-DO:  HANDLE ERROR FOR GEOLOCATION TURNED OFF
       navigator.geolocation.getCurrentPosition(function(position) {
         model.setLatLng(position.coords.latitude, position.coords.longitude);
       });
     },
     getGeocode: function() {
+      views.alerts.clear();
+
       var tboxVal = views.form.cityStateTbox.value;
-      var url = 'https://maps.googleapis.com/maps/api/geocode/json?';
-      var params = 'key=' + controller.apiKey + '&address=' + encodeURIComponent(tboxVal);
 
-      var httpRequest = new XMLHttpRequest();
-      if (!httpRequest) {
-        views.alerts.tryAgain();
-        return false;
-      }
+      if (tboxVal) {
+        var url = 'https://maps.googleapis.com/maps/api/geocode/json?';
+        var params = 'key=' + controller.apiKey + '&address=' + encodeURIComponent(tboxVal);
 
-      httpRequest.onload = function() {
-        if (httpRequest.readyState === XMLHttpRequest.DONE) {
-          if (httpRequest.status !== 200) {
-            views.alerts.tryAgain();
-            return;
-          } else {
-            var response = JSON.parse(httpRequest.responseText);
+        // AJAX request for lat/lng for form submission
+        var httpRequest = new XMLHttpRequest();
+        if (!httpRequest) {
+          views.alerts.tryAgain();
+          return false;
+        }
 
-            if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
-              views.alerts.notFound();
+        httpRequest.onload = function() {
+          if (httpRequest.readyState === XMLHttpRequest.DONE) {
+            if (httpRequest.status !== 200) {
+              views.alerts.tryAgain();
               return;
             } else {
-              model.setLatLng(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng);
+              var response = JSON.parse(httpRequest.responseText);
+
+              if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
+                views.alerts.notFound();
+                return;
+              } else {
+                model.setLatLng(response.results[0].geometry.location.lat, response.results[0].geometry.location.lng);
+              }
             }
           }
-        }
-      };
+        };
 
-      httpRequest.open('GET', url + params, true);
-      httpRequest.send();
+        httpRequest.open('GET', url + params, true);
+        httpRequest.send();
+      } else {
+        views.alerts.noLocation();
+      }
     }
   };
 
@@ -83,6 +95,17 @@
         this.alertDiv = document.getElementById('alertDiv');
         // Set default values on DOM elements
         this.alertDiv.classList.add('hidden');
+      },
+      clear: function() {
+        this.alertDiv = document.getElementById('alertDiv');
+        this.alertDiv.classList.add('hidden');
+        this.alertDiv.textContent = null;
+        // TO-DO: CLEAR ALL ALERT CLASSES
+      },
+      noLocation: function() {
+        this.alertDiv.textContent = 'Please enter a location';
+        this.alertDiv.classList.add('alert-danger');
+        this.alertDiv.classList.remove('hidden');
       },
       tryAgain: function() {
         this.alertDiv.textContent = 'Sorry, please try again.';
