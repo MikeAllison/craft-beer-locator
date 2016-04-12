@@ -1,17 +1,17 @@
 (function() {
 
-  var httpRequest;
-  var alertDiv = document.getElementById('alertDiv');
-  var cityStateTbox = document.getElementById('cityStateTbox');
-  var submitBtn = document.getElementById('submitBtn');
-  var resultsDiv = document.getElementById('results');
-  var moreResultsBtn = document.getElementById('moreResultsBtn');
-  var showAlerts = true;
+  // var httpRequest;
+  // var alertDiv = document.getElementById('alertDiv');
+  // var cityStateTbox = document.getElementById('cityStateTbox');
+  // var submitBtn = document.getElementById('submitBtn');
+  // var resultsDiv = document.getElementById('results');
+  // var moreResultsBtn = document.getElementById('moreResultsBtn');
+  // var showAlerts = true;
 
   // BEGIN EVENT HANDLING FUNCTIONS
-  cityStateTbox.onclick = function() {
-    cityStateTbox.value = null;
-  };
+  // cityStateTbox.onclick = function() {
+  //   cityStateTbox.value = null;
+  // };
 
   // Handle pressing Enter key for submission
   cityStateTbox.onkeyup = function(event) {
@@ -47,42 +47,42 @@
 
   // BEGIN GOOGLE SERVICE FUNCTIONS
   // Send form data to Google Geocoding API
-  function getLocation(cityState) {
-    var apiKey = 'AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo';
-    var params = '?key=' + apiKey + '&address=' + encodeURIComponent(cityState);
-    var url = 'https://maps.googleapis.com/maps/api/geocode/json' + params;
-
-    httpRequest = new XMLHttpRequest();
-    if (!httpRequest) {
-      createAlert('info', 'Sorry, please try again.');
-      enableSubmitBtn();
-      return false;
-    }
-
-    httpRequest.onload = function() {
-      if (httpRequest.readyState === XMLHttpRequest.DONE) {
-        if (httpRequest.status !== 200) {
-          createAlert('info', 'Sorry, please try again.');
-          enableSubmitBtn();
-          return;
-        } else {
-          var response = JSON.parse(httpRequest.responseText);
-
-          if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
-            createAlert('info', 'Sorry, that location could not be found.');
-            enableSubmitBtn();
-            return;
-          } else {
-            var bounds = response.results[0].geometry.bounds;
-            listNearbyPlaces(bounds);
-          }
-        }
-      }
-    };
-
-    httpRequest.open('GET', url, true);
-    httpRequest.send();
-  }
+  // function getLocation(cityState) {
+  //   var apiKey = 'AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo';
+  //   var params = '?key=' + apiKey + '&address=' + encodeURIComponent(cityState);
+  //   var url = 'https://maps.googleapis.com/maps/api/geocode/json' + params;
+  //
+  //   httpRequest = new XMLHttpRequest();
+  //   if (!httpRequest) {
+  //     createAlert('info', 'Sorry, please try again.');
+  //     enableSubmitBtn();
+  //     return false;
+  //   }
+  //
+  //   httpRequest.onload = function() {
+  //     if (httpRequest.readyState === XMLHttpRequest.DONE) {
+  //       if (httpRequest.status !== 200) {
+  //         createAlert('info', 'Sorry, please try again.');
+  //         enableSubmitBtn();
+  //         return;
+  //       } else {
+  //         var response = JSON.parse(httpRequest.responseText);
+  //
+  //         if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
+  //           createAlert('info', 'Sorry, that location could not be found.');
+  //           enableSubmitBtn();
+  //           return;
+  //         } else {
+  //           var bounds = response.results[0].geometry.bounds;
+  //           listNearbyPlaces(bounds);
+  //         }
+  //       }
+  //     }
+  //   };
+  //
+  //   httpRequest.open('GET', url, true);
+  //   httpRequest.send();
+  // }
 
   // Send bounds from Google Geocoding API to their Google Maps Places API
   function listNearbyPlaces(bounds) {
@@ -115,24 +115,24 @@
     submitBtn.disabled = false;
   }
 
-  function createAlert(alertType, alertMessage) {
-    var type = 'alert-' + alertType;
-    var message = document.createTextNode(alertMessage);
-    alertDiv.appendChild(message);
-    alertDiv.classList.add(type);
-    alertDiv.classList.remove('hidden');
-  }
+  // function createAlert(alertType, alertMessage) {
+  //   var type = 'alert-' + alertType;
+  //   var message = document.createTextNode(alertMessage);
+  //   alertDiv.appendChild(message);
+  //   alertDiv.classList.add(type);
+  //   alertDiv.classList.remove('hidden');
+  // }
 
-  function clearAlerts() {
-    showAlerts = true;
-    alertDiv.innerHTML = null;
-    alertDiv.classList.add('hidden');
-
-    var alertTypes = ['alert-danger', 'alert-info', 'alert-success'];
-    for (var i = 0; i < alertTypes.length; i++) {
-      alertDiv.classList.remove(alertTypes[i]);
-    }
-  }
+  // function clearAlerts() {
+  //   showAlerts = true;
+  //   alertDiv.innerHTML = null;
+  //   alertDiv.classList.add('hidden');
+  //
+  //   var alertTypes = ['alert-danger', 'alert-info', 'alert-success'];
+  //   for (var i = 0; i < alertTypes.length; i++) {
+  //     alertDiv.classList.remove(alertTypes[i]);
+  //   }
+  // }
 
   function clearResults() {
     moreResultsBtn.classList.add('hidden');
