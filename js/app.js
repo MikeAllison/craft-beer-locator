@@ -45,7 +45,6 @@
     getCurrentLocation: function() {
       views.alerts.clear();
       // HTML5 geocoding request for lat/lng for 'My Location' button
-
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(function(position) {
           models.location.setLat(position.coords.latitude);
