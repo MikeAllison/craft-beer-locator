@@ -62,7 +62,7 @@
         // AJAX request for lat/lng for form submission
         var httpRequest = new XMLHttpRequest();
         if (!httpRequest) {
-          views.alerts.tryAgain();
+          views.alerts.danger('Sorry, please try again.');
           return false;
         }
 
@@ -73,13 +73,13 @@
         httpRequest.onload = function() {
           if (httpRequest.readyState === XMLHttpRequest.DONE) {
             if (httpRequest.status !== 200) {
-              views.alerts.tryAgain();
+              views.alerts.danger('Sorry, please try again.');
               return;
             } else {
               var response = JSON.parse(httpRequest.responseText);
 
               if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
-                views.alerts.notFound();
+                views.alerts.danger('Sorry, that location could not be found.');
                 return;
               } else {
                 models.location.setLat(response.results[0].geometry.location.lat);
@@ -89,7 +89,7 @@
           }
         };
       } else {
-        views.alerts.noLocation();
+        views.alerts.danger('Please enter a location');
       }
     }
   };
@@ -135,30 +135,16 @@
         }
         this.alertDiv.textContent = null;
       },
-      geolocationDisabled: function() {
-        // TO-DO: REFACTOR
-        this.alertDiv.textContent = 'Please allow this device to detect your location.';
+      danger: function(msg) {
+        this.alertDiv.textContent = msg;
+        this.alertDiv.classList.add('alert-danger');
+        this.alertDiv.classList.remove('hidden');
+      },
+      info: function(msg) {
+        this.alertDiv.textContent = msg;
         this.alertDiv.classList.add('alert-info');
         this.alertDiv.classList.remove('hidden');
       },
-      noLocation: function() {
-        // TO-DO: REFACTOR
-        this.alertDiv.textContent = 'Please enter a location';
-        this.alertDiv.classList.add('alert-danger');
-        this.alertDiv.classList.remove('hidden');
-      },
-      tryAgain: function() {
-        // TO-DO: REFACTOR
-        this.alertDiv.textContent = 'Sorry, please try again.';
-        this.alertDiv.classList.add('alert-danger');
-        this.alertDiv.classList.remove('hidden');
-      },
-      notFound: function() {
-        // TO-DO: REFACTOR
-        this.alertDiv.textContent = 'Sorry, that location could not be found.';
-        this.alertDiv.classList.add('alert-danger');
-        this.alertDiv.classList.remove('hidden');
-      }
     },
     results: {
       init: function() {
