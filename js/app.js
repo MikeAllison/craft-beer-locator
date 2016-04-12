@@ -37,7 +37,6 @@
       models.location.init();
       models.brewery.init();
       views.form.init();
-      // TO-DO: DON'T SHOW CURRENT LOCATION BUTTON IF GEOLOCATION ISN't AVAILABLE
       views.locationBtn.init();
       views.alerts.init();
       views.results.init();
@@ -47,11 +46,14 @@
       views.alerts.clear();
       // HTML5 geocoding request for lat/lng for 'My Location' button
 
-      // TO-DO:  HANDLE ERROR FOR GEOLOCATION TURNED OFF
-      navigator.geolocation.getCurrentPosition(function(position) {
-        models.location.setLat(position.coords.latitude);
-        models.location.setLng(position.coords.longitude);
-      });
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          models.location.setLat(position.coords.latitude);
+          models.location.setLng(position.coords.longitude);
+        });
+      } else {
+        views.alerts.error('Sorry, geolocation is supported in your browser.');
+      }
     },
     getGeocode: function() {
       views.alerts.clear();
@@ -62,7 +64,7 @@
         // AJAX request for lat/lng for form submission
         var httpRequest = new XMLHttpRequest();
         if (!httpRequest) {
-          views.alerts.danger('Sorry, please try again.');
+          views.alerts.error('Sorry, please try again.');
           return false;
         }
 
@@ -73,13 +75,13 @@
         httpRequest.onload = function() {
           if (httpRequest.readyState === XMLHttpRequest.DONE) {
             if (httpRequest.status !== 200) {
-              views.alerts.danger('Sorry, please try again.');
+              views.alerts.error('Sorry, please try again.');
               return;
             } else {
               var response = JSON.parse(httpRequest.responseText);
 
               if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
-                views.alerts.danger('Sorry, that location could not be found.');
+                views.alerts.error('Sorry, that location could not be found.');
                 return;
               } else {
                 models.location.setLat(response.results[0].geometry.location.lat);
@@ -89,7 +91,7 @@
           }
         };
       } else {
-        views.alerts.danger('Please enter a location');
+        views.alerts.error('Please enter a location');
       }
     }
   };
@@ -129,15 +131,15 @@
       clear: function() {
         this.alertDiv = document.getElementById('alertDiv');
         this.alertDiv.classList.add('hidden');
-        var alertTypes = ['alert-danger', 'alert-info', 'alert-success'];
+        var alertTypes = ['alert-error', 'alert-info', 'alert-success'];
         for (var i = 0; i < alertTypes.length; i++) {
           this.alertDiv.classList.remove(alertTypes[i]);
         }
         this.alertDiv.textContent = null;
       },
-      danger: function(msg) {
+      error: function(msg) {
         this.alertDiv.textContent = msg;
-        this.alertDiv.classList.add('alert-danger');
+        this.alertDiv.classList.add('alert-error');
         this.alertDiv.classList.remove('hidden');
       },
       info: function(msg) {
