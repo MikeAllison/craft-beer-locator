@@ -25,8 +25,17 @@
         this.lng = lng;
       }
     },
-    brewery: {
+    breweries: {
       init: function() {
+        sessionStorage.clear();
+      },
+      // Adds an array of breweries to sessionStorage
+      add: function(breweries) {
+        sessionStorage.setItem('breweries', JSON.stringify(breweries));
+      },
+      // Retrieves an array of breweries from sessionStorage
+      get: function() {
+        return JSON.parse(sessionStorage.getItem("breweries"));
       }
     }
   };
@@ -35,7 +44,7 @@
     init: function() {
       app.init();
       models.location.init();
-      models.brewery.init();
+      models.breweries.init();
       views.map.init();
       views.form.init();
       views.locationBtn.init();
@@ -110,10 +119,9 @@
       service.nearbySearch(request, callback);
 
       function callback(results, status) {
-        var sortedResults = [];
-
         if (status == google.maps.places.PlacesServiceStatus.OK) {
-          // TO-DO: Add search result to localStorage.recentSearches
+          var sortedResults = [];
+
           for (var resultId in results) {
             if (results[resultId].types.includes('bar')) {
               sortedResults.push(results[resultId]);
@@ -124,8 +132,9 @@
             }
           }
 
-          sessionStorage.setItem('breweries', JSON.stringify(sortedResults));
-          var retrieved = JSON.parse(sessionStorage.getItem("breweries"));
+          models.breweries.add(sortedResults);
+
+          // TO-DO: Add search result to localStorage.recentSearches
           // TO-DO: Call method to render view
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           views.alerts.info('Your request returned no results');
@@ -177,7 +186,7 @@
       clear: function() {
         this.alertDiv = document.getElementById('alertDiv');
         this.alertDiv.classList.add('hidden');
-        var alertTypes = ['alert-error', 'alert-info', 'alert-success'];
+        var alertTypes = ['alert-danger', 'alert-info', 'alert-success'];
         for (var i = 0; i < alertTypes.length; i++) {
           this.alertDiv.classList.remove(alertTypes[i]);
         }
@@ -185,7 +194,7 @@
       },
       error: function(msg) {
         this.alertDiv.textContent = msg;
-        this.alertDiv.classList.add('alert-error');
+        this.alertDiv.classList.add('alert-danger');
         this.alertDiv.classList.remove('hidden');
       },
       info: function(msg) {
