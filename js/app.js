@@ -145,7 +145,7 @@
               } else {
                 models.location.setLat(response.results[0].geometry.location.lat);
                 models.location.setLng(response.results[0].geometry.location.lng);
-                models.location.setFormattedAddress(response.results[0].formatted_address);
+                models.location.setFormattedAddress(response.results[0].formatted_address.replace(/, USA/i, null));
                 controller.requestPlaces();
               }
             }
