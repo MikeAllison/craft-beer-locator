@@ -85,6 +85,7 @@
       views.alerts.init();
       views.results.init();
       views.moreResultsBtn.init();
+      views.recentSearchesUl.init();
     },
     getCurrentLocation: function() {
       views.alerts.clear();
@@ -280,6 +281,24 @@
         this.moreResultsBtn = document.getElementById('moreResultsBtn');
         // Set default values on DOM elements
         this.moreResultsBtn.classList.add('hidden');
+      }
+    },
+    recentSearchesUl: {
+      init: function() {
+        this.recentSearchesUl = document.getElementById('recentSearchesUl');
+        this.render();
+      },
+      render: function() {
+        var recentSearches = models.recentSearches.get();
+
+        if (recentSearches) {
+          for (var i=0; i < recentSearches.length; i++) {
+            var li = document.createElement('li');
+            li.classList.add('list-group-item');
+            li.textContent = recentSearches[i];
+            this.recentSearchesUl.appendChild(li);
+          }
+        }
       }
     }
   };
