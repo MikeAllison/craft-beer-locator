@@ -36,6 +36,7 @@
       app.init();
       models.location.init();
       models.brewery.init();
+      views.map.init();
       views.form.init();
       views.locationBtn.init();
       views.alerts.init();
@@ -49,6 +50,7 @@
         navigator.geolocation.getCurrentPosition(function(position) {
           models.location.setLat(position.coords.latitude);
           models.location.setLng(position.coords.longitude);
+          controller.requestPlaces();
         });
       } else {
         views.alerts.error('Sorry, geolocation is supported in your browser.');
@@ -92,10 +94,42 @@
       } else {
         views.alerts.error('Please enter a location');
       }
+    },
+    requestPlaces: function() {
+      // Set params for search
+      var location = new google.maps.LatLng(models.location.lat, models.location.lng);
+      var request = {
+        location: location,
+        radius: '25000',
+        keyword: 'brewery'
+      };
+
+      // mapDiv isn't shown but is required for PlacesService constructor
+      var service = new google.maps.places.PlacesService(views.map.mapDiv);
+      service.nearbySearch(request, callback);
+
+      function callback(results, status) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+          // Add search result to localStorage.recentSearches
+          // Add breweries to sessionStorage
+          // Call method to render view
+          console.log(results);
+        } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+          views.alerts.info('Your request returned no results');
+        } else {
+          views.alerts.error('Sorry, please try again.');
+        }
+      }
     }
   };
 
   views = {
+    map: {
+      init: function() {
+        // Collect DOM elements
+        this.mapDiv = document.getElementById('mapDiv');
+      }
+    },
     form: {
       init: function() {
         // Collect DOM elements
