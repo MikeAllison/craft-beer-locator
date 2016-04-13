@@ -28,12 +28,16 @@
       init: function() {
         this.lat = null;
         this.lng = null;
+        this.formattedAddress = null;
       },
       setLat: function(lat) {
         this.lat = lat;
       },
       setLng: function(lng) {
         this.lng = lng;
+      },
+      setFormattedAddress: function(address) {
+        this.formattedAddress = address;
       }
     },
     searchItem: {
@@ -50,8 +54,18 @@
       }
     },
     recentSearches: {
-      add: function(location) {
-        localStorage.setItem('recentSearches', location);
+      add: function() {
+        var cachedSearches = this.get();
+
+        if (cachedSearches === null) {
+          cachedSearches = [];
+        } else if (cachedSearches.length >= 5) {
+          cachedSearches.pop();
+        }
+
+        cachedSearches.unshift(models.location.formattedAddress);
+
+        localStorage.setItem('recentSearches', JSON.stringify(cachedSearches));
       },
       get: function() {
         return JSON.parse(localStorage.getItem('recentSearches'));
@@ -79,6 +93,8 @@
         navigator.geolocation.getCurrentPosition(function(position) {
           models.location.setLat(position.coords.latitude);
           models.location.setLng(position.coords.longitude);
+          // TO-DO: Convert lat/lng to city, state and save to models.location.name
+          console.log(position);
           controller.requestPlaces();
         });
       } else {
@@ -116,6 +132,7 @@
               } else {
                 models.location.setLat(response.results[0].geometry.location.lat);
                 models.location.setLng(response.results[0].geometry.location.lng);
+                models.location.setFormattedAddress(response.results[0].formatted_address);
                 controller.requestPlaces();
               }
             }
@@ -136,9 +153,9 @@
 
       // mapDiv isn't shown on page but is required for PlacesService constructor
       var service = new google.maps.places.PlacesService(views.map.mapDiv);
-      service.nearbySearch(request, callback);
+      service.nearbySearch(request, processResults);
 
-      function callback(results, status) {
+      function processResults(results, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
           var sortedResults = [];
 
@@ -153,9 +170,12 @@
             }
           }
 
+          // Store search results in sessionStorage
           models.searchItem.add(sortedResults);
+          // Add search result to localStorage
+          models.recentSearches.add();
 
-          // TO-DO: Add search result to localStorage.recentSearches
+          // TO-DO: Update recent searches list
           // TO-DO: Call method to render view
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           views.alerts.info('Your request returned no results');
