@@ -51,31 +51,33 @@
 
       <div class="row">
         <div class="col-sm-6 col-sm-offset-3">
-          <div id="resultsDiv" class="text-center">
-            <h6>Results</h6>
-            <ul id="resultsUl" class="list-unstyled">
-            </ul>
-          </div>
-        </div>
-      </div>
 
-      <div class="row">
-        <div class="col-xs-12 text-center">
-          <button type="button" id="moreResultsBtn" class="btn btn-inverse" disabled>More Results</button>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-sm-6 col-sm-offset-3 text-center">
-          <h6>Recent Searches</h6>
-          <ul id="recentSearchesUl" class="list-unstyled">
+          <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active">
+              <a href="#results" id="resultsTab" aria-controls="results" role="tab" data-toggle="tab">Results</a>
+            </li>
+            <li role="presentation">
+              <a href="#recent" id="recentTab" aria-controls="recent" role="tab" data-toggle="tab">Recent Searches</a>
+            </li>
           </ul>
+
+          <div id="searchResults" class="tab-content">
+            <div role="tabpanel" class="tab-pane fade in active text-center" id="results">
+              <ul id="resultsUl" class="list-unstyled"></ul>
+              <button type="button" id="moreResultsBtn" class="btn btn-inverse" disabled>More Results</button>
+            </div>
+            <div role="tabpanel" class="tab-pane fade text-center" id="recent">
+              <ul id="recentSearchesUl" class="list-unstyled"></ul>
+            </div>
+          </div>
+
         </div>
       </div>
 
     </div>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo&libraries=places"></script>
     <script type="text/javascript" src="js/jquery-1.12.3.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
   </body>
 </html>

@@ -272,15 +272,10 @@
     results: {
       init: function() {
         // Collect DOM elements
-        this.resultsDiv = document.getElementById('resultsDiv');
         this.resultsUl = document.getElementById('resultsUl');
-        // Set default values on DOM elements
-        this.resultsDiv.classList.add('hidden');
-        this.resultsUl.classList.add('hidden');
       },
       render: function() {
         this.resultsUl.textContent = null;
-        this.resultsDiv.classList.remove('hidden');
         this.resultsUl.classList.remove('hidden');
 
         var searchItems = models.searchItems.get();
@@ -292,6 +287,8 @@
             this.resultsUl.appendChild(li);
           }
         }
+        // Reset to show results
+        $('#resultsTab').tab('show');
       }
     },
     moreResultsBtn: {
@@ -304,6 +301,7 @@
     },
     recentSearches: {
       init: function() {
+        // Collect DOM elements
         this.recentSearchesUl = document.getElementById('recentSearchesUl');
         this.render();
       },
@@ -323,5 +321,6 @@
   };
 
   controller.init();
+
 
 })();
