@@ -3,6 +3,13 @@
 
   app = {
     init: function() {
+      // Set the type and radius of thing to search for
+      this.settings = {
+        search: {
+          itemName: 'brewery',
+          radius: '25000'
+        }
+      };
       this.google = {
         apiKey: 'AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo'
       };
@@ -35,7 +42,15 @@
       },
       // Retrieves an array of breweries from sessionStorage
       get: function() {
-        return JSON.parse(sessionStorage.getItem("breweries"));
+        return JSON.parse(sessionStorage.getItem('breweries'));
+      }
+    },
+    recentSearches: {
+      add: function(location) {
+        localStorage.setItem('recentSearches', location);
+      },
+      get: function() {
+        return JSON.parse(localStorage.getItem('recentSearches'));
       }
     }
   };
@@ -45,6 +60,7 @@
       app.init();
       models.location.init();
       models.breweries.init();
+      views.page.init();
       views.map.init();
       views.form.init();
       views.locationBtn.init();
@@ -110,8 +126,8 @@
       var location = new google.maps.LatLng(models.location.lat, models.location.lng);
       var request = {
         location: location,
-        radius: '25000',
-        keyword: 'brewery'
+        radius: app.settings.search.radius,
+        keyword: app.settings.search.itemName
       };
 
       // mapDiv isn't shown on page but is required for PlacesService constructor
@@ -134,6 +150,8 @@
 
           models.breweries.add(sortedResults);
 
+          console.log(sortedResults);
+
           // TO-DO: Add search result to localStorage.recentSearches
           // TO-DO: Call method to render view
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
@@ -146,6 +164,15 @@
   };
 
   views = {
+    page: {
+      init: function() {
+        // Initialize page settings
+        var searchItemName = app.settings.search.itemName;
+        var pageTitle = searchItemName.charAt(0).toUpperCase() + searchItemName.slice(1) + ' Finder';
+        document.title = pageTitle;
+        document.getElementById('heading').textContent = pageTitle;
+      }
+    },
     map: {
       init: function() {
         // Collect DOM elements
