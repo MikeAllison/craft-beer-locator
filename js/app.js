@@ -87,6 +87,7 @@
               } else {
                 models.location.setLat(response.results[0].geometry.location.lat);
                 models.location.setLng(response.results[0].geometry.location.lng);
+                controller.requestPlaces();
               }
             }
           }
@@ -104,16 +105,28 @@
         keyword: 'brewery'
       };
 
-      // mapDiv isn't shown but is required for PlacesService constructor
+      // mapDiv isn't shown on page but is required for PlacesService constructor
       var service = new google.maps.places.PlacesService(views.map.mapDiv);
       service.nearbySearch(request, callback);
 
       function callback(results, status) {
+        var sortedResults = [];
+
         if (status == google.maps.places.PlacesServiceStatus.OK) {
-          // Add search result to localStorage.recentSearches
-          // Add breweries to sessionStorage
-          // Call method to render view
-          console.log(results);
+          // TO-DO: Add search result to localStorage.recentSearches
+          for (var resultId in results) {
+            if (results[resultId].types.includes('bar')) {
+              sortedResults.push(results[resultId]);
+            } else if (results[resultId].types.includes('restaurant')) {
+              sortedResults.push(results[resultId]);
+            } else if (results[resultId].types.includes('food') && !results[resultId].types.includes('store')) {
+              sortedResults.push(results[resultId]);
+            }
+          }
+
+          sessionStorage.setItem('breweries', JSON.stringify(sortedResults));
+          var retrieved = JSON.parse(sessionStorage.getItem("breweries"));
+          // TO-DO: Call method to render view
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           views.alerts.info('Your request returned no results');
         } else {
