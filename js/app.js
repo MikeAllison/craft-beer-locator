@@ -93,13 +93,26 @@
         navigator.geolocation.getCurrentPosition(function(position) {
           models.location.setLat(position.coords.latitude);
           models.location.setLng(position.coords.longitude);
-          // TO-DO: Convert lat/lng to city, state and save to models.location.name
-          console.log(position);
+          controller.reverseGeocode();
           controller.requestPlaces();
         });
       } else {
         views.alerts.error('Sorry, geolocation is supported in your browser.');
       }
+    },
+    reverseGeocode: function() {
+      var httpRequest = new XMLHttpRequest();
+      var params = 'key=' + app.google.apiKey + '&latlng=' + models.location.lat + ',' + models.location.lng;
+
+      httpRequest.open('GET', app.google.geocodingAPI.reqURL + params, true);
+      httpRequest.send();
+
+      httpRequest.onload = function() {
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          var response = JSON.parse(httpRequest.responseText);
+          models.location.setFormattedAddress(response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name);
+        }
+      };
     },
     getGeocode: function() {
       views.alerts.clear();
