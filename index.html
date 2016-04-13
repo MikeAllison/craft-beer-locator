@@ -10,8 +10,7 @@
   <body>
     <div class="container">
       <!-- This div is needed for Google Maps API -->
-      <div id="mapDiv" class="hidden">
-      </div>
+      <div id="map" class="hidden"></div>
 
       <div class="row">
         <div class="col-xs-12">
@@ -44,33 +43,31 @@
 
       <div class="row">
         <div class="col-sm-6 col-sm-offset-3 alert-col">
-          <div id="alertDiv" class="alert text-center" role="alert">
+          <div id="alert" class="alert text-center" role="alert">
           </div>
         </div>
       </div>
 
       <div class="row">
         <div class="col-sm-6 col-sm-offset-3">
-
           <ul class="nav nav-tabs" role="tablist">
             <li role="presentation" class="active">
               <a href="#results" id="resultsTab" aria-controls="results" role="tab" data-toggle="tab">Results</a>
             </li>
             <li role="presentation">
-              <a href="#recent" id="recentTab" aria-controls="recent" role="tab" data-toggle="tab">Recent Searches</a>
+              <a href="#recentSearches" id="recentTab" aria-controls="recent" role="tab" data-toggle="tab">Recent Searches</a>
             </li>
           </ul>
 
-          <div id="searchResults" class="tab-content">
-            <div role="tabpanel" class="tab-pane fade in active text-center" id="results">
-              <ul id="resultsUl" class="list-unstyled"></ul>
+          <div class="tab-content">
+            <div id="results" role="tabpanel" class="tab-pane fade in active text-center">
+              <ul id="resultsList" class="list-unstyled"></ul>
               <button type="button" id="moreResultsBtn" class="btn btn-inverse" disabled>More Results</button>
             </div>
-            <div role="tabpanel" class="tab-pane fade text-center" id="recent">
-              <ul id="recentSearchesUl" class="list-unstyled"></ul>
+            <div id="recentSearches" role="tabpanel" class="tab-pane fade text-center" >
+              <ul id="recentSearchesList" class="list-unstyled"></ul>
             </div>
           </div>
-
         </div>
       </div>
 

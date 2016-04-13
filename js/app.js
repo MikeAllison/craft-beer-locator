@@ -166,8 +166,8 @@
         keyword: app.settings.search.itemName
       };
 
-      // mapDiv isn't shown on page but is required for PlacesService constructor
-      var service = new google.maps.places.PlacesService(views.map.mapDiv);
+      // map isn't shown on page but is required for PlacesService constructor
+      var service = new google.maps.places.PlacesService(views.map.map);
       service.nearbySearch(request, processResults);
 
       function processResults(results, status) {
@@ -215,7 +215,7 @@
     map: {
       init: function() {
         // Collect DOM elements
-        this.mapDiv = document.getElementById('mapDiv');
+        this.map = document.getElementById('map');
       }
     },
     form: {
@@ -245,38 +245,38 @@
     alerts: {
       init: function() {
         // Collect DOM elements
-        this.alertDiv = document.getElementById('alertDiv');
+        this.alert = document.getElementById('alert');
         // Set default values on DOM elements
-        this.alertDiv.classList.add('hidden');
+        this.alert.classList.add('hidden');
       },
       clear: function() {
-        this.alertDiv = document.getElementById('alertDiv');
-        this.alertDiv.classList.add('hidden');
+        this.alert = document.getElementById('alert');
+        this.alert.classList.add('hidden');
         var alertTypes = ['alert-danger', 'alert-info', 'alert-success'];
         for (var i = 0; i < alertTypes.length; i++) {
-          this.alertDiv.classList.remove(alertTypes[i]);
+          this.alert.classList.remove(alertTypes[i]);
         }
-        this.alertDiv.textContent = null;
+        this.alert.textContent = null;
       },
       error: function(msg) {
-        this.alertDiv.textContent = msg;
-        this.alertDiv.classList.add('alert-danger');
-        this.alertDiv.classList.remove('hidden');
+        this.alert.textContent = msg;
+        this.alert.classList.add('alert-danger');
+        this.alert.classList.remove('hidden');
       },
       info: function(msg) {
-        this.alertDiv.textContent = msg;
-        this.alertDiv.classList.add('alert-info');
-        this.alertDiv.classList.remove('hidden');
+        this.alert.textContent = msg;
+        this.alert.classList.add('alert-info');
+        this.alert.classList.remove('hidden');
       },
     },
     results: {
       init: function() {
         // Collect DOM elements
-        this.resultsUl = document.getElementById('resultsUl');
+        this.resultsList = document.getElementById('resultsList');
       },
       render: function() {
-        this.resultsUl.textContent = null;
-        this.resultsUl.classList.remove('hidden');
+        this.resultsList.textContent = null;
+        this.resultsList.classList.remove('hidden');
 
         var searchItems = models.searchItems.get();
 
@@ -284,7 +284,7 @@
           for (var i=0; i < searchItems.length; i++) {
             var li = document.createElement('li');
             li.textContent = searchItems[i].name;
-            this.resultsUl.appendChild(li);
+            this.resultsList.appendChild(li);
           }
         }
         // Reset to show results
@@ -302,18 +302,18 @@
     recentSearches: {
       init: function() {
         // Collect DOM elements
-        this.recentSearchesUl = document.getElementById('recentSearchesUl');
+        this.recentSearchesList = document.getElementById('recentSearchesList');
         this.render();
       },
       render: function() {
-        this.recentSearchesUl.textContent = null;
+        this.recentSearchesList.textContent = null;
         var recentSearches = models.recentSearches.get();
 
         if (recentSearches) {
           for (var i=0; i < recentSearches.length; i++) {
             var li = document.createElement('li');
             li.textContent = recentSearches[i];
-            this.recentSearchesUl.appendChild(li);
+            this.recentSearchesList.appendChild(li);
           }
         }
       }
