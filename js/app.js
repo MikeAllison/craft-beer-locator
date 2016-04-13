@@ -154,8 +154,6 @@
 
           models.searchItem.add(sortedResults);
 
-          console.log(sortedResults);
-
           // TO-DO: Add search result to localStorage.recentSearches
           // TO-DO: Call method to render view
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
