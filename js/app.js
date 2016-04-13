@@ -7,7 +7,10 @@
       this.settings = {
         search: {
           itemName: 'brewery',
-          radius: '25000'
+          radius: '25000',
+          // This must be matched in controller.requestPlaces()
+          topCategories: ['bar', 'restaurant', 'food'],
+          excludedCategories: ['store']
         }
       };
       this.google = {
@@ -32,17 +35,17 @@
         this.lng = lng;
       }
     },
-    breweries: {
+    searchItem: {
       init: function() {
         sessionStorage.clear();
       },
-      // Adds an array of breweries to sessionStorage
-      add: function(breweries) {
-        sessionStorage.setItem('breweries', JSON.stringify(breweries));
+      // Adds an array of results of search to sessionStorage
+      add: function(items) {
+        sessionStorage.setItem('searchResults', JSON.stringify(items));
       },
-      // Retrieves an array of breweries from sessionStorage
+      // Retrieves an array of results of search from sessionStorage
       get: function() {
-        return JSON.parse(sessionStorage.getItem('breweries'));
+        return JSON.parse(sessionStorage.getItem('searchResults'));
       }
     },
     recentSearches: {
@@ -59,7 +62,7 @@
     init: function() {
       app.init();
       models.location.init();
-      models.breweries.init();
+      models.searchItem.init();
       views.page.init();
       views.map.init();
       views.form.init();
@@ -138,17 +141,18 @@
         if (status == google.maps.places.PlacesServiceStatus.OK) {
           var sortedResults = [];
 
+          // This could be refactored so that it doesn't need to be changed if number of categories changes
           for (var resultId in results) {
-            if (results[resultId].types.includes('bar')) {
+            if (results[resultId].types.includes(app.settings.search.topCategories[0])) {
               sortedResults.push(results[resultId]);
-            } else if (results[resultId].types.includes('restaurant')) {
+            } else if (results[resultId].types.includes(app.settings.search.topCategories[1])) {
               sortedResults.push(results[resultId]);
-            } else if (results[resultId].types.includes('food') && !results[resultId].types.includes('store')) {
+            } else if (results[resultId].types.includes(app.settings.search.topCategories[2]) && !results[resultId].types.includes(app.settings.search.excludedCategories[0])) {
               sortedResults.push(results[resultId]);
             }
           }
 
-          models.breweries.add(sortedResults);
+          models.searchItem.add(sortedResults);
 
           console.log(sortedResults);
 
