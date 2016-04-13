@@ -40,7 +40,7 @@
         this.formattedAddress = address;
       }
     },
-    searchItem: {
+    searchItems: {
       init: function() {
         sessionStorage.clear();
       },
@@ -75,9 +75,10 @@
 
   controller = {
     init: function() {
+      // TO-DO: May need to refactor some of this to remove things that aren't needed
       app.init();
       models.location.init();
-      models.searchItem.init();
+      models.searchItems.init();
       views.page.init();
       views.map.init();
       views.form.init();
@@ -185,12 +186,13 @@
           }
 
           // Store search results in sessionStorage
-          models.searchItem.add(sortedResults);
+          models.searchItems.add(sortedResults);
           // Add search result to localStorage
           models.recentSearches.add();
           // Update recent searches list
           views.recentSearches.render();
-          // TO-DO: Call method to render view
+          // Call method to render view
+          views.results.render();
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           views.alerts.info('Your request returned no results');
         } else {
@@ -204,8 +206,8 @@
     page: {
       init: function() {
         // Initialize page settings
-        var searchItemName = app.settings.search.itemName;
-        var pageTitle = searchItemName.charAt(0).toUpperCase() + searchItemName.slice(1) + ' Finder';
+        var searchItemsName = app.settings.search.itemName;
+        var pageTitle = searchItemsName.charAt(0).toUpperCase() + searchItemsName.slice(1) + ' Finder';
         document.title = pageTitle;
         document.getElementById('heading').textContent = pageTitle;
       }
@@ -271,8 +273,25 @@
       init: function() {
         // Collect DOM elements
         this.resultsDiv = document.getElementById('resultsDiv');
+        this.resultsUl = document.getElementById('resultsUl');
         // Set default values on DOM elements
         this.resultsDiv.classList.add('hidden');
+        this.resultsUl.classList.add('hidden');
+      },
+      render: function() {
+        this.resultsUl.textContent = null;
+        this.resultsDiv.classList.remove('hidden');
+        this.resultsUl.classList.remove('hidden');
+
+        var searchItems = models.searchItems.get();
+
+        if (searchItems) {
+          for (var i=0; i < searchItems.length; i++) {
+            var li = document.createElement('li');
+            li.textContent = searchItems[i].name;
+            this.resultsUl.appendChild(li);
+          }
+        }
       }
     },
     moreResultsBtn: {
@@ -295,7 +314,6 @@
         if (recentSearches) {
           for (var i=0; i < recentSearches.length; i++) {
             var li = document.createElement('li');
-            li.classList.add('list-group-item');
             li.textContent = recentSearches[i];
             this.recentSearchesUl.appendChild(li);
           }
