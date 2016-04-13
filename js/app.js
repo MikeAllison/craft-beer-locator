@@ -13,6 +13,7 @@
           excludedCategories: ['store']
         }
       };
+      // Set your API key for Google Maps services
       this.google = {
         apiKey: 'AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo'
       };
