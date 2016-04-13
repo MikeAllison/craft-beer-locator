@@ -57,7 +57,7 @@
       add: function() {
         var cachedSearches = this.get();
 
-        if (cachedSearches === null) {
+        if (!cachedSearches) {
           cachedSearches = [];
         } else if (cachedSearches.length >= 5) {
           cachedSearches.pop();
@@ -85,7 +85,7 @@
       views.alerts.init();
       views.results.init();
       views.moreResultsBtn.init();
-      views.recentSearchesUl.init();
+      views.recentSearches.init();
     },
     getCurrentLocation: function() {
       views.alerts.clear();
@@ -146,7 +146,7 @@
               } else {
                 models.location.setLat(response.results[0].geometry.location.lat);
                 models.location.setLng(response.results[0].geometry.location.lng);
-                models.location.setFormattedAddress(response.results[0].formatted_address.replace(/, USA/i, null));
+                models.location.setFormattedAddress(response.results[0].formatted_address.replace(/, USA/i, ''));
                 controller.requestPlaces();
               }
             }
@@ -188,8 +188,8 @@
           models.searchItem.add(sortedResults);
           // Add search result to localStorage
           models.recentSearches.add();
-
-          // TO-DO: Update recent searches list
+          // Update recent searches list
+          views.recentSearches.render();
           // TO-DO: Call method to render view
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           views.alerts.info('Your request returned no results');
@@ -283,12 +283,13 @@
         this.moreResultsBtn.classList.add('hidden');
       }
     },
-    recentSearchesUl: {
+    recentSearches: {
       init: function() {
         this.recentSearchesUl = document.getElementById('recentSearchesUl');
         this.render();
       },
       render: function() {
+        this.recentSearchesUl.textContent = null;
         var recentSearches = models.recentSearches.get();
 
         if (recentSearches) {
