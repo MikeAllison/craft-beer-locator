@@ -312,7 +312,16 @@
         if (recentSearches) {
           for (var i=0; i < recentSearches.length; i++) {
             var li = document.createElement('li');
+            li.classList.add('list-group-item');
             li.textContent = recentSearches[i];
+
+            li.addEventListener('click', (function(loc) {
+              return function() {
+                views.form.cityStateTbox.value = loc;
+                controller.getGeocode();
+              };
+            })(recentSearches[i]));
+
             this.recentSearchesList.appendChild(li);
           }
         }
