@@ -29,6 +29,7 @@
         this.lat = null;
         this.lng = null;
         this.formattedAddress = null;
+        this.totalItems = null;
       },
       setLat: function(lat) {
         this.lat = lat;
@@ -38,6 +39,9 @@
       },
       setFormattedAddress: function(address) {
         this.formattedAddress = address;
+      },
+      setTotalItems: function(totalItems) {
+        this.totalItems = totalItems;
       }
     },
     searchItems: {
@@ -63,7 +67,10 @@
           cachedSearches.pop();
         }
 
-        cachedSearches.unshift(models.location.formattedAddress);
+        var newSearch = {};
+        newSearch.formattedAddress = models.location.formattedAddress;
+        newSearch.totalItems = models.location.totalItems;
+        cachedSearches.unshift(newSearch);
 
         localStorage.setItem('recentSearches', JSON.stringify(cachedSearches));
       },
@@ -188,6 +195,7 @@
           // Store search results in sessionStorage
           models.searchItems.add(sortedResults);
           // Add search result to localStorage
+          models.location.setTotalItems(sortedResults.length);
           models.recentSearches.add();
           // Update recent searches list
           views.recentSearches.render();
@@ -322,11 +330,17 @@
           for (var i=0; i < recentSearches.length; i++) {
             var li = document.createElement('li');
             li.classList.add('list-group-item');
-            li.textContent = recentSearches[i];
+            li.textContent = recentSearches[i].formattedAddress;
+
+            var span = document.createElement('span');
+            span.classList.add('badge');
+            span.textContent = recentSearches[i].totalItems;
+
+            li.appendChild(span);
 
             li.addEventListener('click', (function(loc) {
               return function() {
-                views.form.cityStateTbox.value = loc;
+                views.form.cityStateTbox.value = loc.formattedAddress;
                 controller.getGeocode();
               };
             })(recentSearches[i]));
