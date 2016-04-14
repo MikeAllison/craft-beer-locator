@@ -38,10 +38,36 @@
         this.lng = lng;
       },
       setFormattedAddress: function(address) {
-        this.formattedAddress = address;
+        this.formattedAddress = address.replace(/, USA/i, '');
       },
       setTotalItems: function(totalItems) {
         this.totalItems = totalItems;
+      }
+    },
+    item: {
+      init: function() {
+        this.name = null;
+      },
+      setName: function(name) {
+        this.name = name;
+      },
+      setOpenNow: function(openNow) {
+        this.openNow = openNow ? 'Yes' : 'No';
+      },
+      setWebsite: function(website) {
+        this.website = website;
+      },
+      setAddress: function(address) {
+        this.address = address.replace(/, United States/i, '');
+      },
+      setGoogleMapsUrl: function(googleMapsUrl) {
+        this.googleMapsUrl = googleMapsUrl
+      },
+      setPhoneNum: function(phoneNum) {
+        this.phoneNum = phoneNum;
+      },
+      setHoursOpen: function(hoursOpen) {
+        this.hoursOpen = hoursOpen;
       }
     },
     searchItems: {
@@ -93,9 +119,19 @@
       views.form.init();
       views.locationBtn.init();
       views.alerts.init();
+      views.itemModal.init();
       views.results.init();
       views.moreResultsBtn.init();
       views.recentSearches.init();
+    },
+    setItem: function(item) {
+      models.item.setName(item.name);
+      models.item.setOpenNow(item.opening_hours.open_now);
+      models.item.setWebsite(item.website);
+      models.item.setAddress(item.formatted_address);
+      models.item.setGoogleMapsUrl(item.url);
+      models.item.setPhoneNum(item.formatted_phone_number);
+      models.item.setHoursOpen(item.opening_hours.weekday_text);
     },
     setLocation: function(location) {
       models.location.setLat(location.lat);
@@ -167,7 +203,7 @@
               } else {
                 models.location.setLat(response.results[0].geometry.location.lat);
                 models.location.setLng(response.results[0].geometry.location.lng);
-                models.location.setFormattedAddress(response.results[0].formatted_address.replace(/, USA/i, ''));
+                models.location.setFormattedAddress(response.results[0].formatted_address);
                 controller.requestPlaces();
               }
             }
@@ -216,6 +252,22 @@
           views.results.render();
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           views.alerts.info('Your request returned no results');
+        } else {
+          views.alerts.error('Sorry, please try again.');
+        }
+      }
+    },
+    reqestPlaceDetails: function(location) {
+      var request = { placeId: location.place_id };
+
+      service = new google.maps.places.PlacesService(views.map.map);
+      service.getDetails(request, processResults);
+
+      function processResults(results, status) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+          controller.setItem(results);
+          views.itemModal.populate();
+          views.itemModal.show();
         } else {
           views.alerts.error('Sorry, please try again.');
         }
@@ -298,6 +350,36 @@
         this.alert.classList.remove('hidden');
       },
     },
+    itemModal: {
+      init: function() {
+        this.itemModal = document.getElementById('itemModal');
+        this.itemModalTitle = document.getElementById('itemModalTitle');
+        this.itemModalOpenNow = document.getElementById('itemModalOpenNow');
+        this.itemModalWebsite = document.getElementById('itemModalWebsite');
+        this.itemModalAddress = document.getElementById('itemModalAddress');
+        this.itemModalPhoneNum = document.getElementById('itemModalPhoneNum');
+        this.itemModalHoursOpen = document.getElementById('itemModalHoursOpen');
+      },
+      populate: function() {
+        this.itemModalTitle.textContent = models.item.name;
+        this.itemModalOpenNow.textContent = models.item.openNow;
+        this.itemModalWebsite.setAttribute('href', models.item.website);
+        this.itemModalWebsite.textContent = models.item.website;
+        this.itemModalAddress.setAttribute('href', models.item.googleMapsUrl);
+        this.itemModalAddress.textContent = models.item.address;
+        this.itemModalPhoneNum.textContent = models.item.phoneNum;
+
+        this.itemModalHoursOpen.textContent = null;
+        for (var i=0; i < models.item.hoursOpen.length; i++) {
+          var li = document.createElement('li');
+          li.textContent = models.item.hoursOpen[i];
+          this.itemModalHoursOpen.appendChild(li);
+        }
+      },
+      show: function() {
+        $('#itemModal').modal('show');
+      }
+    },
     results: {
       init: function() {
         // Collect DOM elements
@@ -315,11 +397,12 @@
             li.classList.add('list-group-item');
             li.textContent = searchItems[i].name;
 
-            li.addEventListener('click', (function(loc) {
+            li.addEventListener('click', (function(location) {
               return function() {
                 // TO-DO: Get brewery info
+                controller.reqestPlaceDetails(location);
               };
-            })(searchItems[i].name));
+            })(searchItems[i]));
 
             this.resultsList.appendChild(li);
           }

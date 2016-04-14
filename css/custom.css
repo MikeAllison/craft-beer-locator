@@ -30,12 +30,24 @@
   margin-bottom: 20px;
 }
 
+.my-location-section, .alert-section, .results-section {
+  margin-top: 10px;
+}
+
 .city-state-heading {
   color: #7F8C8D;
 }
 
-.my-location-section, .alert-section, .results-section {
-  margin-top: 10px;
+.modal-body {
+  overflow-x: scroll;
+}
+
+.modal-field {
+  margin-right: 10px;
+}
+
+.modal-hours-open {
+  margin-left: 10px;
 }
 
 #resultsList, #recentSearchesList {

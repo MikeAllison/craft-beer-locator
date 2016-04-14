@@ -73,6 +73,28 @@
         </div>
       </div>
 
+      <div id="itemModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 id="itemModalTitle"></h4>
+            </div>
+            <div class="modal-body">
+              <p><strong class="modal-field">Open Now:</strong><span id="itemModalOpenNow"></span></p>
+              <p><strong class="modal-field">Website:</strong><a href="" id="itemModalWebsite" target="_blank"></a></p>
+              <p><strong class="modal-field">Address:</strong><a href="" id="itemModalAddress" target="_blank"></a></p>
+              <p><strong class="modal-field">Phone Number:</strong><span id="itemModalPhoneNum"></span></p>
+              <p><strong>Hours:</strong></p>
+              <ul id="itemModalHoursOpen" class="list-unstyled modal-hours-open"></ul>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+
     </div>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo&libraries=places"></script>
     <script type="text/javascript" src="js/jquery-1.12.3.min.js"></script>
