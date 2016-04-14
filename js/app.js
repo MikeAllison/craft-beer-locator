@@ -98,13 +98,17 @@
     getCurrentLocation: function() {
       views.alerts.clear();
       // HTML5 geocoding request for lat/lng for 'My Location' button
-      if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(function(position) {
+      var success = function(position) {
           models.location.setLat(position.coords.latitude);
           models.location.setLng(position.coords.longitude);
           controller.reverseGeocode();
           controller.requestPlaces();
-        });
+      };
+      var error = function() {};
+      var options = { enableHighAccuracy: true };
+
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(success, error, options);
       } else {
         views.alerts.error('Sorry, geolocation is supported in your browser.');
       }
