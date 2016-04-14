@@ -352,6 +352,7 @@
 
             li.addEventListener('click', (function(loc) {
               return function() {
+                // TO-DO: This causes a bug in the search in some cases
                 views.form.cityStateTbox.value = loc.formattedAddress;
                 controller.getGeocode();
               };
