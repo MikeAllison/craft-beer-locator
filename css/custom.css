@@ -1,6 +1,7 @@
 @media (max-width: 767px) {
   #searchBtn {
     width: 100%;
+    margin-top: 10px;
   }
   #locationBtn {
     width: 100%;
@@ -33,6 +34,18 @@
   color: #7F8C8D;
 }
 
-#recentSearchesList {
+.my-location-section {
   margin-top: 10px;
+}
+
+.alert-section {
+  margin-top: 10px;
+}
+
+.results-section {
+  margin-top: 10px;
+}
+
+#recentSearchesList {
+  margin-top: 20px;
 }
