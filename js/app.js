@@ -324,6 +324,11 @@
 
             this.recentSearchesList.appendChild(li);
           }
+        } else {
+          var li = document.createElement('li');
+          li.classList.add('list-group-item');
+          li.textContent = 'You have no recent searches';
+          this.recentSearchesList.appendChild(li);
         }
       }
     }
