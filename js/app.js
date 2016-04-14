@@ -68,6 +68,8 @@
         }
 
         var newSearch = {};
+        newSearch.lat = models.location.lat;
+        newSearch.lng = models.location.lng;
         newSearch.formattedAddress = models.location.formattedAddress;
         newSearch.totalItems = models.location.totalItems;
         cachedSearches.unshift(newSearch);
@@ -95,6 +97,12 @@
       views.moreResultsBtn.init();
       views.recentSearches.init();
     },
+    setLocation: function(location) {
+      models.location.setLat(location.lat);
+      models.location.setLng(location.lng);
+      models.location.setFormattedAddress(location.formattedAddress);
+      models.location.setTotalItems(location.totalItems);
+    },
     getCurrentLocation: function() {
       views.alerts.clear();
       // HTML5 geocoding request for lat/lng for 'My Location' button
@@ -104,6 +112,7 @@
           controller.reverseGeocode();
           controller.requestPlaces();
       };
+      // TO-DO: Handle error
       var error = function() {};
       var options = { enableHighAccuracy: true };
 
@@ -309,7 +318,6 @@
             li.addEventListener('click', (function(loc) {
               return function() {
                 // TO-DO: Get brewery info
-                console.log(loc);
               };
             })(searchItems[i].name));
 
@@ -350,11 +358,10 @@
 
             li.appendChild(span);
 
-            li.addEventListener('click', (function(loc) {
+            li.addEventListener('click', (function(location) {
               return function() {
-                // TO-DO: This causes a bug in the search in some cases
-                views.form.cityStateTbox.value = loc.formattedAddress;
-                controller.getGeocode();
+                controller.setLocation(location);
+                controller.requestPlaces();
               };
             })(recentSearches[i]));
 
