@@ -87,22 +87,22 @@
   // Send bounds from Google Geocoding API to their Google Maps Places API
   function listNearbyPlaces(bounds) {
 
-    var latLngBounds = new google.maps.LatLngBounds(
-      new google.maps.LatLng(bounds.southwest.lat, bounds.southwest.lng),
-      new google.maps.LatLng(bounds.northeast.lat, bounds.northeast.lng)
-    );
-
-    var params = {
-      bounds: latLngBounds,
-      keyword: 'brewery'
-    };
-
-    var mapDiv = new google.maps.Map(document.getElementById('map'));
-    var service = new google.maps.places.PlacesService(mapDiv);
-
-    // Pass updateDom function to nearbySearch
-    // !! JS allows functions to be passed as an agrument !!
-    service.nearbySearch(params, addResultsToDom);
+    // var latLngBounds = new google.maps.LatLngBounds(
+    //   new google.maps.LatLng(bounds.southwest.lat, bounds.southwest.lng),
+    //   new google.maps.LatLng(bounds.northeast.lat, bounds.northeast.lng)
+    // );
+    //
+    // var params = {
+    //   bounds: latLngBounds,
+    //   keyword: 'brewery'
+    // };
+    //
+    // var mapDiv = new google.maps.Map(document.getElementById('map'));
+    // var service = new google.maps.places.PlacesService(mapDiv);
+    //
+    // // Pass updateDom function to nearbySearch
+    // // !! JS allows functions to be passed as an agrument !!
+    // service.nearbySearch(params, addResultsToDom);
   }
   // END GOOGLE SERVICE FUNCTIONS
 

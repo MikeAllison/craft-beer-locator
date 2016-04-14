@@ -235,7 +235,14 @@
         this.cityStateTbox.setAttribute('autofocus', true);
         this.cityStateTbox.setAttribute('placeholder', 'New York, NY');
         // Add click handlers
+        this.cityStateTbox.addEventListener('keyup', function(e) {
+          if (e.keyCode === 13) {
+            // TO-DO: Disable buttons until results (or alerts) are returned
+            controller.getGeocode();
+          }
+        });
         this.searchBtn.addEventListener('click', function() {
+          // TO-DO: Disable buttons until results (or alerts) are returned
           controller.getGeocode();
         });
       }
@@ -246,6 +253,7 @@
         this.locationBtn = document.getElementById('locationBtn');
         // Add click handlers
         this.locationBtn.addEventListener('click', function(){
+          // TO-DO: Disable buttons until results (or alerts) are returned
           controller.getCurrentLocation();
         });
       }
