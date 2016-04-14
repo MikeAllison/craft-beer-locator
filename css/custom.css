@@ -34,18 +34,10 @@
   color: #7F8C8D;
 }
 
-.my-location-section {
+.my-location-section, .alert-section, .results-section {
   margin-top: 10px;
 }
 
-.alert-section {
-  margin-top: 10px;
-}
-
-.results-section {
-  margin-top: 10px;
-}
-
-#recentSearchesList {
+#resultsList, #recentSearchesList {
   margin-top: 20px;
 }

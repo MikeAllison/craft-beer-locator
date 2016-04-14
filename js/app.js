@@ -283,7 +283,16 @@
         if (searchItems) {
           for (var i=0; i < searchItems.length; i++) {
             var li = document.createElement('li');
+            li.classList.add('list-group-item');
             li.textContent = searchItems[i].name;
+
+            li.addEventListener('click', (function(loc) {
+              return function() {
+                // TO-DO: Get brewery info
+                console.log(loc);
+              };
+            })(searchItems[i].name));
+
             this.resultsList.appendChild(li);
           }
         }
