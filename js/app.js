@@ -51,7 +51,7 @@
         this.totalItems = totalItems;
       }
     },
-    currentItem: {
+    selectedItem: {
       init: function() {
         this.name = null;
         this.openNow = null;
@@ -141,16 +141,16 @@
     },
     // Sets the current item for viewing details about it
     setCurrentItem: function(item) {
-      models.currentItem.init();
-      models.currentItem.setName(item.name);
-      models.currentItem.setWebsite(item.website);
-      models.currentItem.setAddress(item.formatted_address);
-      models.currentItem.setGoogleMapsUrl(item.url);
-      models.currentItem.setPhoneNum(item.formatted_phone_number);
+      models.selectedItem.init();
+      models.selectedItem.setName(item.name);
+      models.selectedItem.setWebsite(item.website);
+      models.selectedItem.setAddress(item.formatted_address);
+      models.selectedItem.setGoogleMapsUrl(item.url);
+      models.selectedItem.setPhoneNum(item.formatted_phone_number);
       // This is needed to guard against items without opening_hours
       if (item.opening_hours) {
-        models.currentItem.setOpenNow(item.opening_hours.open_now);
-        models.currentItem.setHoursOpen(item.opening_hours.weekday_text);
+        models.selectedItem.setOpenNow(item.opening_hours.open_now);
+        models.selectedItem.setHoursOpen(item.opening_hours.weekday_text);
       }
     },
     // Sets the location to be used by Google Places Search
@@ -394,19 +394,19 @@
         this.itemModalHoursOpen = document.getElementById('itemModalHoursOpen');
       },
       populate: function() {
-        this.itemModalTitle.textContent = models.currentItem.name;
-        this.itemModalOpenNow.textContent = models.currentItem.openNow;
-        this.itemModalWebsite.setAttribute('href', models.currentItem.website);
-        this.itemModalWebsite.textContent = models.currentItem.website;
-        this.itemModalAddress.setAttribute('href', models.currentItem.googleMapsUrl);
-        this.itemModalAddress.textContent = models.currentItem.address;
-        this.itemModalPhoneNum.textContent = models.currentItem.phoneNum;
+        this.itemModalTitle.textContent = models.selectedItem.name;
+        this.itemModalOpenNow.textContent = models.selectedItem.openNow;
+        this.itemModalWebsite.setAttribute('href', models.selectedItem.website);
+        this.itemModalWebsite.textContent = models.selectedItem.website;
+        this.itemModalAddress.setAttribute('href', models.selectedItem.googleMapsUrl);
+        this.itemModalAddress.textContent = models.selectedItem.address;
+        this.itemModalPhoneNum.textContent = models.selectedItem.phoneNum;
 
         this.itemModalHoursOpen.textContent = null;
-        if (models.currentItem.hoursOpen) {
-          for (var i=0; i < models.currentItem.hoursOpen.length; i++) {
+        if (models.selectedItem.hoursOpen) {
+          for (var i=0; i < models.selectedItem.hoursOpen.length; i++) {
             var li = document.createElement('li');
-            li.textContent = models.currentItem.hoursOpen[i];
+            li.textContent = models.selectedItem.hoursOpen[i];
             this.itemModalHoursOpen.appendChild(li);
           }
         }
