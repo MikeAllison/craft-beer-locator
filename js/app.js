@@ -1,12 +1,17 @@
 (function(){
   var app, model, controller, views;
 
+/* ===== APP CONFIG SETTINGS ===== */
+
   app = {
     init: function() {
       // Set the type and radius of thing to search for
       this.settings = {
         search: {
           itemName: 'brewery',
+          // This is either: google.maps.places.RankBy.PROMINENCE or google.maps.places.RankBy.DISTANCE
+          // If using google.maps.places.RankBy.PROMINENCE, a radius must be set
+          rankBy: google.maps.places.RankBy.DISTANCE,
           radius: '25000',
           // This must be matched in controller.requestPlaces()
           topCategories: ['bar', 'restaurant', 'food'],
@@ -22,6 +27,8 @@
       };
     }
   };
+
+/* ===== MODELS ===== */
 
   models = {
     location: {
@@ -47,6 +54,12 @@
     item: {
       init: function() {
         this.name = null;
+        this.openNow = null;
+        this.website = null;
+        this.address = null;
+        this.googleMapsUrl = null;
+        this.phoneNum = null;
+        this.hoursOpen = null;
       },
       setName: function(name) {
         this.name = name;
@@ -55,19 +68,19 @@
         this.openNow = openNow ? 'Yes' : 'No';
       },
       setWebsite: function(website) {
-        this.website = website;
+        this.website = website ? website : '';
       },
       setAddress: function(address) {
         this.address = address.replace(/, United States/i, '');
       },
       setGoogleMapsUrl: function(googleMapsUrl) {
-        this.googleMapsUrl = googleMapsUrl
+        this.googleMapsUrl = googleMapsUrl ? googleMapsUrl : '';
       },
       setPhoneNum: function(phoneNum) {
-        this.phoneNum = phoneNum;
+        this.phoneNum = phoneNum ? phoneNum : '';
       },
       setHoursOpen: function(hoursOpen) {
-        this.hoursOpen = hoursOpen;
+        this.hoursOpen = hoursOpen ? hoursOpen : '';
       }
     },
     searchItems: {
@@ -108,6 +121,8 @@
     }
   };
 
+  /* ===== CONTROLLER ===== */
+
   controller = {
     init: function() {
       // TO-DO: May need to refactor some of this to remove things that aren't needed
@@ -124,24 +139,30 @@
       views.moreResultsBtn.init();
       views.recentSearches.init();
     },
+    // Sets the current item for viewing details about it
     setItem: function(item) {
+      models.item.init();
       models.item.setName(item.name);
-      models.item.setOpenNow(item.opening_hours.open_now);
       models.item.setWebsite(item.website);
       models.item.setAddress(item.formatted_address);
       models.item.setGoogleMapsUrl(item.url);
       models.item.setPhoneNum(item.formatted_phone_number);
-      models.item.setHoursOpen(item.opening_hours.weekday_text);
+      // This is needed to guard against items without opening_hours
+      if (item.opening_hours) {
+        models.item.setOpenNow(item.opening_hours.open_now);
+        models.item.setHoursOpen(item.opening_hours.weekday_text);
+      }
     },
+    // Sets the location to be used by Google Places Search
     setLocation: function(location) {
       models.location.setLat(location.lat);
       models.location.setLng(location.lng);
       models.location.setFormattedAddress(location.formattedAddress);
       models.location.setTotalItems(location.totalItems);
     },
+    // HTML5 geocoding request for lat/lng for 'My Location' button
     getCurrentLocation: function() {
       views.alerts.clear();
-      // HTML5 geocoding request for lat/lng for 'My Location' button
       var success = function(position) {
           models.location.setLat(position.coords.latitude);
           models.location.setLng(position.coords.longitude);
@@ -155,9 +176,10 @@
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(success, error, options);
       } else {
-        views.alerts.error('Sorry, geolocation is supported in your browser.');
+        views.alerts.error('Sorry, geolocation is not supported in your browser.');
       }
     },
+    // Converts lat/lng to a city, state
     reverseGeocode: function() {
       var httpRequest = new XMLHttpRequest();
       var params = 'key=' + app.google.apiKey + '&latlng=' + models.location.lat + ',' + models.location.lng;
@@ -168,10 +190,13 @@
       httpRequest.onload = function() {
         if (httpRequest.readyState === XMLHttpRequest.DONE) {
           var response = JSON.parse(httpRequest.responseText);
+          // Sets .formattedAddress as city, state (i.e. New York, NY)
           models.location.setFormattedAddress(response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name);
         }
       };
     },
+    // Takes a city, state and converts it to lat/lng using Google Geocoding API
+    // This could be performed using a Google Maps object but I wanted to practice using AJAX requests
     getGeocode: function() {
       views.alerts.clear();
 
@@ -210,19 +235,25 @@
           }
         };
       } else {
-        views.alerts.error('Please enter a location');
+        views.alerts.error('Please enter a location.');
       }
     },
+    // Sends a lat/lng to Google Places Library and stores results
     requestPlaces: function() {
       // Set params for search
       var location = new google.maps.LatLng(models.location.lat, models.location.lng);
       var request = {
         location: location,
-        radius: app.settings.search.radius,
+        rankBy: app.settings.search.rankBy,
         keyword: app.settings.search.itemName
       };
 
-      // map isn't shown on page but is required for PlacesService constructor
+      // Radius is required on request if ranked by PROMINENCE
+      if (request.rankBy === google.maps.places.RankBy.PROMINENCE) {
+        request.radius = app.settings.search.radius;
+      }
+
+      // Google map isn't shown on page but is required for PlacesService constructor
       var service = new google.maps.places.PlacesService(views.map.map);
       service.nearbySearch(request, processResults);
 
@@ -230,6 +261,7 @@
         if (status == google.maps.places.PlacesServiceStatus.OK) {
           var sortedResults = [];
 
+          // Sorts results based on relevance
           // This could be refactored so that it doesn't need to be changed if number of categories changes
           for (var resultId in results) {
             if (results[resultId].types.includes(app.settings.search.topCategories[0])) {
@@ -241,22 +273,21 @@
             }
           }
 
-          // Store search results in sessionStorage
+          // Adds search results to sessionStorage
           models.searchItems.add(sortedResults);
-          // Add search result to localStorage
           models.location.setTotalItems(sortedResults.length);
+          // Adds last search to localStorage
           models.recentSearches.add();
-          // Update recent searches list
           views.recentSearches.render();
-          // Call method to render view
           views.results.render();
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-          views.alerts.info('Your request returned no results');
+          views.alerts.info('Your request returned no results.');
         } else {
           views.alerts.error('Sorry, please try again.');
         }
       }
     },
+    // This requests details of the selectedItem
     reqestPlaceDetails: function(location) {
       var request = { placeId: location.place_id };
 
@@ -274,6 +305,8 @@
       }
     }
   };
+
+/* ===== VIEWS ===== */
 
   views = {
     page: {
@@ -317,7 +350,7 @@
         // Collect DOM elements
         this.locationBtn = document.getElementById('locationBtn');
         // Add click handlers
-        this.locationBtn.addEventListener('click', function(){
+        this.locationBtn.addEventListener('click', function() {
           // TO-DO: Disable buttons until results (or alerts) are returned
           controller.getCurrentLocation();
         });
@@ -370,10 +403,12 @@
         this.itemModalPhoneNum.textContent = models.item.phoneNum;
 
         this.itemModalHoursOpen.textContent = null;
-        for (var i=0; i < models.item.hoursOpen.length; i++) {
-          var li = document.createElement('li');
-          li.textContent = models.item.hoursOpen[i];
-          this.itemModalHoursOpen.appendChild(li);
+        if (models.item.hoursOpen) {
+          for (var i=0; i < models.item.hoursOpen.length; i++) {
+            var li = document.createElement('li');
+            li.textContent = models.item.hoursOpen[i];
+            this.itemModalHoursOpen.appendChild(li);
+          }
         }
       },
       show: function() {
@@ -399,7 +434,6 @@
 
             li.addEventListener('click', (function(location) {
               return function() {
-                // TO-DO: Get brewery info
                 controller.reqestPlaceDetails(location);
               };
             })(searchItems[i]));
@@ -407,7 +441,7 @@
             this.resultsList.appendChild(li);
           }
         }
-        // Reset to show results
+        // Select results tab and panel to show new results
         $('#resultsTab').tab('show');
       }
     },
@@ -453,7 +487,7 @@
         } else {
           var li = document.createElement('li');
           li.classList.add('list-group-item');
-          li.textContent = 'You have no recent searches';
+          li.textContent = 'You have no recent searches.';
           this.recentSearchesList.appendChild(li);
         }
       }
@@ -461,6 +495,5 @@
   };
 
   controller.init();
-
 
 })();
