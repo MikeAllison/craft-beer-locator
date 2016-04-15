@@ -281,6 +281,8 @@
           models.location.setTotalItems(sortedResults.length);
           // Adds last search to localStorage
           models.recentSearches.add();
+          // TO-DO: Change message if > 20 matches
+          views.alerts.success(sortedResults.length + ' matches! Click on an item for more details.');
           views.recentSearches.render();
           views.results.render();
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {

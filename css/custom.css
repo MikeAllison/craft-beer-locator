@@ -26,6 +26,10 @@
   }
 }
 
+#resultsList, #recentSearchesList {
+  margin-top: 20px;
+}
+
 .container {
   margin-bottom: 20px;
 }
@@ -36,6 +40,11 @@
 
 .city-state-heading {
   color: #7F8C8D;
+}
+
+.btn-location {
+  background-color: #95A5A6;
+  color: #fff;
 }
 
 .modal-body {
@@ -54,12 +63,31 @@
   margin-right: 10px;
 }
 
+/* Current day in modal */
+
 .current-day span {
   color: #fff;
   background-color: #1ABC9C;
   padding: 5px;
 }
 
-#resultsList, #recentSearchesList {
-  margin-top: 20px;
+/* Bootstrap Overrides */
+
+.badge {
+  background-color: #415b76;
+}
+
+.alert-success {
+  background-color: #16A085;
+  color: #fff;
+}
+
+.alert-danger {
+  background-color: #C0392B;
+  color: #fff;
+}
+
+.alert-info {
+  background-color: #2980B9;
+  color: #fff;
 }
