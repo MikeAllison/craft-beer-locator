@@ -385,6 +385,11 @@
         this.alert.classList.add('alert-info');
         this.alert.classList.remove('hidden');
       },
+      success: function(msg) {
+        this.alert.textContent = msg;
+        this.alert.classList.add('alert-success');
+        this.alert.classList.remove('hidden');
+      }
     },
     itemModal: {
       init: function() {
@@ -413,10 +418,13 @@
         if (models.selectedItem.hoursOpen) {
           for (var i=0; i < models.selectedItem.hoursOpen.length; i++) {
             var li = document.createElement('li');
-            li.textContent = models.selectedItem.hoursOpen[i];
+            // Split hoursOpen on ':'
+            var dayTime = models.selectedItem.hoursOpen[i].split(/:\s/);
+            // <span> is needed to highlight hours for current day
+            li.innerHTML = '<span><strong>' + dayTime[0] + ':</strong>' + dayTime[1] + '</span>';
             // Highlight current day of week
             if (i === currentDay) {
-              li.classList.add('list-group-item-success');
+              li.classList.add('current-day');
             }
             this.itemModalHoursOpen.appendChild(li);
           }

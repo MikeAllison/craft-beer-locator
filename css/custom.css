@@ -50,6 +50,16 @@
   font-size: 0.9em;
 }
 
+.modal-hours-open li strong {
+  margin-right: 10px;
+}
+
+.current-day span {
+  color: #fff;
+  background-color: #1ABC9C;
+  padding: 5px;
+}
+
 #resultsList, #recentSearchesList {
   margin-top: 20px;
 }
