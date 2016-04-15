@@ -283,6 +283,7 @@
           models.recentSearches.add();
           // TO-DO: Change message if > 20 matches
           views.alerts.success(sortedResults.length + ' matches! Click on an item for more details.');
+          views.form.setTboxPlaceholder();
           views.recentSearches.render();
           views.results.render();
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
@@ -338,6 +339,9 @@
         this.cityStateTbox.setAttribute('autofocus', true);
         this.cityStateTbox.setAttribute('placeholder', 'New York, NY');
         // Add click handlers
+        this.cityStateTbox.addEventListener('click', function() {
+          this.value = null;
+        });
         this.cityStateTbox.addEventListener('keyup', function(e) {
           if (e.keyCode === 13) {
             // TO-DO: Disable buttons until results (or alerts) are returned
@@ -348,6 +352,10 @@
           // TO-DO: Disable buttons until results (or alerts) are returned
           controller.getGeocode();
         });
+      },
+      setTboxPlaceholder: function() {
+        this.cityStateTbox.value = null;
+        this.cityStateTbox.setAttribute('placeholder', models.location.formattedAddress);
       }
     },
     locationBtn: {
