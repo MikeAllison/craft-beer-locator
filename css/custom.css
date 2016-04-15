@@ -47,7 +47,7 @@
 }
 
 .modal-hours-open {
-  margin-left: 10px;
+  font-size: 0.9em;
 }
 
 #resultsList, #recentSearchesList {

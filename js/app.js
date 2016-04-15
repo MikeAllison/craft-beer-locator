@@ -397,6 +397,9 @@
         this.itemModalHoursOpen = document.getElementById('itemModalHoursOpen');
       },
       populate: function() {
+        var currentDay = new Date().getDay();
+        // Adjust to start week on Monday for hoursOpen
+        currentDay -= 1;
         this.itemModalTitle.textContent = models.selectedItem.name;
         this.itemModalOpenNow.textContent = models.selectedItem.openNow;
         this.itemModalWebsite.setAttribute('href', models.selectedItem.website);
@@ -411,6 +414,10 @@
           for (var i=0; i < models.selectedItem.hoursOpen.length; i++) {
             var li = document.createElement('li');
             li.textContent = models.selectedItem.hoursOpen[i];
+            // Highlight current day of week
+            if (i === currentDay) {
+              li.classList.add('list-group-item-success');
+            }
             this.itemModalHoursOpen.appendChild(li);
           }
         }
