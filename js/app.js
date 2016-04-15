@@ -400,6 +400,7 @@
         this.itemModalWebsite.textContent = models.selectedItem.website;
         this.itemModalAddress.setAttribute('href', models.selectedItem.googleMapsUrl);
         this.itemModalAddress.textContent = models.selectedItem.address;
+        this.itemModalPhoneNum.setAttribute('href', 'tel:' + models.selectedItem.phoneNum);
         this.itemModalPhoneNum.textContent = models.selectedItem.phoneNum;
 
         this.itemModalHoursOpen.textContent = null;
