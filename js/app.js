@@ -163,6 +163,8 @@
     // HTML5 geocoding request for lat/lng for 'My Location' button
     getCurrentLocation: function() {
       views.alerts.clear();
+      views.results.clear();
+
       var success = function(position) {
           models.location.setLat(position.coords.latitude);
           models.location.setLng(position.coords.longitude);
@@ -199,6 +201,7 @@
     // This could be performed using a Google Maps object but I wanted to practice using AJAX requests
     getGeocode: function() {
       views.alerts.clear();
+      views.results.clear();
 
       var tboxVal = views.form.cityStateTbox.value;
 
@@ -420,6 +423,9 @@
       init: function() {
         // Collect DOM elements
         this.resultsList = document.getElementById('resultsList');
+      },
+      clear: function() {
+        this.resultsList.textContent = null;
       },
       render: function() {
         this.resultsList.textContent = null;
