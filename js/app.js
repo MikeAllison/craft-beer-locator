@@ -5,10 +5,10 @@
 
   app = {
     init: function() {
-      // Set the type and radius of thing to search for like 'brewery' or 'craft beer'
+      // Set the type and radius of thing to search for (i.e. 'brewery' or 'craft beer')
       this.settings = {
         search: {
-          itemName: 'brewery',
+          itemType: 'brewery',
           // This is either: google.maps.places.RankBy.PROMINENCE or google.maps.places.RankBy.DISTANCE
           // If using google.maps.places.RankBy.PROMINENCE, a radius must be set
           rankBy: google.maps.places.RankBy.DISTANCE,
@@ -248,7 +248,7 @@
       var request = {
         location: location,
         rankBy: app.settings.search.rankBy,
-        keyword: app.settings.search.itemName
+        keyword: app.settings.search.itemType
       };
 
       // Radius is required on request if ranked by PROMINENCE
@@ -318,12 +318,12 @@
     page: {
       init: function() {
         // Initialize page settings
-        var itemName = app.settings.search.itemName.split(/\s+/);
-        var itemNameCaps = '';
-        for (i=0; i < itemName.length; i++) {
-          itemNameCaps += ' ' + itemName[i].charAt(0).toUpperCase() + itemName[i].slice(1);
+        var searchItemTypeCaps = '';
+        var searchItemType = app.settings.search.itemType.split(/\s+/);
+        for (var i=0; i < searchItemType.length; i++) {
+          searchItemTypeCaps += ' ' + searchItemType[i].charAt(0).toUpperCase() + searchItemType[i].slice(1);
         }
-        var pageTitle = itemNameCaps + ' Finder';
+        var pageTitle = searchItemTypeCaps + ' Finder';
         document.title = pageTitle;
         document.getElementById('heading').textContent = pageTitle;
       }
