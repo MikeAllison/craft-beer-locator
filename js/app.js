@@ -5,7 +5,7 @@
 
   app = {
     init: function() {
-      // Set the type and radius of thing to search for
+      // Set the type and radius of thing to search for like 'brewery' or 'craft beer'
       this.settings = {
         search: {
           itemName: 'brewery',
@@ -318,8 +318,12 @@
     page: {
       init: function() {
         // Initialize page settings
-        var searchItemsName = app.settings.search.itemName;
-        var pageTitle = searchItemsName.charAt(0).toUpperCase() + searchItemsName.slice(1) + ' Finder';
+        var itemName = app.settings.search.itemName.split(/\s+/);
+        var itemNameCaps = '';
+        for (i=0; i < itemName.length; i++) {
+          itemNameCaps += ' ' + itemName[i].charAt(0).toUpperCase() + itemName[i].slice(1);
+        }
+        var pageTitle = itemNameCaps + ' Finder';
         document.title = pageTitle;
         document.getElementById('heading').textContent = pageTitle;
       }
