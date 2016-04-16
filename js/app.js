@@ -243,6 +243,7 @@
     },
     // Sends a lat/lng to Google Places Library and stores results
     requestPlaces: function() {
+      views.alerts.clear();
       // Set params for search
       var location = new google.maps.LatLng(models.location.lat, models.location.lng);
       var request = {
