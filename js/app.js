@@ -15,7 +15,7 @@
           radius: '25000',
           // This must be matched in controller.requestPlaces()
           topCategories: ['bar', 'restaurant', 'food'],
-          excludedCategories: ['store']
+          excludedCategories: ['store', 'blah']
         }
       };
       // Set your API key for Google Maps services
@@ -263,17 +263,29 @@
 
       function processResults(results, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
+          var topCategories = app.settings.search.topCategories;
+          var excludedCategories = app.settings.search.excludedCategories;
           var sortedResults = [];
 
-          // Sorts results based on relevance
-          // This could be refactored so that it doesn't need to be changed if number of categories changes
+          // Sorts results based on relevent/exlcuded categories in app.settings.search
           for (var resultId in results) {
-            if (results[resultId].types.includes(app.settings.search.topCategories[0])) {
+            var hasTopCategory = false;
+            var hasExcludedCategory = false;
+
+            for (var i=0; i < topCategories.length; i++) {
+              if (results[resultId].types.includes(topCategories[i])) {
+                hasTopCategory = true;
+                for (j=0; j < excludedCategories.length; j++) {
+                  if(results[resultId].types.includes(excludedCategories[j])) {
+                    hasExcludedCategory = true;
+                  }                }
+              }
+            }
+
+            if (hasTopCategory && !hasExcludedCategory) {
               sortedResults.push(results[resultId]);
-            } else if (results[resultId].types.includes(app.settings.search.topCategories[1])) {
-              sortedResults.push(results[resultId]);
-            } else if (results[resultId].types.includes(app.settings.search.topCategories[2]) && !results[resultId].types.includes(app.settings.search.excludedCategories[0])) {
-              sortedResults.push(results[resultId]);
+            } else {
+              console.log(results[resultId]);
             }
           }
 
