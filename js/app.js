@@ -13,9 +13,13 @@
           // If using google.maps.places.RankBy.PROMINENCE, a radius must be set
           rankBy: google.maps.places.RankBy.DISTANCE,
           radius: '25000',
-          // This must be matched in controller.requestPlaces()
-          topCategories: ['bar', 'restaurant', 'food'],
-          excludedCategories: ['store', 'blah']
+          // These settings are used to tweak results returned from Google
+          // majorCategories - Result with these types are always returned and listed first
+          majorCategories: ['bar'],
+          // relatedCategories - Results with these types are returned next...
+          //.. if they don't have a type listed in exlcudedCategories
+          relatedCategories: ['restaurant', 'food'],
+          excludedCategories: ['store', 'university']
         }
       };
       // Set your API key for Google Maps services
@@ -263,31 +267,43 @@
 
       function processResults(results, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
-          var topCategories = app.settings.search.topCategories;
+          var majorCategories = app.settings.search.majorCategories;
+          var relatedCategories = app.settings.search.relatedCategories;
           var excludedCategories = app.settings.search.excludedCategories;
           var sortedResults = [];
 
           // Sorts results based on relevent/exlcuded categories in app.settings.search
           for (var resultId in results) {
-            var hasTopCategory = false;
+            var hasRelatedCategory = false;
             var hasExcludedCategory = false;
 
-            for (var i=0; i < topCategories.length; i++) {
-              if (results[resultId].types.includes(topCategories[i])) {
-                hasTopCategory = true;
-                for (j=0; j < excludedCategories.length; j++) {
-                  if(results[resultId].types.includes(excludedCategories[j])) {
-                    hasExcludedCategory = true;
-                  }                }
+            for (var i=0; i < majorCategories.length; i++) {
+              if (results[resultId].types.includes(majorCategories[i])) {
+                console.log('majorCategory! Pushing ' + results[resultId].name);
+                sortedResults.push(results[resultId]);
+              } else {
+                for (var j=0; j < relatedCategories.length; j++) {
+                  if (results[resultId].types.includes(relatedCategories[j])) {
+                    hasRelatedCategory = true;
+                    for (var k=0; k < excludedCategories.length; k++) {
+                      if(results[resultId].types.includes(excludedCategories[k])) {
+                        hasExcludedCategory = true;
+                      }
+                    }
+                  }
+                }
               }
             }
 
-            if (hasTopCategory && !hasExcludedCategory) {
+            if (hasRelatedCategory && !hasExcludedCategory) {
+              console.log('relatedCategory! Pushing ' + results[resultId].name);
               sortedResults.push(results[resultId]);
             } else {
-              console.log(results[resultId]);
+              console.log('Skipping: ' + results[resultId].name);
             }
           }
+
+          console.log(sortedResults);
 
           // Adds search results to sessionStorage
           models.searchItems.add(sortedResults);
