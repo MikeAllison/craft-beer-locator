@@ -279,6 +279,7 @@
 
         // Sorts results based on relevent/exlcuded categories in app.settings.search
         for (var resultId in results) {
+          console.log(results[resultId].name);
           var hasSecondaryType = false;
           var hasExcludedType = false;
 
@@ -322,6 +323,8 @@
         if (pagination.hasNextPage) {
           var moreResultsBtn = document.getElementById('moreResultsBtn');
           moreResultsBtn.addEventListener('click', function() {
+            sessionStorage.clear();
+            views.alerts.clear();
             views.results.clear();
             views.moreResultsBtn.hide();
             views.moreResultsBtn.disable();
@@ -331,8 +334,8 @@
         } else {
           views.moreResultsBtn.hide();
         }
-        var moreMatches = pagination.hasNextPage ? 'More than ' : '';
-        views.alerts.success(moreMatches + sortedResults.length + ' matches! Click on an item for more details.');
+        //var moreMatches = pagination.hasNextPage ? 'More than ' : '';
+        //views.alerts.success(moreMatches + sortedResults.length + ' matches! Click on an item for more details.');
         views.form.setTboxPlaceholder();
         views.recentSearches.render();
         views.results.render();
