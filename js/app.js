@@ -312,7 +312,7 @@
 
           // Combine primary and secondary arrays
           sortedResults = primaryResults.concat(secondaryResults);
-          
+
           // Adds search results to sessionStorage
           models.searchItems.add(sortedResults);
           models.location.setTotalItems(sortedResults.length);
