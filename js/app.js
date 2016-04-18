@@ -19,7 +19,7 @@
           // secondaryTypes - Results with these types are returned next...
           //.. if they don't have a type listed in excludedTypes
           secondaryTypes: ['restaurant', 'food'],
-          excludedTypes: ['store', 'university']
+          excludedTypes: ['store']
         }
       };
       // Set your API key for Google Maps services
@@ -276,22 +276,20 @@
 
           // Sorts results based on relevent/exlcuded categories in app.settings.search
           for (var resultId in results) {
-            var hasPrimaryType = false;
             var hasSecondaryType = false;
             var hasExcludedType = false;
 
-            // Check for primary types and push onto sortedResults array
+            // Check for primary types and push onto array for primary results
             for (var i=0; i < primaryTypes.length; i++) {
               if (results[resultId].types.includes(primaryTypes[i])) {
                 hasPrimaryType = true;
                 primaryResults.push(results[resultId]);
-                console.log('Pushing ' + results[resultId].name + ' (Primary)');
               }
             }
 
-            // If a primary type wasn't found, check for secondary types...
+            // If the primary array doesn't contain the result, check for secondary types...
             // ...but make sure that it doesn't have a type on the excluded list
-            if (!hasPrimaryType) {
+            if (!primaryResults.includes(results[resultId])) {
               for (var j=0; j < secondaryTypes.length; j++) {
                 if (results[resultId].types.includes(secondaryTypes[j])) {
                   hasSecondaryType = true;
@@ -302,9 +300,8 @@
                   }
                 }
               }
-              // Push onto results array if it has a secondary type without excluded type
+              // Push onto array for secondary results if it has a secondary (without excluded) type
               if (hasSecondaryType && !hasExcludedType) {
-                console.log('Pushing ' + results[resultId].name + ' (Secondary)');
                 secondaryResults.push(results[resultId]);
               }
             }
