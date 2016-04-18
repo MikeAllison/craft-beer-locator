@@ -14,12 +14,12 @@
           rankBy: google.maps.places.RankBy.DISTANCE,
           radius: '25000',
           // These settings are used to tweak results returned from Google
-          // majorCategories - Result with these types are always returned and listed first
-          majorCategories: ['bar'],
-          // relatedCategories - Results with these types are returned next...
-          //.. if they don't have a type listed in exlcudedCategories
-          relatedCategories: ['restaurant', 'food'],
-          excludedCategories: ['store', 'university']
+          // primaryTypes - Result with these types are always returned and listed first
+          primaryTypes: ['bar'],
+          // secondaryTypes - Results with these types are returned next...
+          //.. if they don't have a type listed in excludedTypes
+          secondaryTypes: ['restaurant', 'food'],
+          excludedTypes: ['store', 'university']
         }
       };
       // Set your API key for Google Maps services
@@ -267,44 +267,52 @@
 
       function processResults(results, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
-          var majorCategories = app.settings.search.majorCategories;
-          var relatedCategories = app.settings.search.relatedCategories;
-          var excludedCategories = app.settings.search.excludedCategories;
+          var primaryTypes = app.settings.search.primaryTypes;
+          var secondaryTypes = app.settings.search.secondaryTypes;
+          var excludedTypes = app.settings.search.excludedTypes;
+          var primaryResults = [];
+          var secondaryResults = [];
           var sortedResults = [];
 
           // Sorts results based on relevent/exlcuded categories in app.settings.search
           for (var resultId in results) {
-            var hasRelatedCategory = false;
-            var hasExcludedCategory = false;
+            var hasPrimaryType = false;
+            var hasSecondaryType = false;
+            var hasExcludedType = false;
 
-            for (var i=0; i < majorCategories.length; i++) {
-              if (results[resultId].types.includes(majorCategories[i])) {
-                console.log('majorCategory! Pushing ' + results[resultId].name);
-                sortedResults.push(results[resultId]);
-              } else {
-                for (var j=0; j < relatedCategories.length; j++) {
-                  if (results[resultId].types.includes(relatedCategories[j])) {
-                    hasRelatedCategory = true;
-                    for (var k=0; k < excludedCategories.length; k++) {
-                      if(results[resultId].types.includes(excludedCategories[k])) {
-                        hasExcludedCategory = true;
-                      }
+            // Check for primary types and push onto sortedResults array
+            for (var i=0; i < primaryTypes.length; i++) {
+              if (results[resultId].types.includes(primaryTypes[i])) {
+                hasPrimaryType = true;
+                primaryResults.push(results[resultId]);
+                console.log('Pushing ' + results[resultId].name + ' (Primary)');
+              }
+            }
+
+            // If a primary type wasn't found, check for secondary types...
+            // ...but make sure that it doesn't have a type on the excluded list
+            if (!hasPrimaryType) {
+              for (var j=0; j < secondaryTypes.length; j++) {
+                if (results[resultId].types.includes(secondaryTypes[j])) {
+                  hasSecondaryType = true;
+                  for (var k=0; k < excludedTypes.length; k++) {
+                    if(results[resultId].types.includes(excludedTypes[k])) {
+                      hasExcludedType = true;
                     }
                   }
                 }
               }
-            }
-
-            if (hasRelatedCategory && !hasExcludedCategory) {
-              console.log('relatedCategory! Pushing ' + results[resultId].name);
-              sortedResults.push(results[resultId]);
-            } else {
-              console.log('Skipping: ' + results[resultId].name);
+              // Push onto results array if it has a secondary type without excluded type
+              if (hasSecondaryType && !hasExcludedType) {
+                console.log('Pushing ' + results[resultId].name + ' (Secondary)');
+                secondaryResults.push(results[resultId]);
+              }
             }
           }
 
-          console.log(sortedResults);
-
+          // Combine primary and secondary arrays
+          sortedResults = primaryResults.concat(secondaryResults);
+          
           // Adds search results to sessionStorage
           models.searchItems.add(sortedResults);
           models.location.setTotalItems(sortedResults.length);
