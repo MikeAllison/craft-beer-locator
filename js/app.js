@@ -168,9 +168,6 @@
     },
     // HTML5 geocoding request for lat/lng for 'My Location' button
     getCurrentLocation: function() {
-      views.alerts.clear();
-      views.results.clear();
-
       var success = function(position) {
           models.location.setLat(position.coords.latitude);
           models.location.setLng(position.coords.longitude);
@@ -206,9 +203,6 @@
     // Takes a city, state and converts it to lat/lng using Google Geocoding API
     // This could be performed using a Google Maps object but I wanted to practice using AJAX requests
     getGeocode: function() {
-      views.alerts.clear();
-      views.results.clear();
-
       var tboxVal = views.form.cityStateTbox.value;
 
       if (tboxVal) {
@@ -249,7 +243,6 @@
     },
     // Sends a lat/lng to Google Places Library and stores results
     requestPlaces: function() {
-      views.alerts.clear();
       // Set params for search
       var location = new google.maps.LatLng(models.location.lat, models.location.lng);
       var request = {
@@ -279,7 +272,6 @@
 
         // Sorts results based on relevent/exlcuded categories in app.settings.search
         for (var resultId in results) {
-          console.log(results[resultId].name);
           var hasSecondaryType = false;
           var hasExcludedType = false;
 
@@ -321,15 +313,11 @@
         models.recentSearches.add();
         // Handle > 20 matches (Google returns a max of 20 by default)
         if (pagination.hasNextPage) {
-          var moreResultsBtn = document.getElementById('moreResultsBtn');
-          moreResultsBtn.addEventListener('click', function() {
-            sessionStorage.clear();
-            views.alerts.clear();
-            views.results.clear();
-            views.moreResultsBtn.hide();
-            views.moreResultsBtn.disable();
-            pagination.nextPage();
-          });
+          //var moreResultsBtn = document.getElementById('moreResultsBtn');
+          // moreResultsBtn.addEventListener('click', function() {
+          //   pagination.nextPage();
+          // });
+          
           views.moreResultsBtn.show();
         } else {
           views.moreResultsBtn.hide();
