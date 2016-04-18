@@ -8,7 +8,7 @@
       // Set the type and radius of thing to search for (i.e. 'brewery' or 'craft beer')
       this.settings = {
         search: {
-          itemType: 'pizza',
+          itemType: 'brewery',
           // This is either: google.maps.places.RankBy.PROMINENCE or google.maps.places.RankBy.DISTANCE
           // If using google.maps.places.RankBy.PROMINENCE, a radius must be set
           rankBy: google.maps.places.RankBy.DISTANCE,
@@ -16,12 +16,12 @@
           // These settings are used to tweak results returned from Google
           // primaryTypes - Result with these types are always returned and listed first
           // This must have a value with a Google places type
-          primaryTypes: ['restaurant'],
+          primaryTypes: ['bar'],
           // secondaryTypes - Results with these types are returned next...
           //.. if they don't have a type listed in excludedTypes
           // These are optional (If not using, use an empty array for each - [''])
-          secondaryTypes: [''],
-          excludedTypes: ['']
+          secondaryTypes: ['restaurant', 'food'],
+          excludedTypes: ['store']
         }
       };
       // Set your API key for Google Maps services
@@ -319,11 +319,19 @@
         // Adds last search to localStorage
         models.recentSearches.add();
         // Handle > 20 matches (Google returns a max of 20 by default)
-        var moreMatches = '';
         if (pagination.hasNextPage) {
-          moreMatches = 'More than ';
+          var moreResultsBtn = document.getElementById('moreResultsBtn');
+          moreResultsBtn.addEventListener('click', function() {
+            views.results.clear();
+            views.moreResultsBtn.hide();
+            views.moreResultsBtn.disable();
+            pagination.nextPage();
+          });
           views.moreResultsBtn.show();
+        } else {
+          views.moreResultsBtn.hide();
         }
+        var moreMatches = pagination.hasNextPage ? 'More than ' : '';
         views.alerts.success(moreMatches + sortedResults.length + ' matches! Click on an item for more details.');
         views.form.setTboxPlaceholder();
         views.recentSearches.render();
@@ -530,8 +538,6 @@
         this.moreResultsBtn.classList.add('hidden');
         // Add click handlers
         this.moreResultsBtn.addEventListener('click', function() {
-          // Request more results
-          controller.processAllPlacesResults();
           // Scroll to top of browser
           window.scroll(0, 0);
         });
@@ -542,6 +548,12 @@
         window.setTimeout(function() {
           moreResultsBtn.removeAttribute('disabled');
         }, 2000);
+      },
+      disable: function() {
+        this.moreResultsBtn.setAttribute('disabled', true);
+      },
+      hide: function() {
+        this.moreResultsBtn.classList.add('hidden');
       }
     },
     recentSearches: {
