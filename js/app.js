@@ -265,73 +265,73 @@
 
       // Google map isn't shown on page but is required for PlacesService constructor
       var service = new google.maps.places.PlacesService(views.map.map);
-      service.nearbySearch(request, processResults);
+      service.nearbySearch(request, this.processAllPlacesResults);
+    },
+    // Handles processing of places returned from Google.
+    processAllPlacesResults: function(results, status, pagination) {
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+        var primaryTypes = app.settings.search.primaryTypes;
+        var secondaryTypes = app.settings.search.secondaryTypes;
+        var excludedTypes = app.settings.search.excludedTypes;
+        var primaryResults = [];
+        var secondaryResults = [];
+        var sortedResults = [];
 
-      function processResults(results, status, pagination) {
-        if (status == google.maps.places.PlacesServiceStatus.OK) {
-          var primaryTypes = app.settings.search.primaryTypes;
-          var secondaryTypes = app.settings.search.secondaryTypes;
-          var excludedTypes = app.settings.search.excludedTypes;
-          var primaryResults = [];
-          var secondaryResults = [];
-          var sortedResults = [];
+        // Sorts results based on relevent/exlcuded categories in app.settings.search
+        for (var resultId in results) {
+          var hasSecondaryType = false;
+          var hasExcludedType = false;
 
-          // Sorts results based on relevent/exlcuded categories in app.settings.search
-          for (var resultId in results) {
-            var hasSecondaryType = false;
-            var hasExcludedType = false;
-
-            // Check for primary types and push onto array for primary results
-            for (var i=0; i < primaryTypes.length; i++) {
-              if (results[resultId].types.includes(primaryTypes[i])) {
-                hasPrimaryType = true;
-                primaryResults.push(results[resultId]);
-              }
+          // Check for primary types and push onto array for primary results
+          for (var i=0; i < primaryTypes.length; i++) {
+            if (results[resultId].types.includes(primaryTypes[i])) {
+              hasPrimaryType = true;
+              primaryResults.push(results[resultId]);
             }
+          }
 
-            // If the primary array doesn't contain the result, check for secondary types...
-            // ...but make sure that it doesn't have a type on the excluded list
-            if (!primaryResults.includes(results[resultId])) {
-              for (var j=0; j < secondaryTypes.length; j++) {
-                if (results[resultId].types.includes(secondaryTypes[j])) {
-                  hasSecondaryType = true;
-                  for (var k=0; k < excludedTypes.length; k++) {
-                    if(results[resultId].types.includes(excludedTypes[k])) {
-                      hasExcludedType = true;
-                    }
+          // If the primary array doesn't contain the result, check for secondary types...
+          // ...but make sure that it doesn't have a type on the excluded list
+          if (!primaryResults.includes(results[resultId])) {
+            for (var j=0; j < secondaryTypes.length; j++) {
+              if (results[resultId].types.includes(secondaryTypes[j])) {
+                hasSecondaryType = true;
+                for (var k=0; k < excludedTypes.length; k++) {
+                  if(results[resultId].types.includes(excludedTypes[k])) {
+                    hasExcludedType = true;
                   }
                 }
               }
-              // Push onto array for secondary results if it has a secondary (without excluded) type
-              if (hasSecondaryType && !hasExcludedType) {
-                secondaryResults.push(results[resultId]);
-              }
+            }
+            // Push onto array for secondary results if it has a secondary (without excluded) type
+            if (hasSecondaryType && !hasExcludedType) {
+              secondaryResults.push(results[resultId]);
             }
           }
-
-          // Combine primary and secondary arrays
-          sortedResults = primaryResults.concat(secondaryResults);
-
-          // Adds search results to sessionStorage
-          models.searchItems.add(sortedResults);
-          models.location.setTotalItems(sortedResults.length);
-          // Adds last search to localStorage
-          models.recentSearches.add();
-          // Handle > 20 matches (Google returns a max of 20 by default)
-          var moreMatches = '';
-          if (pagination.hasNextPage) {
-            moreMatches = 'More than ';
-            views.moreResultsBtn.show();
-          }
-          views.alerts.success(moreMatches + sortedResults.length + ' matches! Click on an item for more details.');
-          views.form.setTboxPlaceholder();
-          views.recentSearches.render();
-          views.results.render();
-        } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-          views.alerts.info('Your request returned no results.');
-        } else {
-          views.alerts.error('Sorry, please try again.');
         }
+
+        // Combine primary and secondary arrays
+        sortedResults = primaryResults.concat(secondaryResults);
+
+        // Adds search results to sessionStorage
+        models.searchItems.add(sortedResults);
+        models.location.setTotalItems(sortedResults.length);
+        // Adds last search to localStorage
+        models.recentSearches.add();
+        // Handle > 20 matches (Google returns a max of 20 by default)
+        var moreMatches = '';
+        if (pagination.hasNextPage) {
+          moreMatches = 'More than ';
+          views.moreResultsBtn.show();
+        }
+        views.alerts.success(moreMatches + sortedResults.length + ' matches! Click on an item for more details.');
+        views.form.setTboxPlaceholder();
+        views.recentSearches.render();
+        views.results.render();
+      } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+        views.alerts.info('Your request returned no results.');
+      } else {
+        views.alerts.error('Sorry, please try again.');
       }
     },
     // This requests details of the selectedItem
@@ -339,16 +339,16 @@
       var request = { placeId: location.place_id };
 
       service = new google.maps.places.PlacesService(views.map.map);
-      service.getDetails(request, processResults);
-
-      function processResults(results, status) {
-        if (status == google.maps.places.PlacesServiceStatus.OK) {
-          controller.setCurrentItem(results);
-          views.itemModal.populate();
-          views.itemModal.show();
-        } else {
-          views.alerts.error('Sorry, please try again.');
-        }
+      service.getDetails(request, this.processPlaceResults);
+    },
+    // Handle results for an individual place
+    processPlaceResults: function(results, status) {
+      if (status == google.maps.places.PlacesServiceStatus.OK) {
+        controller.setCurrentItem(results);
+        views.itemModal.populate();
+        views.itemModal.show();
+      } else {
+        views.alerts.error('Sorry, please try again.');
       }
     }
   };
@@ -531,7 +531,7 @@
         // Add click handlers
         this.moreResultsBtn.addEventListener('click', function() {
           // Request more results
-          
+          controller.processAllPlacesResults();
           // Scroll to top of browser
           window.scroll(0, 0);
         });
