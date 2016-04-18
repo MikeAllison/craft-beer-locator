@@ -557,6 +557,7 @@
         } else {
           var li = document.createElement('li');
           li.classList.add('list-group-item');
+          li.classList.add('text-center');
           li.textContent = 'You have no recent searches.';
           this.recentSearchesList.appendChild(li);
         }
