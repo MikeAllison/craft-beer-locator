@@ -8,18 +8,20 @@
       // Set the type and radius of thing to search for (i.e. 'brewery' or 'craft beer')
       this.settings = {
         search: {
-          itemType: 'brewery',
+          itemType: 'pizza',
           // This is either: google.maps.places.RankBy.PROMINENCE or google.maps.places.RankBy.DISTANCE
           // If using google.maps.places.RankBy.PROMINENCE, a radius must be set
           rankBy: google.maps.places.RankBy.DISTANCE,
           radius: '25000',
           // These settings are used to tweak results returned from Google
           // primaryTypes - Result with these types are always returned and listed first
-          primaryTypes: ['bar'],
+          // This must have a value with a Google places type
+          primaryTypes: ['restaurant'],
           // secondaryTypes - Results with these types are returned next...
           //.. if they don't have a type listed in excludedTypes
-          secondaryTypes: ['restaurant', 'food'],
-          excludedTypes: ['store']
+          // These are optional (If not using, use an empty array for each - [''])
+          secondaryTypes: [''],
+          excludedTypes: ['']
         }
       };
       // Set your API key for Google Maps services
@@ -265,7 +267,7 @@
       var service = new google.maps.places.PlacesService(views.map.map);
       service.nearbySearch(request, processResults);
 
-      function processResults(results, status) {
+      function processResults(results, status, pagination) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
           var primaryTypes = app.settings.search.primaryTypes;
           var secondaryTypes = app.settings.search.secondaryTypes;
@@ -315,8 +317,13 @@
           models.location.setTotalItems(sortedResults.length);
           // Adds last search to localStorage
           models.recentSearches.add();
-          // TO-DO: Change message if > 20 matches
-          views.alerts.success(sortedResults.length + ' matches! Click on an item for more details.');
+          // Handle > 20 matches (Google returns a max of 20 by default)
+          var moreMatches = '';
+          if (pagination.hasNextPage) {
+            moreMatches = 'More than ';
+            views.moreResultsBtn.show();
+          }
+          views.alerts.success(moreMatches + sortedResults.length + ' matches! Click on an item for more details.');
           views.form.setTboxPlaceholder();
           views.recentSearches.render();
           views.results.render();
@@ -521,6 +528,20 @@
         this.moreResultsBtn = document.getElementById('moreResultsBtn');
         // Set default values on DOM elements
         this.moreResultsBtn.classList.add('hidden');
+        // Add click handlers
+        this.moreResultsBtn.addEventListener('click', function() {
+          // Request more results
+          
+          // Scroll to top of browser
+          window.scroll(0, 0);
+        });
+      },
+      show: function() {
+        this.moreResultsBtn.classList.remove('hidden');
+        // Google Places search requires 2 seconds between searches
+        window.setTimeout(function() {
+          moreResultsBtn.removeAttribute('disabled');
+        }, 2000);
       }
     },
     recentSearches: {
