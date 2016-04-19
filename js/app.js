@@ -172,7 +172,6 @@
           models.location.setLat(position.coords.latitude);
           models.location.setLng(position.coords.longitude);
           controller.reverseGeocode();
-          controller.requestPlaces();
       };
       // TO-DO: Handle error
       var error = function() {};
@@ -186,6 +185,7 @@
     },
     // Converts lat/lng to a city, state
     reverseGeocode: function() {
+
       var httpRequest = new XMLHttpRequest();
       var params = 'key=' + app.google.apiKey + '&latlng=' + models.location.lat + ',' + models.location.lng;
 
@@ -197,6 +197,7 @@
           var response = JSON.parse(httpRequest.responseText);
           // Sets .formattedAddress as city, state (i.e. New York, NY)
           models.location.setFormattedAddress(response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name);
+          controller.requestPlaces();
         }
       };
     },
@@ -310,6 +311,7 @@
 
         // Adds search results to sessionStorage
         models.searchItems.add(sortedResults);
+        // Set total items for recent searches tab
         models.location.setTotalItems(sortedResults.length);
         // Adds last search to localStorage
         models.recentSearches.add();
@@ -321,9 +323,12 @@
         } else {
           views.moreResultsBtn.hide();
         }
+        // Set message for alert
         var moreMatches = pagination.hasNextPage ? 'More than ' : '';
         views.alerts.success(moreMatches + sortedResults.length + ' matches! Click on an item for more details.');
+        // Set placeholder attribute on textbox
         views.form.setTboxPlaceholder();
+        // Render views with updated results
         views.recentSearches.render();
         views.results.render();
       } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
