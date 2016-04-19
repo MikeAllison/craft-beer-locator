@@ -321,8 +321,8 @@
         } else {
           views.moreResultsBtn.hide();
         }
-        //var moreMatches = pagination.hasNextPage ? 'More than ' : '';
-        //views.alerts.success(moreMatches + sortedResults.length + ' matches! Click on an item for more details.');
+        var moreMatches = pagination.hasNextPage ? 'More than ' : '';
+        views.alerts.success(moreMatches + sortedResults.length + ' matches! Click on an item for more details.');
         views.form.setTboxPlaceholder();
         views.recentSearches.render();
         views.results.render();
@@ -382,7 +382,7 @@
         window.setTimeout(function() {
           views.form.enableSearchBtn();
           views.locationBtn.enable();
-        }, 500);
+        }, 250);
       }
     },
     map: {
@@ -405,12 +405,14 @@
         });
         this.cityStateTbox.addEventListener('keyup', function(e) {
           if (e.keyCode === 13) {
-            // TO-DO: Disable buttons until results (or alerts) are returned
+            views.page.disableButtons();
+            views.page.clear();
             controller.getGeocode();
           }
         });
         this.searchBtn.addEventListener('click', function() {
-          // TO-DO: Disable buttons until results (or alerts) are returned
+          views.page.disableButtons();
+          views.page.clear();
           controller.getGeocode();
         });
       },
@@ -431,7 +433,8 @@
         this.locationBtn = document.getElementById('locationBtn');
         // Add click handlers
         this.locationBtn.addEventListener('click', function() {
-          // TO-DO: Disable buttons until results (or alerts) are returned
+          views.page.disableButtons();
+          views.page.clear();
           controller.getCurrentLocation();
         });
       },
@@ -558,7 +561,8 @@
         this.moreResultsBtn.classList.add('hidden');
         // Add click handlers
         this.moreResultsBtn.addEventListener('click', function() {
-          // Scroll to top of browser
+          views.page.disableButtons();
+          views.page.clear();
           window.scroll(0, 0);
         });
       },
@@ -605,6 +609,8 @@
 
             li.addEventListener('click', (function(location) {
               return function() {
+                views.page.disableButtons();
+                views.page.clear();
                 controller.setLocation(location);
                 controller.requestPlaces();
               };
