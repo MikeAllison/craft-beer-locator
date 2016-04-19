@@ -43,6 +43,7 @@
         this.lng = null;
         this.formattedAddress = null;
         this.totalItems = null;
+        this.newSearch = true;
       },
       setLat: function(lat) {
         this.lat = lat;
@@ -55,6 +56,9 @@
       },
       setTotalItems: function(totalItems) {
         this.totalItems = totalItems;
+      },
+      resetNewSearch: function() {
+        this.newSearch = true;
       }
     },
     selectedItem: {
@@ -246,6 +250,8 @@
     },
     // Sends a lat/lng to Google Places Library and stores results
     requestPlaces: function() {
+      // Reset first request so search location is added to Recent searches
+      models.location.resetNewSearch();
       // Set params for search
       var location = new google.maps.LatLng(models.location.lat, models.location.lng);
       var request = {
@@ -311,23 +317,31 @@
 
         // Adds search results to sessionStorage
         models.searchItems.add(sortedResults);
-        // Set total items for recent searches tab
-        models.location.setTotalItems(sortedResults.length);
-        // Adds last search to localStorage
-        models.recentSearches.add();
+
+        // Set total items for recent searches tab if first request of location
+        if (models.location.newSearch) {
+          models.location.setTotalItems(sortedResults.length);
+          models.recentSearches.add();
+        }
+
         // Handle > 20 matches (Google returns a max of 20 by default)
         if (pagination.hasNextPage) {
+          // Prevent addition of locations to recent searches if more button is pressed
+          models.location.newSearch = false;
           // Attaches click listener to moreResultsBtn for pagination.nextPage()
           views.moreResultsBtn.addNextPageFn(pagination);
           views.moreResultsBtn.show();
         } else {
           views.moreResultsBtn.hide();
         }
+
         // Set message for alert
         var moreMatches = pagination.hasNextPage ? 'More than ' : '';
         views.alerts.success(moreMatches + sortedResults.length + ' matches! Click on an item for more details.');
+
         // Set placeholder attribute on textbox
         views.form.setTboxPlaceholder();
+        
         // Render views with updated results
         views.recentSearches.render();
         views.results.render();
