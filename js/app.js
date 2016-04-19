@@ -318,10 +318,15 @@
         // Adds search results to sessionStorage
         models.searchItems.add(sortedResults);
 
-        // Set total items for recent searches tab if first request of location
+        // Only set location attributes and it to recent searches if it's the first request of the location
         if (models.location.newSearch) {
-          models.location.setTotalItems(sortedResults.length);
+          var totalItems = sortedResults.length;
+
+          models.location.setTotalItems(pagination.hasNextPage ? totalItems + '+' : totalItems);
           models.recentSearches.add();
+
+          // Set message for alert (first request of location only)
+          views.alerts.success((pagination.hasNextPage ? 'More than ' : '') + totalItems + ' matches! Click on an item for more details.');
         }
 
         // Handle > 20 matches (Google returns a max of 20 by default)
@@ -335,13 +340,9 @@
           views.moreResultsBtn.hide();
         }
 
-        // Set message for alert
-        var moreMatches = pagination.hasNextPage ? 'More than ' : '';
-        views.alerts.success(moreMatches + sortedResults.length + ' matches! Click on an item for more details.');
-
         // Set placeholder attribute on textbox
         views.form.setTboxPlaceholder();
-        
+
         // Render views with updated results
         views.recentSearches.render();
         views.results.render();
