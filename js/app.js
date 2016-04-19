@@ -240,6 +240,8 @@
       } else {
         views.alerts.error('Please enter a location.');
       }
+
+      views.page.enableButtons();
     },
     // Sends a lat/lng to Google Places Library and stores results
     requestPlaces: function() {
@@ -313,11 +315,8 @@
         models.recentSearches.add();
         // Handle > 20 matches (Google returns a max of 20 by default)
         if (pagination.hasNextPage) {
-          //var moreResultsBtn = document.getElementById('moreResultsBtn');
-          // moreResultsBtn.addEventListener('click', function() {
-          //   pagination.nextPage();
-          // });
-          
+          // Attaches click listener to moreResultsBtn for pagination.nextPage()
+          views.moreResultsBtn.addNextPageFn(pagination);
           views.moreResultsBtn.show();
         } else {
           views.moreResultsBtn.hide();
@@ -332,6 +331,8 @@
       } else {
         views.alerts.error('Sorry, please try again.');
       }
+
+      views.page.enableButtons();
     },
     // This requests details of the selectedItem
     reqestPlaceDetails: function(location) {
@@ -366,6 +367,22 @@
         var pageTitle = searchItemTypeCaps + ' Finder';
         document.title = pageTitle;
         document.getElementById('heading').textContent = pageTitle;
+      },
+      clear: function() {
+        views.alerts.clear();
+        views.results.clear();
+        views.moreResultsBtn.hide();
+        views.moreResultsBtn.disable();
+      },
+      disableButtons: function() {
+        views.form.disableSearchBtn();
+        views.locationBtn.disable();
+      },
+      enableButtons: function() {
+        window.setTimeout(function() {
+          views.form.enableSearchBtn();
+          views.locationBtn.enable();
+        }, 500);
       }
     },
     map: {
@@ -400,6 +417,12 @@
       setTboxPlaceholder: function() {
         this.cityStateTbox.value = null;
         this.cityStateTbox.setAttribute('placeholder', models.location.formattedAddress);
+      },
+      disableSearchBtn: function() {
+        this.searchBtn.setAttribute('disabled', true);
+      },
+      enableSearchBtn: function() {
+        this.searchBtn.removeAttribute('disabled');
       }
     },
     locationBtn: {
@@ -411,6 +434,12 @@
           // TO-DO: Disable buttons until results (or alerts) are returned
           controller.getCurrentLocation();
         });
+      },
+      disable: function() {
+        this.locationBtn.setAttribute('disabled', true);
+      },
+      enable: function() {
+        this.locationBtn.removeAttribute('disabled');
       }
     },
     alerts: {
@@ -532,6 +561,11 @@
           // Scroll to top of browser
           window.scroll(0, 0);
         });
+      },
+      addNextPageFn: function(obj) {
+        this.moreResultsBtn.onclick = function() {
+          obj.nextPage();
+        };
       },
       show: function() {
         this.moreResultsBtn.classList.remove('hidden');
