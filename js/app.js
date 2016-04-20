@@ -93,7 +93,7 @@
         this.hoursOpen = hoursOpen ? hoursOpen : '';
       }
     },
-    searchItems: {
+    searchResults: {
       init: function() {
         sessionStorage.clear();
       },
@@ -138,7 +138,7 @@
       // TO-DO: May need to refactor some of this to remove things that aren't needed
       app.init();
       models.location.init();
-      models.searchItems.init();
+      models.searchResults.init();
       views.page.init();
       views.map.init();
       views.form.init();
@@ -189,7 +189,6 @@
     },
     // Converts lat/lng to a city, state
     reverseGeocode: function() {
-
       var httpRequest = new XMLHttpRequest();
       var params = 'key=' + app.google.apiKey + '&latlng=' + models.location.lat + ',' + models.location.lng;
 
@@ -250,7 +249,7 @@
     },
     // Sends a lat/lng to Google Places Library and stores results
     requestPlaces: function() {
-      // Reset first request so search location is added to Recent searches
+      // Reset first request so search location is added to Recent Searches
       models.location.resetNewSearch();
       // Set params for search
       var location = new google.maps.LatLng(models.location.lat, models.location.lng);
@@ -267,91 +266,108 @@
 
       // Google map isn't shown on page but is required for PlacesService constructor
       var service = new google.maps.places.PlacesService(views.map.map);
-      service.nearbySearch(request, this.processAllPlacesResults);
+      service.nearbySearch(request, callback);
+
+      function callback(results, status, pagination) {
+        if (status == google.maps.places.PlacesServiceStatus.OK) {
+          // Sort results and update page with pagination object for > 20 returned results
+          controller.sortResults(results);
+          controller.updatePage(pagination);
+        } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+          models.searchResults.init();
+          views.alerts.info('Your request returned no results.');
+          views.results.render();
+        } else {
+          models.searchResults.init();
+          views.alerts.error('Sorry, please try again.');
+          views.results.render();
+        }
+      }
     },
     // Handles processing of places returned from Google.
-    processAllPlacesResults: function(results, status, pagination) {
-      if (status == google.maps.places.PlacesServiceStatus.OK) {
-        var primaryTypes = app.settings.search.primaryTypes;
-        var secondaryTypes = app.settings.search.secondaryTypes;
-        var excludedTypes = app.settings.search.excludedTypes;
-        var primaryResults = [];
-        var secondaryResults = [];
-        var sortedResults = [];
+    sortResults: function(results) {
+      var primaryTypes = app.settings.search.primaryTypes;
+      var secondaryTypes = app.settings.search.secondaryTypes;
+      var excludedTypes = app.settings.search.excludedTypes;
+      var primaryResults = [];
+      var secondaryResults = [];
+      var sortedResults = [];
 
-        // Sorts results based on relevent/exlcuded categories in app.settings.search
-        for (var resultId in results) {
-          var hasSecondaryType = false;
-          var hasExcludedType = false;
+      // Sorts results based on relevent/exlcuded categories in app.settings.search
+      for (var resultId in results) {
+        var hasSecondaryType = false;
+        var hasExcludedType = false;
 
-          // Check for primary types and push onto array for primary results
-          for (var i=0; i < primaryTypes.length; i++) {
-            if (results[resultId].types.includes(primaryTypes[i])) {
-              hasPrimaryType = true;
-              primaryResults.push(results[resultId]);
-            }
+        // Check for primary types and push onto array for primary results
+        for (var i=0; i < primaryTypes.length; i++) {
+          if (results[resultId].types.includes(primaryTypes[i])) {
+            hasPrimaryType = true;
+            primaryResults.push(results[resultId]);
           }
+        }
 
-          // If the primary array doesn't contain the result, check for secondary types...
-          // ...but make sure that it doesn't have a type on the excluded list
-          if (!primaryResults.includes(results[resultId])) {
-            for (var j=0; j < secondaryTypes.length; j++) {
-              if (results[resultId].types.includes(secondaryTypes[j])) {
-                hasSecondaryType = true;
-                for (var k=0; k < excludedTypes.length; k++) {
-                  if(results[resultId].types.includes(excludedTypes[k])) {
-                    hasExcludedType = true;
-                  }
+        // If the primary array doesn't contain the result, check for secondary types...
+        // ...but make sure that it doesn't have a type on the excluded list
+        if (!primaryResults.includes(results[resultId])) {
+          for (var j=0; j < secondaryTypes.length; j++) {
+            if (results[resultId].types.includes(secondaryTypes[j])) {
+              hasSecondaryType = true;
+              for (var k=0; k < excludedTypes.length; k++) {
+                if(results[resultId].types.includes(excludedTypes[k])) {
+                  hasExcludedType = true;
                 }
               }
             }
-            // Push onto array for secondary results if it has a secondary (without excluded) type
-            if (hasSecondaryType && !hasExcludedType) {
-              secondaryResults.push(results[resultId]);
-            }
+          }
+          // Push onto array for secondary results if it has a secondary (without excluded) type
+          if (hasSecondaryType && !hasExcludedType) {
+            secondaryResults.push(results[resultId]);
           }
         }
-
-        // Combine primary and secondary arrays
-        sortedResults = primaryResults.concat(secondaryResults);
-
-        // Adds search results to sessionStorage
-        models.searchItems.add(sortedResults);
-
-        // Only set location attributes and it to recent searches if it's the first request of the location
-        if (models.location.newSearch) {
-          var totalItems = sortedResults.length;
-
-          models.location.setTotalItems(pagination.hasNextPage ? totalItems + '+' : totalItems);
-          models.recentSearches.add();
-
-          // Set message for alert (first request of location only)
-          views.alerts.success((pagination.hasNextPage ? 'More than ' : '') + totalItems + ' matches! Click on an item for more details.');
-        }
-
-        // Handle > 20 matches (Google returns a max of 20 by default)
-        if (pagination.hasNextPage) {
-          // Prevent addition of locations to recent searches if more button is pressed
-          models.location.newSearch = false;
-          // Attaches click listener to moreResultsBtn for pagination.nextPage()
-          views.moreResultsBtn.addNextPageFn(pagination);
-          views.moreResultsBtn.show();
-        } else {
-          views.moreResultsBtn.hide();
-        }
-
-        // Set placeholder attribute on textbox
-        views.form.setTboxPlaceholder();
-
-        // Render views with updated results
-        views.recentSearches.render();
-        views.results.render();
-      } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-        views.alerts.info('Your request returned no results.');
-      } else {
-        views.alerts.error('Sorry, please try again.');
       }
 
+      // Combine primary and secondary arrays
+      sortedResults = primaryResults.concat(secondaryResults);
+
+      if (sortedResults.length > 0) {
+        // Adds search results to sessionStorage
+        models.searchResults.add(sortedResults);
+      } else {
+        views.alerts.info('Your request returned no results.');
+        views.results.render();
+      }
+    },
+    updatePage: function(paginationObj) {
+      var sortedResults = models.searchResults.get();
+
+      // Only set location attributes and it to recent searches if it's the first request of the location
+      if (models.location.newSearch) {
+        var totalItems = sortedResults.length;
+
+        models.location.setTotalItems(paginationObj.hasNextPage ? totalItems + '+' : totalItems);
+        models.recentSearches.add();
+
+        // Set message for alert (first request of location only)
+        views.alerts.success((paginationObj.hasNextPage ? 'More than ' : '') + totalItems + ' matches! Click on an item for more details.');
+      }
+
+      // Handle > 20 matches (Google returns a max of 20 by default)
+      if (paginationObj.hasNextPage) {
+        // Prevent addition of locations to recent searches if more button is pressed
+        models.location.newSearch = false;
+        // Attaches click listener to moreResultsBtn for pagination.nextPage()
+        views.moreResultsBtn.addNextPageFn(paginationObj);
+        views.moreResultsBtn.show();
+      } else {
+        views.moreResultsBtn.hide();
+      }
+
+      // Set placeholder attribute on textbox
+      views.form.setTboxPlaceholder();
+
+      // Render views with updated results
+      views.recentSearches.render();
+      views.results.render();
       views.page.enableButtons();
     },
     // This requests details of the selectedItem
@@ -552,19 +568,19 @@
         this.resultsList.textContent = null;
         this.resultsList.classList.remove('hidden');
 
-        var searchItems = models.searchItems.get();
+        var results = models.searchResults.get();
 
-        if (searchItems) {
-          for (var i=0; i < searchItems.length; i++) {
+        if (results) {
+          for (var i=0; i < results.length; i++) {
             var li = document.createElement('li');
             li.classList.add('list-group-item');
-            li.textContent = searchItems[i].name;
+            li.textContent = results[i].name;
 
             li.addEventListener('click', (function(location) {
               return function() {
                 controller.reqestPlaceDetails(location);
               };
-            })(searchItems[i]));
+            })(results[i]));
 
             this.resultsList.appendChild(li);
           }
