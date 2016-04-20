@@ -8,21 +8,27 @@
       // Set the type and radius of thing to search for (i.e. 'brewery' or 'craft beer')
       this.settings = {
         search: {
-          // itemType: Can change - This can be set to anything that you'd like to search for
+          // itemType - Can change: This can be set to anything that you'd like to search for
           itemType: 'brewery',
-          // rankBy:  Can change - Can be either google.maps.places.RankBy.DISTANCE or google.maps.places.RankBy.PROMINENCE (not a string)
+          // rankBy -  Can change: Can be either google.maps.places.RankBy.DISTANCE or google.maps.places.RankBy.PROMINENCE (not a string)
           rankBy: google.maps.places.RankBy.DISTANCE,
+          // radius - Can change: Radius is required if rankBy is set to google.maps.places.RankBy.PROMINENCE (max: 50000)
           radius: '25000',
-          // These settings are used to tweak results returned from Google
-          // primaryTypes - Result with these types are always returned and listed first
-          // This must have a value with a Google places type
+
+          // SEARCH SORTING/FILTERING:
+          // These settings will help narrow down to relevant results
+          // Types (primaryTypes/secondaryTypes/excludedTypes) can be any Google Place Type: https://developers.google.com/places/supported_types
+
+          // primaryTypes - Any result having these types will be sorted and listed first (examples: [''], ['type1'], ['type1, 'type2'], etc.)
           primaryTypes: ['bar'],
-          // secondaryTypes - Results with these types are returned next...
-          // ...if they don't have a type listed in excludedTypes
-          // These are optional (If not using, use an empty array for each - [''])
+
+          // secondaryTypes: Any result having these types will be listed after primaryTypes (examples: [''], ['type1'], ['type1, 'type2'], etc.)
           secondaryTypes: ['restaurant', 'food'],
+
+          // excludedTypes: Any result having these types will excluded from the results (examples: [''], ['type1'], ['type1, 'type2'], etc.)
           excludedTypes: ['store'],
-          // This prevents more results from being offered (true/false)
+
+          // topResultsOnly -  Can change: Allows search to return more than 1 set of results (true/false)
           topResultsOnly: false
         }
       };
@@ -137,7 +143,6 @@
 
   controller = {
     init: function() {
-      // TO-DO: May need to refactor some of this to remove things that aren't needed
       app.init();
       models.location.init();
       models.searchResults.init();
@@ -179,8 +184,9 @@
           models.location.setLng(position.coords.longitude);
           controller.reverseGeocode();
       };
-      // TO-DO: Handle error
-      var error = function() {};
+      var error = function() {
+        views.alerts.error('Sorry, please try again.');
+      };
       var options = { enableHighAccuracy: true };
 
       if ('geolocation' in navigator) {
@@ -340,6 +346,7 @@
         views.results.render();
       }
     },
+    // Updates results on page
     updatePage: function(paginationObj) {
       var sortedResults = models.searchResults.get();
 
