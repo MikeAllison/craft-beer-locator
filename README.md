@@ -1,5 +1,5 @@
 # brewery-finder
-JavaScript app using Google services to find breweries in a specified area (but search settings can be modified to search for almost anything)
+JavaScript app using Google services, HTML5 geolocation, localStorage, and sessionStorage to find breweries in a specified area (but search settings can be modified to search for almost anything)
 
 #### Search Settings
 
