@@ -180,9 +180,9 @@
     // HTML5 geocoding request for lat/lng for 'My Location' button
     getCurrentLocation: function() {
       var success = function(position) {
-          models.location.setLat(position.coords.latitude);
-          models.location.setLng(position.coords.longitude);
-          controller.reverseGeocode();
+        models.location.setLat(position.coords.latitude);
+        models.location.setLng(position.coords.longitude);
+        controller.reverseGeocode();
       };
       var error = function() {
         views.alerts.error('Sorry, please try again.');
