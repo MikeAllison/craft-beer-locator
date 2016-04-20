@@ -333,6 +333,7 @@
         // Adds search results to sessionStorage
         models.searchResults.add(sortedResults);
       } else {
+        models.searchResults.init();
         views.alerts.info('Your request returned no results.');
         views.results.render();
       }
@@ -340,26 +341,28 @@
     updatePage: function(paginationObj) {
       var sortedResults = models.searchResults.get();
 
-      // Only set location attributes and it to recent searches if it's the first request of the location
-      if (models.location.newSearch) {
-        var totalItems = sortedResults.length;
+      if (sortedResults) {
+        // Only set location attributes and it to recent searches if it's the first request of the location
+        if (models.location.newSearch) {
+          var totalItems = sortedResults.length;
 
-        models.location.setTotalItems(paginationObj.hasNextPage ? totalItems + '+' : totalItems);
-        models.recentSearches.add();
+          models.location.setTotalItems(paginationObj.hasNextPage ? totalItems + '+' : totalItems);
+          models.recentSearches.add();
 
-        // Set message for alert (first request of location only)
-        views.alerts.success((paginationObj.hasNextPage ? 'More than ' : '') + totalItems + ' matches! Click on an item for more details.');
-      }
+          // Set message for alert (first request of location only)
+          views.alerts.success((paginationObj.hasNextPage ? 'More than ' : '') + totalItems + ' matches! Click on an item for more details.');
+        }
 
-      // Handle > 20 matches (Google returns a max of 20 by default)
-      if (paginationObj.hasNextPage) {
-        // Prevent addition of locations to recent searches if more button is pressed
-        models.location.newSearch = false;
-        // Attaches click listener to moreResultsBtn for pagination.nextPage()
-        views.moreResultsBtn.addNextPageFn(paginationObj);
-        views.moreResultsBtn.show();
-      } else {
-        views.moreResultsBtn.hide();
+        // Handle > 20 matches (Google returns a max of 20 by default)
+        if (paginationObj.hasNextPage) {
+          // Prevent addition of locations to recent searches if more button is pressed
+          models.location.newSearch = false;
+          // Attaches click listener to moreResultsBtn for pagination.nextPage()
+          views.moreResultsBtn.addNextPageFn(paginationObj);
+          views.moreResultsBtn.show();
+        } else {
+          views.moreResultsBtn.hide();
+        }
       }
 
       // Set placeholder attribute on textbox
