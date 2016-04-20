@@ -18,10 +18,12 @@
           // This must have a value with a Google places type
           primaryTypes: ['bar'],
           // secondaryTypes - Results with these types are returned next...
-          //.. if they don't have a type listed in excludedTypes
+          // ...if they don't have a type listed in excludedTypes
           // These are optional (If not using, use an empty array for each - [''])
           secondaryTypes: ['restaurant', 'food'],
-          excludedTypes: ['store']
+          excludedTypes: ['store'],
+          // This prevents more results from being offered (true/false)
+          topResultsOnly: false
         }
       };
       // Set your API key for Google Maps services
@@ -350,11 +352,12 @@
           models.recentSearches.add();
 
           // Set message for alert (first request of location only)
-          views.alerts.success((paginationObj.hasNextPage ? 'More than ' : '') + totalItems + ' matches! Click on an item for more details.');
+          var msg = (!app.settings.search.topResultsOnly && paginationObj.hasNextPage) ? 'More than ' : '';
+          views.alerts.success(msg + totalItems + ' matches! Click on an item for more details.');
         }
 
         // Handle > 20 matches (Google returns a max of 20 by default)
-        if (paginationObj.hasNextPage) {
+        if (!app.settings.search.topResultsOnly && paginationObj.hasNextPage) {
           // Prevent addition of locations to recent searches if more button is pressed
           models.location.newSearch = false;
           // Attaches click listener to moreResultsBtn for pagination.nextPage()
