@@ -156,62 +156,7 @@
       views.moreResultsBtn.init();
       views.recentSearches.init();
     },
-    // Sets the current item for viewing details about it
-    setCurrentItem: function(item) {
-      models.selectedItem.init();
-      models.selectedItem.setName(item.name);
-      models.selectedItem.setWebsite(item.website);
-      models.selectedItem.setAddress(item.formatted_address);
-      models.selectedItem.setGoogleMapsUrl(item.url);
-      models.selectedItem.setPhoneNum(item.formatted_phone_number);
-      // This is needed to guard against items without opening_hours
-      if (item.opening_hours) {
-        models.selectedItem.setOpenNow(item.opening_hours.open_now);
-        models.selectedItem.setHoursOpen(item.opening_hours.weekday_text);
-      }
-    },
-    // Sets the location to be used by Google Places Search
-    setLocation: function(location) {
-      models.location.setLat(location.lat);
-      models.location.setLng(location.lng);
-      models.location.setFormattedAddress(location.formattedAddress);
-      models.location.setTotalItems(location.totalItems);
-    },
-    // HTML5 geocoding request for lat/lng for 'My Location' button
-    getCurrentLocation: function() {
-      var success = function(position) {
-        models.location.setLat(position.coords.latitude);
-        models.location.setLng(position.coords.longitude);
-        controller.reverseGeocode();
-      };
-      var error = function() {
-        views.alerts.error('Sorry, please try again.');
-      };
-      var options = { enableHighAccuracy: true };
-
-      if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(success, error, options);
-      } else {
-        views.alerts.error('Sorry, geolocation is not supported in your browser.');
-      }
-    },
-    // Converts lat/lng to a city, state
-    reverseGeocode: function() {
-      var httpRequest = new XMLHttpRequest();
-      var params = 'key=' + app.google.apiKey + '&latlng=' + models.location.lat + ',' + models.location.lng;
-
-      httpRequest.open('GET', app.google.geocodingAPI.reqURL + params, true);
-      httpRequest.send();
-
-      httpRequest.onload = function() {
-        if (httpRequest.readyState === XMLHttpRequest.DONE) {
-          var response = JSON.parse(httpRequest.responseText);
-          // Sets .formattedAddress as city, state (i.e. New York, NY)
-          models.location.setFormattedAddress(response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name);
-          controller.requestPlaces();
-        }
-      };
-    },
+    // A-1:
     // Takes a city, state and converts it to lat/lng using Google Geocoding API
     // This could be performed using a Google Maps object but I wanted to practice using AJAX requests
     getGeocode: function() {
@@ -255,6 +200,44 @@
 
       views.page.enableButtons();
     },
+    // B-1:
+    // HTML5 geocoding request for lat/lng for 'My Location' button
+    getCurrentLocation: function() {
+      var success = function(position) {
+        models.location.setLat(position.coords.latitude);
+        models.location.setLng(position.coords.longitude);
+        controller.reverseGeocode();
+      };
+      var error = function() {
+        views.alerts.error('Sorry, please try again.');
+      };
+      var options = { enableHighAccuracy: true };
+
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(success, error, options);
+      } else {
+        views.alerts.error('Sorry, geolocation is not supported in your browser.');
+      }
+    },
+    // B-2:
+    // Converts lat/lng to a city, state
+    reverseGeocode: function() {
+      var httpRequest = new XMLHttpRequest();
+      var params = 'key=' + app.google.apiKey + '&latlng=' + models.location.lat + ',' + models.location.lng;
+
+      httpRequest.open('GET', app.google.geocodingAPI.reqURL + params, true);
+      httpRequest.send();
+
+      httpRequest.onload = function() {
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          var response = JSON.parse(httpRequest.responseText);
+          // Sets .formattedAddress as city, state (i.e. New York, NY)
+          models.location.setFormattedAddress(response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name);
+          controller.requestPlaces();
+        }
+      };
+    },
+    // A-2/B-3:
     // Sends a lat/lng to Google Places Library and stores results
     requestPlaces: function() {
       // Reset first request so search location is added to Recent Searches
@@ -292,6 +275,7 @@
         }
       }
     },
+    // A-3/B-4:
     // Handles processing of places returned from Google.
     sortResults: function(results) {
       var primaryTypes = app.settings.search.primaryTypes;
@@ -346,6 +330,7 @@
         views.results.render();
       }
     },
+    // A-4/B-5:
     // Updates results on page
     updatePage: function(paginationObj) {
       var sortedResults = models.searchResults.get();
@@ -383,6 +368,7 @@
       views.results.render();
       views.page.enableButtons();
     },
+    // A-4-1/B-5-1:
     // This requests details of the selectedItem
     reqestPlaceDetails: function(location) {
       var request = { placeId: location.place_id };
@@ -390,6 +376,7 @@
       service = new google.maps.places.PlacesService(views.map.map);
       service.getDetails(request, this.processPlaceResults);
     },
+    // A-4-2/B-5-2:
     // Handle results for an individual place
     processPlaceResults: function(results, status) {
       if (status == google.maps.places.PlacesServiceStatus.OK) {
@@ -399,6 +386,29 @@
       } else {
         views.alerts.error('Sorry, please try again.');
       }
+    },
+    // A-4-3/B-5-3:
+    // Sets the current item for viewing details about it
+    setCurrentItem: function(item) {
+      models.selectedItem.init();
+      models.selectedItem.setName(item.name);
+      models.selectedItem.setWebsite(item.website);
+      models.selectedItem.setAddress(item.formatted_address);
+      models.selectedItem.setGoogleMapsUrl(item.url);
+      models.selectedItem.setPhoneNum(item.formatted_phone_number);
+      // This is needed to guard against items without opening_hours
+      if (item.opening_hours) {
+        models.selectedItem.setOpenNow(item.opening_hours.open_now);
+        models.selectedItem.setHoursOpen(item.opening_hours.weekday_text);
+      }
+    },
+    // Sets the location to be used by Google Places Search
+    // Called when a loction is clicked in Recent Searches
+    setLocation: function(location) {
+      models.location.setLat(location.lat);
+      models.location.setLng(location.lng);
+      models.location.setFormattedAddress(location.formattedAddress);
+      models.location.setTotalItems(location.totalItems);
     }
   };
 
