@@ -244,26 +244,25 @@
       models.location.resetNewSearch();
       // Set params for search
       var location = new google.maps.LatLng(models.location.lat, models.location.lng);
-      var request = {
+      var params = {
         location: location,
         rankBy: app.settings.search.rankBy,
         keyword: app.settings.search.itemType
       };
 
       // Radius is required on request if ranked by PROMINENCE
-      if (request.rankBy === google.maps.places.RankBy.PROMINENCE) {
-        request.radius = app.settings.search.radius;
+      if (params.rankBy === google.maps.places.RankBy.PROMINENCE) {
+        params.radius = app.settings.search.radius;
       }
 
       // Google map isn't shown on page but is required for PlacesService constructor
       var service = new google.maps.places.PlacesService(views.map.map);
-      service.nearbySearch(request, callback);
+      service.nearbySearch(params, callback);
 
       function callback(results, status, pagination) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
-          // Sort results and update page with pagination object for > 20 returned results
-          controller.sortResults(results);
-          controller.updatePage(pagination);
+          // Call .requestDistance() to get distance info on each result
+          controller.requestDistance(results, pagination);
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           models.searchResults.init();
           views.alerts.info('Your request returned no results.');
@@ -276,8 +275,32 @@
       }
     },
     // A-3/B-4:
+    // Requests distance info from Google Maps Distance Matrix.
+    requestDistance: function(results, pagination) {
+      var service = new google.maps.DistanceMatrixService();
+      var origin = new google.maps.LatLng(models.location.lat, models.location.lng);
+      var params = {
+        origins: [service],
+        destination: []
+      };
+
+      for (var id in results) {
+        var destination = new google.maps.LatLng(results[id].geometry.location.lat(), results[id].geometry.location.lng());
+      }
+
+      // function callback(results, status) {
+      //   if (status == google.maps.DistanceMatrixStatus.OK) {
+      //     // TO-DO: Add distance info to each result
+      //     // TO-DO: Check out Object.assign as a possibility to accomplish
+      //
+      //     // Sort results and update page with pagination object for > 20 returned results
+          controller.sortResults(results, pagination);
+      //   }
+      // }
+    },
+    // A-4/B-5:
     // Handles processing of places returned from Google.
-    sortResults: function(results) {
+    sortResults: function(results, pagination) {
       var primaryTypes = app.settings.search.primaryTypes;
       var secondaryTypes = app.settings.search.secondaryTypes;
       var excludedTypes = app.settings.search.excludedTypes;
@@ -286,26 +309,26 @@
       var sortedResults = [];
 
       // Sorts results based on relevent/exlcuded categories in app.settings.search
-      for (var resultId in results) {
+      for (var id in results) {
         var hasSecondaryType = false;
         var hasExcludedType = false;
 
         // Check for primary types and push onto array for primary results
         for (var i=0; i < primaryTypes.length; i++) {
-          if (results[resultId].types.includes(primaryTypes[i])) {
+          if (results[id].types.includes(primaryTypes[i])) {
             hasPrimaryType = true;
-            primaryResults.push(results[resultId]);
+            primaryResults.push(results[id]);
           }
         }
 
         // If the primary array doesn't contain the result, check for secondary types...
         // ...but make sure that it doesn't have a type on the excluded list
-        if (!primaryResults.includes(results[resultId])) {
+        if (!primaryResults.includes(results[id])) {
           for (var j=0; j < secondaryTypes.length; j++) {
-            if (results[resultId].types.includes(secondaryTypes[j])) {
+            if (results[id].types.includes(secondaryTypes[j])) {
               hasSecondaryType = true;
               for (var k=0; k < excludedTypes.length; k++) {
-                if(results[resultId].types.includes(excludedTypes[k])) {
+                if(results[id].types.includes(excludedTypes[k])) {
                   hasExcludedType = true;
                 }
               }
@@ -313,7 +336,7 @@
           }
           // Push onto array for secondary results if it has a secondary (without excluded) type
           if (hasSecondaryType && !hasExcludedType) {
-            secondaryResults.push(results[resultId]);
+            secondaryResults.push(results[id]);
           }
         }
       }
@@ -324,13 +347,15 @@
       if (sortedResults.length > 0) {
         // Adds search results to sessionStorage
         models.searchResults.add(sortedResults);
+        // Update page and pass pagination object for > 20 results
+        controller.updatePage(pagination);
       } else {
         models.searchResults.init();
         views.alerts.info('Your request returned no results.');
         views.results.render();
       }
     },
-    // A-4/B-5:
+    // A-5/B-6:
     // Updates results on page
     updatePage: function(paginationObj) {
       var sortedResults = models.searchResults.get();
@@ -368,7 +393,7 @@
       views.results.render();
       views.page.enableButtons();
     },
-    // A-4-1/B-5-1:
+    // A-5-1/B-6-1:
     // This requests details of the selectedItem
     reqestPlaceDetails: function(location) {
       var request = { placeId: location.place_id };
@@ -376,7 +401,7 @@
       service = new google.maps.places.PlacesService(views.map.map);
       service.getDetails(request, this.processPlaceResults);
     },
-    // A-4-2/B-5-2:
+    // A-5-2/B-6-2:
     // Handle results for an individual place
     processPlaceResults: function(results, status) {
       if (status == google.maps.places.PlacesServiceStatus.OK) {
@@ -387,7 +412,7 @@
         views.alerts.error('Sorry, please try again.');
       }
     },
-    // A-4-3/B-5-3:
+    // A-5-3/B-6-3:
     // Sets the current item for viewing details about it
     setCurrentItem: function(item) {
       models.selectedItem.init();
