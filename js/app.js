@@ -262,7 +262,7 @@
       function callback(results, status, pagination) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
           // Call .requestDistance() to get distance info on each result
-          controller.requestDistance(results, pagination);
+          controller.requestDistances(results, pagination);
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           models.searchResults.init();
           views.alerts.info('Your request returned no results.');
@@ -276,27 +276,45 @@
     },
     // A-3/B-4:
     // Requests distance info from Google Maps Distance Matrix.
-    requestDistance: function(results, pagination) {
+    requestDistances: function(results, pagination) {
       var service = new google.maps.DistanceMatrixService();
       var origin = new google.maps.LatLng(models.location.lat, models.location.lng);
-      var params = {
-        origins: [service],
-        destination: []
-      };
 
       for (var id in results) {
+        var params = {
+          origins: [origin],
+          destinations: [],
+          travelMode: null,
+          transitOptions: null,
+          unitSystem: google.maps.UnitSystem.IMPERIAL
+        };
+
+        // Set the destination
         var destination = new google.maps.LatLng(results[id].geometry.location.lat(), results[id].geometry.location.lng());
+        params.destinations.push(destination);
+
+        // Request the distance for driving & callback
+        params.travelMode = google.maps.TravelMode.DRIVING;
+        service.getDistanceMatrix(params, callback);
+
+
+        // Request the distance for transit & callback
+        params.travelMode = google.maps.TravelMode.TRANSIT;
+        params.transitOptions = { modes: [google.maps.TransitMode.SUBWAY] };
+        service.getDistanceMatrix(params, callback);
       }
 
-      // function callback(results, status) {
-      //   if (status == google.maps.DistanceMatrixStatus.OK) {
-      //     // TO-DO: Add distance info to each result
-      //     // TO-DO: Check out Object.assign as a possibility to accomplish
-      //
-      //     // Sort results and update page with pagination object for > 20 returned results
-          controller.sortResults(results, pagination);
-      //   }
-      // }
+      function callback(results, status) {
+        if (status == google.maps.DistanceMatrixStatus.OK) {
+          // TO-DO: Add distance info to each result
+          // TO-DO: Check out Object.assign as a possibility to accomplish
+          console.dir(results);
+        }
+      }
+
+      // TO-DO: This won't work here.  It'll be called before the AJAX requests finish.
+      // Sort results and update page with pagination object for > 20 returned results
+      controller.sortResults(results, pagination);
     },
     // A-4/B-5:
     // Handles processing of places returned from Google.
