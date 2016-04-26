@@ -297,19 +297,26 @@
         params.travelMode = google.maps.TravelMode.DRIVING;
         service.getDistanceMatrix(params, callback);
 
-
         // Request the distance for transit & callback
         params.travelMode = google.maps.TravelMode.TRANSIT;
         params.transitOptions = { modes: [google.maps.TransitMode.SUBWAY] };
         service.getDistanceMatrix(params, callback);
       }
 
-      function callback(results, status) {
+      // TO-DO: This needs to be in a closure
+      function callback(result, status) {
         if (status == google.maps.DistanceMatrixStatus.OK) {
           // TO-DO: Add distance info to each result
           // TO-DO: Check out Object.assign as a possibility to accomplish
-          console.dir(results);
+          console.dir(results[id]);
+          results[id].destAdd = { add: result.destinationAddresses[0] };
+          //console.log(results[id].addressInfo);
         }
+      }
+
+      if (id == 19) {
+        console.log('Final results array:');
+        console.dir(results);
       }
 
       // TO-DO: This won't work here.  It'll be called before the AJAX requests finish.
