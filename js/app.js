@@ -298,22 +298,23 @@
           var destination = new google.maps.LatLng(results[id].geometry.location.lat(), results[id].geometry.location.lng());
           params.destinations.push(destination);
 
-          // Request the distance & callback
-          service.getDistanceMatrix(params, callback);
-
-          function callback(results, status) {
-            if (status == google.maps.DistanceMatrixStatus.OK) {
-              // Guard against no driving options to destination
-              if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
-                // Add distance info to each result
-                result.drivingInfo = {
-                  distance: results.rows[0].elements[0].distance.text,
-                  duration: results.rows[0].elements[0].duration.text
-                };
-              }
-            }
-          }
+          // Request the distance & pass to callback
+          // Passing an anonymous function to .getDistanceMatrix() prevents recreating the callback function on every result iteration
+          service.getDistanceMatrix(params, function(results, status) { callback(results, status, result); });
         })(results[id]);
+      }
+
+      function callback(results, status, result) {
+        if (status == google.maps.DistanceMatrixStatus.OK) {
+          // Guard against no driving options to destination
+          if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
+            // Add distance info to each result
+            result.drivingInfo = {
+              distance: results.rows[0].elements[0].distance.text,
+              duration: results.rows[0].elements[0].duration.text
+            };
+          }
+        }
       }
     },
     // A-3b/B-4b:
@@ -338,22 +339,23 @@
           var destination = new google.maps.LatLng(results[id].geometry.location.lat(), results[id].geometry.location.lng());
           params.destinations.push(destination);
 
-          // Request the distance & callback
-          service.getDistanceMatrix(params, callback);
-
-          function callback(results, status) {
-            if (status == google.maps.DistanceMatrixStatus.OK) {
-              // Guard against no transit option to destination
-              if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
-                // Add distance info to each result
-                result.transitInfo = {
-                  distance: results.rows[0].elements[0].distance.text,
-                  duration: results.rows[0].elements[0].duration.text
-                };
-              }
-            }
-          }
+          // Request the distance & pass to callback
+          // Passing an anonymous function to .getDistanceMatrix() prevents recreating the callback function on every result iteration
+          service.getDistanceMatrix(params, function(results, status) { callback(results, status, result); });
         })(results[id]);
+      }
+
+      function callback(results, status, result) {
+        if (status == google.maps.DistanceMatrixStatus.OK) {
+          // Guard against no transit option to destination
+          if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
+            // Add distance info to each result
+            result.transitInfo = {
+              distance: results.rows[0].elements[0].distance.text,
+              duration: results.rows[0].elements[0].duration.text
+            };
+          }
+        }
       }
     },
     // A-4/B-5:
