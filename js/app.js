@@ -268,7 +268,6 @@
           // Send to sorting function
           // TO-DO: Fix this nonsense
           window.setTimeout(function() {
-            console.log('.sortResults() called');
             controller.sortResults(results, pagination);
           }, 3000);
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
@@ -408,7 +407,6 @@
 
       // Combine primary and secondary arrays
       sortedResults = primaryResults.concat(secondaryResults);
-      console.dir(sortedResults);
 
       if (sortedResults.length > 0) {
         // Adds search results to sessionStorage
