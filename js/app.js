@@ -1,3 +1,5 @@
+/* jshint -W083 */ // Silence JSHint's 'Don't make functions within a loop' warning to allow
+
 (function(){
   var app, model, controller, views;
 
