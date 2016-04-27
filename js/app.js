@@ -317,7 +317,7 @@
       }
     },
     // A-3b/B-4b:
-    // Requests driving distance info from Google Maps Distance Matrix.
+    // Requests subway distance info from Google Maps Distance Matrix.
     requestTransitDistance: function(results, pagination) {
       var service = new google.maps.DistanceMatrixService();
       var origin = new google.maps.LatLng(models.location.lat, models.location.lng);
