@@ -261,8 +261,11 @@
 
       function callback(results, status, pagination) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
-          // Call .requestDistance() to get distance info on each result
-          controller.requestDistances(results, pagination);
+          // Get distance info on each result
+          controller.requestDrivingDistance(results, pagination);
+          controller.requestTransitDistance(results, pagination);
+          // Send to sorting function
+          controller.sortResults(results, pagination);
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           models.searchResults.init();
           views.alerts.info('Your request returned no results.');
@@ -274,54 +277,84 @@
         }
       }
     },
-    // A-3/B-4:
-    // Requests distance info from Google Maps Distance Matrix.
-    requestDistances: function(results, pagination) {
+    // A-3a/B-4a:
+    // Requests driving distance info from Google Maps Distance Matrix.
+    requestDrivingDistance: function(results, pagination) {
       var service = new google.maps.DistanceMatrixService();
       var origin = new google.maps.LatLng(models.location.lat, models.location.lng);
 
       for (var id in results) {
+        // params must be reset before each request
         var params = {
           origins: [origin],
           destinations: [],
-          travelMode: null,
-          transitOptions: null,
+          travelMode: google.maps.TravelMode.DRIVING,
           unitSystem: google.maps.UnitSystem.IMPERIAL
         };
 
-        // Set the destination
-        var destination = new google.maps.LatLng(results[id].geometry.location.lat(), results[id].geometry.location.lng());
-        params.destinations.push(destination);
+        // Closure needed for AJAX to assign response to correct places object
+        (function(result) {
+          // Set the destination
+          var destination = new google.maps.LatLng(results[id].geometry.location.lat(), results[id].geometry.location.lng());
+          params.destinations.push(destination);
 
-        // Request the distance for driving & callback
-        params.travelMode = google.maps.TravelMode.DRIVING;
-        service.getDistanceMatrix(params, callback);
+          // Request the distance for driving & callback
+          service.getDistanceMatrix(params, callback);
 
-        // Request the distance for transit & callback
-        params.travelMode = google.maps.TravelMode.TRANSIT;
-        params.transitOptions = { modes: [google.maps.TransitMode.SUBWAY] };
-        service.getDistanceMatrix(params, callback);
+          function callback(results, status) {
+            if (status == google.maps.DistanceMatrixStatus.OK) {
+              // Guard against no driving options to destination
+              if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
+                // Add distance info to each result
+                result.drivingInfo = {
+                  distance: results.rows[0].elements[0].distance.text,
+                  duration: results.rows[0].elements[0].duration.text
+                };
+              }
+            }
+          }
+        })(results[id]);
       }
+    },
+    // A-3b/B-4b:
+    // Requests driving distance info from Google Maps Distance Matrix.
+    requestTransitDistance: function(results, pagination) {
+      var service = new google.maps.DistanceMatrixService();
+      var origin = new google.maps.LatLng(models.location.lat, models.location.lng);
 
-      // TO-DO: This needs to be in a closure
-      function callback(result, status) {
-        if (status == google.maps.DistanceMatrixStatus.OK) {
-          // TO-DO: Add distance info to each result
-          // TO-DO: Check out Object.assign as a possibility to accomplish
-          console.dir(results[id]);
-          results[id].destAdd = { add: result.destinationAddresses[0] };
-          //console.log(results[id].addressInfo);
-        }
+      for (var id in results) {
+        // params must be reset before each request
+        var params = {
+          origins: [origin],
+          destinations: [],
+          travelMode: google.maps.TravelMode.TRANSIT,
+          transitOptions: { modes: [google.maps.TransitMode.SUBWAY] },
+          unitSystem: google.maps.UnitSystem.IMPERIAL
+        };
+
+        // Closure needed for AJAX to assign response to correct places object
+        (function(result) {
+          // Set the destination
+          var destination = new google.maps.LatLng(results[id].geometry.location.lat(), results[id].geometry.location.lng());
+          params.destinations.push(destination);
+
+          // Request the distance for driving & callback
+          service.getDistanceMatrix(params, callback);
+
+          function callback(results, status) {
+            if (status == google.maps.DistanceMatrixStatus.OK) {
+              // Guard against no transit option to destination
+              if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
+                // Add distance info to each result
+                result.transitInfo = {
+                  distance: results.rows[0].elements[0].distance.text,
+                  duration: results.rows[0].elements[0].duration.text
+                };
+              }
+            }
+          }
+        })(results[id]);
       }
-
-      if (id == 19) {
-        console.log('Final results array:');
-        console.dir(results);
-      }
-
-      // TO-DO: This won't work here.  It'll be called before the AJAX requests finish.
-      // Sort results and update page with pagination object for > 20 returned results
-      controller.sortResults(results, pagination);
     },
     // A-4/B-5:
     // Handles processing of places returned from Google.
