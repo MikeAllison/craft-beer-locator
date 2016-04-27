@@ -1,5 +1,4 @@
-/* jshint -W083 */ // Silence JSHint's 'Don't make functions within a loop' warning to allow
-
+/* jshint -W083 */ // Silence JSHint's warning 'Don't make functions within a loop' to allow closures
 (function(){
   var app, model, controller, views;
 
