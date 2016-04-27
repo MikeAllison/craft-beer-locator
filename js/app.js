@@ -459,11 +459,11 @@
     },
     // A-5-1/B-6-1:
     // This requests details of the selectedItem
-    reqestPlaceDetails: function(location) {
-      var request = { placeId: location.place_id };
+    requestPlaceDetails: function(place) {
+      var params = { placeId: place.place_id };
 
       service = new google.maps.places.PlacesService(views.map.map);
-      service.getDetails(request, this.processPlaceResults);
+      service.getDetails(params, this.processPlaceResults);
     },
     // A-5-2/B-6-2:
     // Handle results for an individual place
@@ -690,7 +690,7 @@
 
             li.addEventListener('click', (function(location) {
               return function() {
-                controller.reqestPlaceDetails(location);
+                controller.requestPlaceDetails(location);
               };
             })(results[i]));
 
