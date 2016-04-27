@@ -263,10 +263,14 @@
       function callback(results, status, pagination) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
           // Get distance info on each result
-          controller.requestDrivingDistance(results, pagination);
-          controller.requestTransitDistance(results, pagination);
+          controller.requestDrivingDistance(results);
+          controller.requestTransitDistance(results);
           // Send to sorting function
-          controller.sortResults(results, pagination);
+          // TO-DO: Fix this nonsense
+          window.setTimeout(function() {
+            console.log('.sortResults() called');
+            controller.sortResults(results, pagination);
+          }, 3000);
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           models.searchResults.init();
           views.alerts.info('Your request returned no results.');
@@ -280,7 +284,7 @@
     },
     // A-3a/B-4a:
     // Requests driving distance info from Google Maps Distance Matrix.
-    requestDrivingDistance: function(results, pagination) {
+    requestDrivingDistance: function(results) {
       var service = new google.maps.DistanceMatrixService();
       var origin = new google.maps.LatLng(models.location.lat, models.location.lng);
 
@@ -320,7 +324,7 @@
     },
     // A-3b/B-4b:
     // Requests subway distance info from Google Maps Distance Matrix.
-    requestTransitDistance: function(results, pagination) {
+    requestTransitDistance: function(results) {
       var service = new google.maps.DistanceMatrixService();
       var origin = new google.maps.LatLng(models.location.lat, models.location.lng);
 
@@ -404,6 +408,7 @@
 
       // Combine primary and secondary arrays
       sortedResults = primaryResults.concat(secondaryResults);
+      console.dir(sortedResults);
 
       if (sortedResults.length > 0) {
         // Adds search results to sessionStorage
