@@ -298,7 +298,7 @@
           var destination = new google.maps.LatLng(results[id].geometry.location.lat(), results[id].geometry.location.lng());
           params.destinations.push(destination);
 
-          // Request the distance for driving & callback
+          // Request the distance & callback
           service.getDistanceMatrix(params, callback);
 
           function callback(results, status) {
@@ -338,7 +338,7 @@
           var destination = new google.maps.LatLng(results[id].geometry.location.lat(), results[id].geometry.location.lng());
           params.destinations.push(destination);
 
-          // Request the distance for driving & callback
+          // Request the distance & callback
           service.getDistanceMatrix(params, callback);
 
           function callback(results, status) {
