@@ -105,6 +105,7 @@
     places: {
       init: function() {
         sessionStorage.clear();
+        this.paginationObj = {};
       },
       // Adds an array of results of search to sessionStorage
       add: function(places) {
@@ -113,6 +114,9 @@
       // Retrieves an array of results of search from sessionStorage
       get: function() {
         return JSON.parse(sessionStorage.getItem('places'));
+      },
+      setPaginationObj: function(paginationObj) {
+        this.paginationObj = paginationObj;
       }
     },
     recentSearches: {
@@ -177,6 +181,19 @@
     //   this.setSearchLocation(location);
     //   this.requestPlaces();
     // },
+    requestMoreResults: function () {
+      console.log('requestMoreResults called');
+      var paginationObj = models.places.paginationObj;
+      paginationObj.nextPage();
+      // TO-DO: Fix this hack
+      // Need to wait for AJAX request to finish before moving on...
+      // ...can't use JS promise
+      window.setTimeout(function() {
+        controller.requestDrivingDistance()
+          .then(controller.sortPlaces)
+          .then(controller.updatePage);
+      }, 2000);
+    },
     // Takes a city, state and converts it to lat/lng using Google Geocoding API
     // This could be performed using a Google Maps object but I wanted to practice using AJAX requests
     getGeocode: function() {
@@ -282,9 +299,10 @@
 
         function callback(results, status, pagination) {
           if (status == google.maps.places.PlacesServiceStatus.OK) {
-            // TO-DO: Figure out what to do with pagination
             // Add results to sessionStorage
             models.places.add(results);
+            // Store pagination object for more results
+            models.places.setPaginationObj(pagination);
           } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
             models.places.init();
             views.alerts.info('Your request returned no results.');
@@ -390,7 +408,7 @@
       }
     },
     // Handles processing of places returned from Google.
-    sortPlaces: function(pagination) {
+    sortPlaces: function() {
       console.log('sortPlaces - Start');
       return new Promise(function(resolve, reject) {
         var primaryTypes = app.settings.search.primaryTypes;
@@ -451,10 +469,11 @@
       });
     },
     // Updates results on page
-    updatePage: function(paginationObj) {
+    updatePage: function() {
       console.log('updatePage - Start');
       return new Promise(function(resolve, reject) {
         var places = models.places.get();
+        var paginationObj = models.places.paginationObj;
 
         if (places) {
           // Only set location attributes and it to recent searches if it's the first request of the location
@@ -488,6 +507,7 @@
         views.recentSearches.render();
         views.results.render();
         views.page.enableButtons();
+        console.log('updatePage - End');
         resolve();
       });
     },
@@ -745,9 +765,9 @@
           window.scroll(0, 0);
         });
       },
-      addNextPageFn: function(obj) {
+      addNextPageFn: function() {
         this.moreResultsBtn.onclick = function() {
-          obj.nextPage();
+          controller.requestMoreResults();
         };
       },
       show: function() {
