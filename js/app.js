@@ -70,7 +70,7 @@
         this.newSearch = true;
       }
     },
-    selectedItem: {
+    selectedPlace: {
       init: function() {
         this.name = null;
         this.openNow = null;
@@ -102,17 +102,17 @@
         this.hoursOpen = hoursOpen ? hoursOpen : '';
       }
     },
-    searchResults: {
+    places: {
       init: function() {
         sessionStorage.clear();
       },
       // Adds an array of results of search to sessionStorage
       add: function(items) {
-        sessionStorage.setItem('searchResults', JSON.stringify(items));
+        sessionStorage.setItem('places', JSON.stringify(items));
       },
       // Retrieves an array of results of search from sessionStorage
       get: function() {
-        return JSON.parse(sessionStorage.getItem('searchResults'));
+        return JSON.parse(sessionStorage.getItem('places'));
       }
     },
     recentSearches: {
@@ -146,7 +146,7 @@
     init: function() {
       app.init();
       models.location.init();
-      models.searchResults.init();
+      models.places.init();
       views.page.init();
       views.map.init();
       views.form.init();
@@ -271,11 +271,11 @@
             controller.sortResults(results, pagination);
           }, 3000);
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-          models.searchResults.init();
+          models.places.init();
           views.alerts.info('Your request returned no results.');
           views.results.render();
         } else {
-          models.searchResults.init();
+          models.places.init();
           views.alerts.error('Sorry, please try again.');
           views.results.render();
         }
@@ -410,11 +410,11 @@
 
       if (sortedResults.length > 0) {
         // Adds search results to sessionStorage
-        models.searchResults.add(sortedResults);
+        models.places.add(sortedResults);
         // Update page and pass pagination object for > 20 results
         controller.updatePage(pagination);
       } else {
-        models.searchResults.init();
+        models.places.init();
         views.alerts.info('Your request returned no results.');
         views.results.render();
       }
@@ -422,7 +422,7 @@
     // A-5/B-6:
     // Updates results on page
     updatePage: function(paginationObj) {
-      var sortedResults = models.searchResults.get();
+      var sortedResults = models.places.get();
 
       if (sortedResults) {
         // Only set location attributes and it to recent searches if it's the first request of the location
@@ -458,18 +458,18 @@
       views.page.enableButtons();
     },
     // A-5-1/B-6-1:
-    // This requests details of the selectedItem
+    // This requests details of the selectedPlace
     requestPlaceDetails: function(place) {
       var params = { placeId: place.place_id };
 
       service = new google.maps.places.PlacesService(views.map.map);
-      service.getDetails(params, this.processPlaceResults);
+      service.getDetails(params, this.updateModal);
     },
     // A-5-2/B-6-2:
     // Handle results for an individual place
-    processPlaceResults: function(results, status) {
+    updateModal: function(results, status) {
       if (status == google.maps.places.PlacesServiceStatus.OK) {
-        controller.setCurrentItem(results);
+        controller.setPlaceDetails(results);
         views.itemModal.populate();
         views.itemModal.show();
       } else {
@@ -478,22 +478,22 @@
     },
     // A-5-3/B-6-3:
     // Sets the current item for viewing details about it
-    setCurrentItem: function(item) {
-      models.selectedItem.init();
-      models.selectedItem.setName(item.name);
-      models.selectedItem.setWebsite(item.website);
-      models.selectedItem.setAddress(item.formatted_address);
-      models.selectedItem.setGoogleMapsUrl(item.url);
-      models.selectedItem.setPhoneNum(item.formatted_phone_number);
+    setPlaceDetails: function(item) {
+      models.selectedPlace.init();
+      models.selectedPlace.setName(item.name);
+      models.selectedPlace.setWebsite(item.website);
+      models.selectedPlace.setAddress(item.formatted_address);
+      models.selectedPlace.setGoogleMapsUrl(item.url);
+      models.selectedPlace.setPhoneNum(item.formatted_phone_number);
       // This is needed to guard against items without opening_hours
       if (item.opening_hours) {
-        models.selectedItem.setOpenNow(item.opening_hours.open_now);
-        models.selectedItem.setHoursOpen(item.opening_hours.weekday_text);
+        models.selectedPlace.setOpenNow(item.opening_hours.open_now);
+        models.selectedPlace.setHoursOpen(item.opening_hours.weekday_text);
       }
     },
     // Sets the location to be used by Google Places Search
     // Called when a loction is clicked in Recent Searches
-    setLocation: function(location) {
+    setSearchLocation: function(location) {
       models.location.setLat(location.lat);
       models.location.setLng(location.lng);
       models.location.setFormattedAddress(location.formattedAddress);
@@ -639,21 +639,21 @@
         var currentDay = new Date().getDay();
         // Adjust to start week on Monday for hoursOpen
         currentDay -= 1;
-        this.itemModalTitle.textContent = models.selectedItem.name;
-        this.itemModalOpenNow.textContent = models.selectedItem.openNow;
-        this.itemModalWebsite.setAttribute('href', models.selectedItem.website);
-        this.itemModalWebsite.textContent = models.selectedItem.website;
-        this.itemModalAddress.setAttribute('href', models.selectedItem.googleMapsUrl);
-        this.itemModalAddress.textContent = models.selectedItem.address;
-        this.itemModalPhoneNum.setAttribute('href', 'tel:' + models.selectedItem.phoneNum);
-        this.itemModalPhoneNum.textContent = models.selectedItem.phoneNum;
+        this.itemModalTitle.textContent = models.selectedPlace.name;
+        this.itemModalOpenNow.textContent = models.selectedPlace.openNow;
+        this.itemModalWebsite.setAttribute('href', models.selectedPlace.website);
+        this.itemModalWebsite.textContent = models.selectedPlace.website;
+        this.itemModalAddress.setAttribute('href', models.selectedPlace.googleMapsUrl);
+        this.itemModalAddress.textContent = models.selectedPlace.address;
+        this.itemModalPhoneNum.setAttribute('href', 'tel:' + models.selectedPlace.phoneNum);
+        this.itemModalPhoneNum.textContent = models.selectedPlace.phoneNum;
 
         this.itemModalHoursOpen.textContent = null;
-        if (models.selectedItem.hoursOpen) {
-          for (var i=0; i < models.selectedItem.hoursOpen.length; i++) {
+        if (models.selectedPlace.hoursOpen) {
+          for (var i=0; i < models.selectedPlace.hoursOpen.length; i++) {
             var li = document.createElement('li');
             // Split hoursOpen on ':'
-            var dayTime = models.selectedItem.hoursOpen[i].split(/:\s/);
+            var dayTime = models.selectedPlace.hoursOpen[i].split(/:\s/);
             // <span> is needed to highlight hours for current day
             li.innerHTML = '<span><strong>' + dayTime[0] + ':</strong>' + dayTime[1] + '</span>';
             // Highlight current day of week
@@ -680,7 +680,7 @@
         this.resultsList.textContent = null;
         this.resultsList.classList.remove('hidden');
 
-        var results = models.searchResults.get();
+        var results = models.places.get();
 
         if (results) {
           for (var i=0; i < results.length; i++) {
@@ -688,9 +688,9 @@
             li.classList.add('list-group-item');
             li.textContent = results[i].name;
 
-            li.addEventListener('click', (function(location) {
+            li.addEventListener('click', (function(place) {
               return function() {
-                controller.requestPlaceDetails(location);
+                controller.requestPlaceDetails(place);
               };
             })(results[i]));
 
@@ -759,7 +759,7 @@
               return function() {
                 views.page.disableButtons();
                 views.page.clear();
-                controller.setLocation(location);
+                controller.setSearchLocation(location);
                 controller.requestPlaces();
               };
             })(recentSearches[i]));
