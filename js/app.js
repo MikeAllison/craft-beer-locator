@@ -1,4 +1,5 @@
-/* jshint -W083 */ // Silence JSHint's warning 'Don't make functions within a loop' to allow closures
+/* jshint -W083 */ // Silence JSHint's warning "Don't make functions within a loop" to allow closures
+
 (function(){
   var app, model, controller, views;
 
@@ -169,12 +170,15 @@
         .then(controller.sortPlaces)
         .then(controller.updatePage);
     },
-    // // TO-DO: Controls the flow of a search initiated by the 'My Location' button
-    // geolocationSearch: function() {
-    //   this.getCurrentLocation();
-    //   this.reverseGeocode();
-    //   console.dir(models.searchLocation);
-    // },
+    // TO-DO: Controls the flow of a search initiated by the 'My Location' button
+    geolocationSearch: function() {
+      controller.getCurrentLocation()
+        .then(controller.reverseGeocode)
+        .then(controller.requestPlaces)
+        .then(controller.requestDrivingDistance)
+        .then(controller.sortPlaces)
+        .then(controller.updatePage);
+    },
     // // TO-DO: Controls the flow of a search initiated by clicking a location in Recent Searches
     // recentSearch: function(location) {
     //   console.dir(location);
@@ -243,36 +247,46 @@
     },
     // HTML5 geocoding request for lat/lng for 'My Location' button
     getCurrentLocation: function() {
-      var success = function(position) {
-        models.searchLocation.setLat(position.coords.latitude);
-        models.searchLocation.setLng(position.coords.longitude);
-      };
-      var error = function() {
-        views.alerts.error('Sorry, please try again.');
-      };
-      var options = { enableHighAccuracy: true };
+      console.log('getCurrentLocation - Start');
+      return new Promise(function(resolve, reject) {
+        var success = function(position) {
+          models.searchLocation.setLat(position.coords.latitude);
+          models.searchLocation.setLng(position.coords.longitude);
+          console.log('getCurrentLocation - End');
+          resolve();
+        };
+        var error = function() {
+          views.alerts.error('Sorry, please try again.');
+        };
+        var options = { enableHighAccuracy: true };
 
-      if ('geolocation' in navigator) {
-        navigator.geolocation.getCurrentPosition(success, error, options);
-      } else {
-        views.alerts.error('Sorry, geolocation is not supported in your browser.');
-      }
+        if ('geolocation' in navigator) {
+          navigator.geolocation.getCurrentPosition(success, error, options);
+        } else {
+          views.alerts.error('Sorry, geolocation is not supported in your browser.');
+        }
+      });
     },
     // Converts lat/lng to a city, state
     reverseGeocode: function() {
-      var httpRequest = new XMLHttpRequest();
-      var params = 'key=' + app.google.apiKey + '&latlng=' + models.searchLocation.lat + ',' + models.searchLocation.lng;
+      console.log('reverseGeocode - Start');
+      return new Promise(function(resolve, reject) {
+        var httpRequest = new XMLHttpRequest();
+        var params = 'key=' + app.google.apiKey + '&latlng=' + models.searchLocation.lat + ',' + models.searchLocation.lng;
 
-      httpRequest.open('GET', app.google.geocodingAPI.reqURL + params, true);
-      httpRequest.send();
+        httpRequest.open('GET', app.google.geocodingAPI.reqURL + params, true);
+        httpRequest.send();
 
-      httpRequest.onload = function() {
-        if (httpRequest.readyState === XMLHttpRequest.DONE) {
-          var response = JSON.parse(httpRequest.responseText);
-          // Sets .formattedAddress as city, state (i.e. New York, NY)
-          models.searchLocation.setFormattedAddress(response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name);
-        }
-      };
+        httpRequest.onload = function() {
+          if (httpRequest.readyState === XMLHttpRequest.DONE) {
+            var response = JSON.parse(httpRequest.responseText);
+            // Sets .formattedAddress as city, state (i.e. New York, NY)
+            models.searchLocation.setFormattedAddress(response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name);
+          }
+          console.log('reverseGeocode - End');
+          resolve();
+        };
+      });
     },
     // Sends a lat/lng to Google Places Library and stores results
     requestPlaces: function() {
