@@ -17,13 +17,13 @@ app = {
         // Types (primaryTypes/secondaryTypes/excludedTypes) can be any Google Place Type: https://developers.google.com/places/supported_types
 
         // primaryTypes: Any result having these types will be sorted and listed first
-        primaryTypes: ['bar', 'store'], // Array w/ empty string or multi-string (examples: [''], ['type1'], ['type1, 'type2'], etc.)
+        primaryTypes: ['bar', 'store'], // Array w/ empty string or multi-string (examples: [], ['type1'], ['type1, 'type2'], etc.)
 
         // secondaryTypes: Any result having these types will be listed after primaryTypes
-        secondaryTypes: ['restaurant'], // Array w/ empty string or multi-string (examples: [''], ['type1'], ['type1, 'type2'], etc.)
+        secondaryTypes: ['restaurant'], // Array w/ empty string or multi-string (examples: [], ['type1'], ['type1, 'type2'], etc.)
 
         // excludedTypes: Any result having these types will excluded from the results
-        excludedTypes: [''], // Array w/ empty string or multi-string (examples: [''], ['type1'], ['type1, 'type2'], etc.)
+        excludedTypes: [], // Array w/ empty string or multi-string (examples: [], ['type1'], ['type1, 'type2'], etc.)
 
         topResultsOnly: false // Can change: Allows search to return more than 1 set of results (true/false)
       }
