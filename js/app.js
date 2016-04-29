@@ -66,8 +66,8 @@
       setTotalItems: function(totalItems) {
         this.totalItems = totalItems;
       },
-      resetNewSearch: function() {
-        this.newSearch = true;
+      setNewSearch: function(bool) {
+        this.newSearch = bool;
       }
     },
     selectedPlace: {
@@ -279,7 +279,7 @@
       console.log('requestPlaces - Start');
       return new Promise(function(resolve, reject) {
         // Reset first request so search location is added to Recent Searches
-        models.searchLocation.resetNewSearch();
+        models.searchLocation.setNewSearch(true);
         // Set params for search
         var location = new google.maps.LatLng(models.searchLocation.lat, models.searchLocation.lng);
         var params = {
@@ -491,7 +491,7 @@
           // Handle > 20 matches (Google returns a max of 20 by default)
           if (!app.settings.search.topResultsOnly && paginationObj.hasNextPage) {
             // Prevent addition of locations to recent searches if more button is pressed
-            models.searchLocation.newSearch = false;
+            models.searchLocation.setNewSearch(false);
             // Attaches click listener to moreResultsBtn for pagination.nextPage()
             views.moreResultsBtn.addNextPageFn(paginationObj);
             views.moreResultsBtn.show();
