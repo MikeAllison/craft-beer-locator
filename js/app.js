@@ -73,13 +73,27 @@
     },
     selectedPlace: {
       init: function() {
+        this.placeId = null;
+        this.lat = null;
+        this.lng = null;
         this.name = null;
         this.openNow = null;
         this.website = null;
         this.address = null;
         this.googleMapsUrl = null;
         this.phoneNum = null;
+        this.drivingInfo = {};
+        this.transitInfo = {};
         this.hoursOpen = null;
+      },
+      setPlaceId: function(placeId) {
+        this.placeId = placeId;
+      },
+      setLat: function(lat) {
+        this.lat = lat;
+      },
+      setLng: function(lng) {
+        this.lng = lng;
       },
       setName: function(name) {
         this.name = name;
@@ -99,6 +113,14 @@
       setPhoneNum: function(phoneNum) {
         this.phoneNum = phoneNum ? phoneNum : '';
       },
+      setDrivingInfo: function(distance, duration) {
+        this.drivingInfo.distance = distance;
+        this.drivingInfo.duration = duration;
+      },
+      setTransitInfo: function(distance, duration) {
+        this.transitInfo.distance = distance;
+        this.transitInfo.duration = duration;
+      },
       setHoursOpen: function(hoursOpen) {
         this.hoursOpen = hoursOpen ? hoursOpen : '';
       }
@@ -115,6 +137,15 @@
       // Retrieves an array of results of search from sessionStorage
       get: function() {
         return JSON.parse(sessionStorage.getItem('places'));
+      },
+      find: function(requestedPlace) {
+        places = this.get();
+
+        for (var place in places) {
+          if (places[place].place_id === requestedPlace.place_id) {
+            return places[place];
+          }
+        }
       },
       setPaginationObj: function(paginationObj) {
         this.paginationObj = paginationObj;
@@ -185,6 +216,14 @@
     //   this.setSearchLocation(location);
     //   this.requestPlaces();
     // },
+    // Controls the flow for acquiring details when a specific place is selected
+    getDetails: function(place) {
+      var requestedPlace = models.places.find(place);
+      controller.setSelectedPlaceDetails(requestedPlace)
+        .then(controller.requestPlaceDetails)
+        .then(controller.requestTransitDistance)
+        .then(controller.updateModal);
+    },
     requestMoreResults: function() {
       console.log('requestMoreResults called');
       var paginationObj = models.places.paginationObj;
@@ -381,46 +420,6 @@
         }
       });
     },
-    // Requests subway distance info from Google Maps Distance Matrix.
-    requestTransitDistance: function(results) {
-      var service = new google.maps.DistanceMatrixService();
-      var origin = new google.maps.LatLng(models.searchLocation.lat, models.searchLocation.lng);
-
-      for (var id in results) {
-        // params must be reset before each request
-        var params = {
-          origins: [origin],
-          destinations: [],
-          travelMode: google.maps.TravelMode.TRANSIT,
-          transitOptions: { modes: [google.maps.TransitMode.SUBWAY] },
-          unitSystem: google.maps.UnitSystem.IMPERIAL
-        };
-
-        // Closure needed for AJAX to assign response to correct places object
-        (function(result) {
-          // Set the destination
-          var destination = new google.maps.LatLng(results[id].geometry.location.lat(), results[id].geometry.location.lng());
-          params.destinations.push(destination);
-
-          // Request the distance & pass to callback
-          // Passing an anonymous function to .getDistanceMatrix() prevents recreating the callback function on every result iteration
-          service.getDistanceMatrix(params, function(results, status) { callback(results, status, result); });
-        })(results[id]);
-      }
-
-      function callback(results, status, result) {
-        if (status == google.maps.DistanceMatrixStatus.OK) {
-          // Guard against no transit option to destination
-          if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
-            // Add distance info to each result
-            result.transitInfo = {
-              distance: results.rows[0].elements[0].distance.text,
-              duration: results.rows[0].elements[0].duration.text
-            };
-          }
-        }
-      }
-    },
     // Handles processing of places returned from Google.
     sortPlaces: function() {
       console.log('sortPlaces - Start');
@@ -525,38 +524,86 @@
         resolve();
       });
     },
-    // This requests details of the selectedPlace
-    requestPlaceDetails: function(place) {
-      var params = { placeId: place.place_id };
+    // Sets the initial deails of the requested place for viewing details about it
+    setSelectedPlaceDetails: function(place) {
+      console.log('setSelectedPlaceDetails - Start');
+      return new Promise(function(resolve, reject) {
+        models.selectedPlace.init();
+        models.selectedPlace.setPlaceId(place.place_id);
+        models.selectedPlace.setLat(place.geometry.location.lat);
+        models.selectedPlace.setLng(place.geometry.location.lng);
+        models.selectedPlace.setName(place.name);
+        models.selectedPlace.setDrivingInfo(place.drivingInfo.distance, place.drivingInfo.duration);
+        resolve();
+        console.log('setSelectedPlaceDetails - End');
+      });
+    },
+    // This requests details of the selectedPlace from Google
+    requestPlaceDetails: function() {
+      console.log('requestPlaceDetails - Start');
+      return new Promise(function(resolve, reject) {
+        var params = { placeId: models.selectedPlace.placeId };
 
-      service = new google.maps.places.PlacesService(views.map.map);
-      service.getDetails(params, this.updateModal);
+        service = new google.maps.places.PlacesService(views.map.map);
+        service.getDetails(params, callback);
+
+        function callback(results, status) {
+          if (status == google.maps.places.PlacesServiceStatus.OK) {
+            models.selectedPlace.setWebsite(results.website);
+            models.selectedPlace.setAddress(results.formatted_address);
+            models.selectedPlace.setGoogleMapsUrl(results.url);
+            models.selectedPlace.setPhoneNum(results.formatted_phone_number);
+            // This is needed to guard against items without opening_hours
+            if (results.opening_hours) {
+              models.selectedPlace.setOpenNow(results.opening_hours.open_now);
+              models.selectedPlace.setHoursOpen(results.opening_hours.weekday_text);
+            }
+            console.log('requestPlaceDetails - End');
+            resolve();
+          } else {
+            iews.alerts.error('Sorry, please try again.');
+          }
+        }
+      });
+    },
+    // Requests subway distance info from Google Maps Distance Matrix.
+    requestTransitDistance: function() {
+      console.log('requestTransitDistance - Start');
+      return new Promise(function(resolve, reject) {
+        var service = new google.maps.DistanceMatrixService();
+        var origin = new google.maps.LatLng(models.selectedPlace.lat, models.selectedPlace.lng);
+        var destination = new google.maps.LatLng(models.selectedPlace.lat, models.selectedPlace.lng);
+        var params = {
+          origins: [origin],
+          destinations: [destination],
+          travelMode: google.maps.TravelMode.TRANSIT,
+          transitOptions: { modes: [google.maps.TransitMode.SUBWAY] },
+          unitSystem: google.maps.UnitSystem.IMPERIAL
+        };
+
+        // Request the distance & pass to callback
+        service.getDistanceMatrix(params, callback);
+
+        function callback(results, status) {
+          if (status == google.maps.DistanceMatrixStatus.OK) {
+            // Guard against no transit option to destination
+            if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
+              // Add distance and duration info
+              models.selectedPlace.setTransitInfo(results.rows[0].elements[0].distance.text, results.rows[0].elements[0].duration.text);
+            }
+            console.log('requestTransitDistance - End');
+            resolve();
+          }
+        }
+      });
     },
     // Handle results for an individual place
-    updateModal: function(results, status) {
-      if (status == google.maps.places.PlacesServiceStatus.OK) {
-        controller.setPlaceDetails(results);
-        views.itemModal.populate();
-        views.itemModal.show();
-      } else {
-        views.alerts.error('Sorry, please try again.');
-      }
+    updateModal: function() {
+      views.itemModal.populate();
+      views.itemModal.show();
+      console.dir(models.selectedPlace);
     },
-    // Sets the current item for viewing details about it
-    setPlaceDetails: function(item) {
-      models.selectedPlace.init();
-      models.selectedPlace.setName(item.name);
-      models.selectedPlace.setWebsite(item.website);
-      models.selectedPlace.setAddress(item.formatted_address);
-      models.selectedPlace.setGoogleMapsUrl(item.url);
-      models.selectedPlace.setPhoneNum(item.formatted_phone_number);
-      // This is needed to guard against items without opening_hours
-      if (item.opening_hours) {
-        models.selectedPlace.setOpenNow(item.opening_hours.open_now);
-        models.selectedPlace.setHoursOpen(item.opening_hours.weekday_text);
-      }
-    },
-    // Sets the location to be used by Google Places Search
+    // Sets the location to be used by Google Places Search when a location is selected from Recent Places
     setSearchLocation: function(location) {
       models.searchLocation.setLat(location.lat);
       models.searchLocation.setLng(location.lng);
@@ -754,7 +801,7 @@
 
             li.addEventListener('click', (function(place) {
               return function() {
-                controller.requestPlaceDetails(place);
+                controller.getDetails(place);
               };
             })(results[i]));
 
