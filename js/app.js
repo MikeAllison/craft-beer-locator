@@ -201,7 +201,7 @@
         .then(controller.sortPlaces)
         .then(controller.updatePage);
     },
-    // TO-DO: Controls the flow of a search initiated by the 'My Location' button
+    // Controls the flow of a search initiated by the 'My Location' button
     geolocationSearch: function() {
       controller.getCurrentLocation()
         .then(controller.reverseGeocode)
@@ -231,8 +231,7 @@
       var paginationObj = models.places.paginationObj;
       paginationObj.nextPage();
       // TO-DO: Fix this hack
-      // Need to wait for AJAX request to finish before moving on...
-      // ...can't use JS promise
+      // Need to wait for AJAX request to finish before moving on and can't use JS promise
       window.setTimeout(function() {
         controller.requestDrivingDistance()
           .then(controller.sortPlaces)

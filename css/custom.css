@@ -82,6 +82,7 @@
 /* Bootstrap Overrides */
 
 .badge {
+  margin-top: 6px;
   background-color: #415b76;
 }
 
