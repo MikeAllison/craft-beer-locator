@@ -181,7 +181,7 @@
     //   this.setSearchLocation(location);
     //   this.requestPlaces();
     // },
-    requestMoreResults: function () {
+    requestMoreResults: function() {
       console.log('requestMoreResults called');
       var paginationObj = models.places.paginationObj;
       paginationObj.nextPage();
@@ -543,7 +543,6 @@
       }
     },
     // Sets the location to be used by Google Places Search
-    // Called when a loction is clicked in Recent Searches
     setSearchLocation: function(location) {
       models.searchLocation.setLat(location.lat);
       models.searchLocation.setLng(location.lng);
