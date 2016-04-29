@@ -210,12 +210,14 @@
         .then(controller.sortPlaces)
         .then(controller.updatePage);
     },
-    // // TO-DO: Controls the flow of a search initiated by clicking a location in Recent Searches
-    // recentSearch: function(location) {
-    //   console.dir(location);
-    //   this.setSearchLocation(location);
-    //   this.requestPlaces();
-    // },
+    // Controls the flow of a search initiated by clicking a location in Recent Searches
+    recentSearch: function(location) {
+      controller.setSearchLocation(location);
+      controller.requestPlaces()
+        .then(controller.requestDrivingDistance)
+        .then(controller.sortPlaces)
+        .then(controller.updatePage);
+    },
     // Controls the flow for acquiring details when a specific place is selected
     getDetails: function(place) {
       var requestedPlace = models.places.find(place);
@@ -571,7 +573,7 @@
       console.log('requestTransitDistance - Start');
       return new Promise(function(resolve, reject) {
         var service = new google.maps.DistanceMatrixService();
-        var origin = new google.maps.LatLng(models.selectedPlace.lat, models.selectedPlace.lng);
+        var origin = new google.maps.LatLng(models.searchLocation.lat, models.searchLocation.lng);
         var destination = new google.maps.LatLng(models.selectedPlace.lat, models.selectedPlace.lng);
         var params = {
           origins: [origin],
