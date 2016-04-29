@@ -114,12 +114,12 @@
         this.phoneNum = phoneNum ? phoneNum : '';
       },
       setDrivingInfo: function(distance, duration) {
-        this.drivingInfo.distance = distance;
-        this.drivingInfo.duration = duration;
+        this.drivingInfo.distance = distance ? distance : '';
+        this.drivingInfo.duration = duration ? duration : '';
       },
       setTransitInfo: function(distance, duration) {
-        this.transitInfo.distance = distance;
-        this.transitInfo.duration = duration;
+        this.transitInfo.distance = distance ? distance : '';
+        this.transitInfo.duration = duration ? duration : '';
       },
       setHoursOpen: function(hoursOpen) {
         this.hoursOpen = hoursOpen ? hoursOpen : '';

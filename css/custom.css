@@ -47,6 +47,10 @@
   color: #fff;
 }
 
+.list-group-item {
+  overflow-x: auto;
+}
+
 .modal-body {
   overflow-x: auto;
 }
