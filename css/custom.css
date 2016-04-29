@@ -63,6 +63,14 @@
   margin-right: 10px;
 }
 
+.modal-distance-info {
+  font-size: 0.9em;
+}
+
+.modal-distance-info li strong {
+  margin-right: 10px;
+}
+
 /* Current day in modal */
 
 .current-day span {

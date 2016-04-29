@@ -80,17 +80,22 @@
       <div id="itemModal" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog">
           <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header text-center">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
               <h4 id="itemModalTitle"></h4>
             </div>
-            <div class="modal-body">
+            <div class="modal-body text-center">
               <p><strong class="modal-field">Open Now:</strong><span id="itemModalOpenNow"></span></p>
               <p><strong class="modal-field">Website:</strong><a href="" id="itemModalWebsite" target="_blank"></a></p>
               <p><strong class="modal-field">Address:</strong><a href="" id="itemModalAddress" target="_blank"></a></p>
               <p><strong class="modal-field">Phone Number:</strong><a href="" id="itemModalPhoneNum"></a></p>
+              <p><strong>Distance:</strong></p>
+              <ul class="list-unstyled modal-distance-info">
+                <li><strong>Driving:</strong><span id="itemModalDrivingInfo"></span></li>
+                <li><strong>Transit:</strong><span id="itemModalTransitInfo"></span></li>
+              </ul>
               <p><strong>Hours:</strong></p>
-              <ul id="itemModalHoursOpen" class="list-unstyled text-center modal-hours-open"></ul>
+              <ul id="itemModalHoursOpen" class="list-unstyled modal-hours-open"></ul>
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

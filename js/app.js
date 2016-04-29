@@ -139,11 +139,11 @@
         return JSON.parse(sessionStorage.getItem('places'));
       },
       find: function(requestedPlace) {
-        places = this.get();
+        var places = this.get();
 
-        for (var place in places) {
-          if (places[place].place_id === requestedPlace.place_id) {
-            return places[place];
+        for (var i=0; i < places.length; i++) {
+          if (places[i].place_id === requestedPlace.place_id) {
+            return places[i];
           }
         }
       },
@@ -601,7 +601,6 @@
     updateModal: function() {
       views.itemModal.populate();
       views.itemModal.show();
-      console.dir(models.selectedPlace);
     },
     // Sets the location to be used by Google Places Search when a location is selected from Recent Places
     setSearchLocation: function(location) {
@@ -744,6 +743,8 @@
         this.itemModalWebsite = document.getElementById('itemModalWebsite');
         this.itemModalAddress = document.getElementById('itemModalAddress');
         this.itemModalPhoneNum = document.getElementById('itemModalPhoneNum');
+        this.itemModalDrivingInfo = document.getElementById('itemModalDrivingInfo');
+        this.itemModalTransitInfo = document.getElementById('itemModalTransitInfo');
         this.itemModalHoursOpen = document.getElementById('itemModalHoursOpen');
       },
       populate: function() {
@@ -758,6 +759,8 @@
         this.itemModalAddress.textContent = models.selectedPlace.address;
         this.itemModalPhoneNum.setAttribute('href', 'tel:' + models.selectedPlace.phoneNum);
         this.itemModalPhoneNum.textContent = models.selectedPlace.phoneNum;
+        this.itemModalDrivingInfo.textContent = models.selectedPlace.drivingInfo.duration + ' (' + models.selectedPlace.drivingInfo.distance + ')';
+        this.itemModalTransitInfo.textContent = models.selectedPlace.transitInfo.duration + ' (' + models.selectedPlace.transitInfo.distance + ')';
 
         this.itemModalHoursOpen.textContent = null;
         if (models.selectedPlace.hoursOpen) {
@@ -798,6 +801,12 @@
             var li = document.createElement('li');
             li.classList.add('list-group-item');
             li.textContent = results[i].name;
+
+            var span = document.createElement('span');
+            span.classList.add('badge');
+            span.textContent = results[i].drivingInfo.distance;
+
+            li.appendChild(span);
 
             li.addEventListener('click', (function(place) {
               return function() {
