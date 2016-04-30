@@ -238,7 +238,8 @@
       window.setTimeout(function() {
         controller.requestDrivingDistance()
           .then(controller.sortPlaces)
-          .then(controller.updatePage);
+          .then(controller.updatePage)
+          .then(views.page.enableButtons);
       }, 2000);
     },
     // Takes a city, state and converts it to lat/lng using Google Geocoding API
