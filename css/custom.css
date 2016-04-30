@@ -6,6 +6,9 @@
   #locationBtn {
     width: 100%;
   }
+  #itemModalWebsite, #itemModalAddress, #itemModalPhoneNum {
+    display: block;
+  }
 }
 
 @media (min-width: 768px) {
