@@ -199,7 +199,8 @@
         .then(controller.requestPlaces)
         .then(controller.requestDrivingDistance)
         .then(controller.sortPlaces)
-        .then(controller.updatePage);
+        .then(controller.updatePage)
+        .then(views.page.enableButtons);
     },
     // Controls the flow of a search initiated by the 'My Location' button
     geolocationSearch: function() {
@@ -208,7 +209,8 @@
         .then(controller.requestPlaces)
         .then(controller.requestDrivingDistance)
         .then(controller.sortPlaces)
-        .then(controller.updatePage);
+        .then(controller.updatePage)
+        .then(views.page.enableButtons);
     },
     // Controls the flow of a search initiated by clicking a location in Recent Searches
     recentSearch: function(location) {
@@ -216,7 +218,8 @@
       controller.requestPlaces()
         .then(controller.requestDrivingDistance)
         .then(controller.sortPlaces)
-        .then(controller.updatePage);
+        .then(controller.updatePage)
+        .then(views.page.enableButtons);
     },
     // Controls the flow for acquiring details when a specific place is selected
     getDetails: function(place) {
@@ -247,6 +250,7 @@
 
         if (!tboxVal) {
           views.alerts.error('Please enter a location.');
+          views.page.enableButtons();
           return;
         }
 
@@ -254,7 +258,8 @@
         var httpRequest = new XMLHttpRequest();
         if (!httpRequest) {
           views.alerts.error('Sorry, please try again.');
-          return false;
+          views.page.enableButtons();
+          return;
         }
 
         var params = 'key=' + app.google.apiKey + '&address=' + encodeURIComponent(tboxVal);
@@ -264,12 +269,14 @@
           if (httpRequest.readyState === XMLHttpRequest.DONE) {
             if (httpRequest.status !== 200) {
               views.alerts.error('Sorry, please try again.');
+              views.page.enableButtons();
               return;
             } else {
               var response = JSON.parse(httpRequest.responseText);
 
               if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
                 views.alerts.error('Sorry, that location could not be found.');
+                views.page.enableButtons();
                 return;
               } else {
                 models.searchLocation.setLat(response.results[0].geometry.location.lat);
@@ -361,10 +368,12 @@
             models.places.init();
             views.alerts.info('Your request returned no results.');
             views.results.render();
+            views.page.enableButtons();
           } else {
             models.places.init();
             views.alerts.error('Sorry, please try again.');
             views.results.render();
+            views.page.enableButtons();
           }
           console.log('requestPlaces - End');
           resolve();
@@ -380,25 +389,27 @@
         var places = models.places.get();
         var placesWithDistance = [];
 
-        for (var i=0; i < places.length; i++) {
-          // params must be reset before each request
-          var params = {
-            origins: [origin],
-            destinations: [],
-            travelMode: google.maps.TravelMode.DRIVING,
-            unitSystem: google.maps.UnitSystem.IMPERIAL
-          };
+        if (places) {
+          for (var i=0; i < places.length; i++) {
+            // params must be reset before each request
+            var params = {
+              origins: [origin],
+              destinations: [],
+              travelMode: google.maps.TravelMode.DRIVING,
+              unitSystem: google.maps.UnitSystem.IMPERIAL
+            };
 
-          // Closure needed for AJAX to assign response to correct places object
-          (function(place) {
-            // Set the destination
-            var destination = new google.maps.LatLng(places[i].geometry.location.lat, places[i].geometry.location.lng);
-            params.destinations.push(destination);
+            // Closure needed for AJAX to assign response to correct places object
+            (function(place) {
+              // Set the destination
+              var destination = new google.maps.LatLng(places[i].geometry.location.lat, places[i].geometry.location.lng);
+              params.destinations.push(destination);
 
-            // Request the distance & pass to callback
-            // Passing an anonymous function to .getDistanceMatrix() prevents recreating the callback function on every result iteration
-            service.getDistanceMatrix(params, function(results, status) { callback(results, status, place); });
-          })(places[i]);
+              // Request the distance & pass to callback
+              // Passing an anonymous function to .getDistanceMatrix() prevents recreating the callback function on every result iteration
+              service.getDistanceMatrix(params, function(results, status) { callback(results, status, place); });
+            })(places[i]);
+          }
         }
 
         function callback(results, status, place) {
@@ -520,7 +531,6 @@
         // Render views with updated results
         views.recentSearches.render();
         views.results.render();
-        views.page.enableButtons();
         console.log('updatePage - End');
         resolve();
       });
