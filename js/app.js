@@ -780,12 +780,12 @@
         if (models.selectedPlace.drivingInfo.duration || models.selectedPlace.drivingInfo.distance) {
           this.itemModalDrivingInfo.textContent = models.selectedPlace.drivingInfo.duration + ' (' + models.selectedPlace.drivingInfo.distance + ')';
         } else {
-          this.itemModalDrivingInfo.textContent = 'No driving options to this location';
+          this.itemModalDrivingInfo.textContent = 'No driving options';
         }
         if (models.selectedPlace.transitInfo.duration || models.selectedPlace.transitInfo.distance) {
           this.itemModalTransitInfo.textContent = models.selectedPlace.transitInfo.duration + ' (' + models.selectedPlace.transitInfo.distance + ')';
         } else {
-          this.itemModalTransitInfo.textContent = 'No transit options to this location';
+          this.itemModalTransitInfo.textContent = 'No transit options';
         }
 
         this.itemModalHoursOpen.textContent = null;
