@@ -118,6 +118,8 @@
         this.drivingInfo.duration = duration ? duration : '';
       },
       setTransitInfo: function(distance, duration) {
+        console.log(distance);
+        console.log(duration);
         this.transitInfo.distance = distance ? distance : '';
         this.transitInfo.duration = duration ? duration : '';
       },
@@ -598,11 +600,14 @@
 
         function callback(results, status) {
           if (status == google.maps.DistanceMatrixStatus.OK) {
+            var distance, duration;
             // Guard against no transit option to destination
             if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
-              // Add distance and duration info
-              models.selectedPlace.setTransitInfo(results.rows[0].elements[0].distance.text, results.rows[0].elements[0].duration.text);
+              distance = results.rows[0].elements[0].distance.text;
+              duration = results.rows[0].elements[0].duration.text;
             }
+            // Add distance and duration info
+            models.selectedPlace.setTransitInfo(distance, duration);
             console.log('requestTransitDistance - End');
             resolve();
           }
@@ -771,8 +776,17 @@
         this.itemModalAddress.textContent = models.selectedPlace.address;
         this.itemModalPhoneNum.setAttribute('href', 'tel:' + models.selectedPlace.phoneNum);
         this.itemModalPhoneNum.textContent = models.selectedPlace.phoneNum;
-        this.itemModalDrivingInfo.textContent = models.selectedPlace.drivingInfo.duration + ' (' + models.selectedPlace.drivingInfo.distance + ')';
-        this.itemModalTransitInfo.textContent = models.selectedPlace.transitInfo.duration + ' (' + models.selectedPlace.transitInfo.distance + ')';
+
+        if (models.selectedPlace.drivingInfo.duration || models.selectedPlace.drivingInfo.distance) {
+          this.itemModalDrivingInfo.textContent = models.selectedPlace.drivingInfo.duration + ' (' + models.selectedPlace.drivingInfo.distance + ')';
+        } else {
+          this.itemModalDrivingInfo.textContent = 'No driving options to this location';
+        }
+        if (models.selectedPlace.transitInfo.duration || models.selectedPlace.transitInfo.distance) {
+          this.itemModalTransitInfo.textContent = models.selectedPlace.transitInfo.duration + ' (' + models.selectedPlace.transitInfo.distance + ')';
+        } else {
+          this.itemModalTransitInfo.textContent = 'No transit options to this location';
+        }
 
         this.itemModalHoursOpen.textContent = null;
         if (models.selectedPlace.hoursOpen) {
