@@ -447,6 +447,7 @@
 
         // Sorts results based on relevent/exlcuded categories in app.settings.search
         for (var i=0; i < places.length; i++) {
+          var hasPrimaryType = false;
           var hasSecondaryType = false;
           var hasExcludedType = false;
 
@@ -454,8 +455,11 @@
           for (var j=0; j < primaryTypes.length; j++) {
             if (places[i].types.includes(primaryTypes[j])) {
               hasPrimaryType = true;
-              primaryResults.push(places[i]);
             }
+          }
+          // Push onto the array
+          if (hasPrimaryType) {
+            primaryResults.push(places[i]);
           }
 
           // If the primary array doesn't contain the result, check for secondary types...
