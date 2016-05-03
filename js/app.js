@@ -197,8 +197,8 @@
     formSearch: function() {
       controller.getGeocode()
         .then(controller.requestPlaces)
-        .then(controller.requestDrivingDistance)
         .then(controller.sortPlaces)
+        .then(controller.requestDrivingDistance)
         .then(controller.updatePage)
         .then(views.page.enableButtons);
     },
@@ -207,8 +207,8 @@
       controller.getCurrentLocation()
         .then(controller.reverseGeocode)
         .then(controller.requestPlaces)
-        .then(controller.requestDrivingDistance)
         .then(controller.sortPlaces)
+        .then(controller.requestDrivingDistance)
         .then(controller.updatePage)
         .then(views.page.enableButtons);
     },
@@ -216,8 +216,8 @@
     recentSearch: function(location) {
       controller.setSearchLocation(location);
       controller.requestPlaces()
-        .then(controller.requestDrivingDistance)
         .then(controller.sortPlaces)
+        .then(controller.requestDrivingDistance)
         .then(controller.updatePage)
         .then(views.page.enableButtons);
     },
