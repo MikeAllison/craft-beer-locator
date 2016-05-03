@@ -62,7 +62,7 @@
         this.lng = lng;
       },
       setFormattedAddress: function(address) {
-        this.formattedAddress = address.replace(/, USA/i, '');
+        this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
       },
       setTotalItems: function(totalItems) {
         this.totalItems = totalItems;
