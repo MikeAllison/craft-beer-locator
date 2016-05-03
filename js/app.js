@@ -118,8 +118,6 @@
         this.drivingInfo.duration = duration ? duration : '';
       },
       setTransitInfo: function(distance, duration) {
-        console.log(distance);
-        console.log(duration);
         this.transitInfo.distance = distance ? distance : '';
         this.transitInfo.duration = duration ? duration : '';
       },
@@ -768,6 +766,8 @@
         var currentDay = new Date().getDay();
         // Adjust to start week on Monday for hoursOpen
         currentDay -= 1;
+        // Adjust for Sundays: JS uses a value of 0 and Google uses a value of 6
+        currentDay = currentDay === -1 ? 6 : currentDay;
         this.itemModalTitle.textContent = models.selectedPlace.name;
         this.itemModalOpenNow.textContent = models.selectedPlace.openNow;
         this.itemModalWebsite.setAttribute('href', models.selectedPlace.website);
