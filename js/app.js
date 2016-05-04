@@ -54,6 +54,7 @@
         this.formattedAddress = null;
         this.totalItems = null;
         this.newSearch = true;
+        this.usedGeolocation = false;
       },
       setLat: function(lat) {
         this.lat = lat;
@@ -69,6 +70,9 @@
       },
       setNewSearch: function(bool) {
         this.newSearch = bool;
+      },
+      setUsedGeolocation: function(bool) {
+        this.usedGeolocation = bool;
       }
     },
     selectedPlace: {
@@ -188,13 +192,14 @@
       views.form.init();
       views.locationBtn.init();
       views.alerts.init();
-      views.itemModal.init();
       views.results.init();
-      views.moreResultsBtn.init();
       views.recentSearches.init();
+      views.itemModal.init();
+      views.moreResultsBtn.init();
     },
     // Controls the flow of a search initiated by the form
     formSearch: function() {
+      models.searchLocation.setUsedGeolocation(false);
       controller.getGeocode()
         .then(controller.requestPlaces)
         .then(controller.sortPlaces)
@@ -204,6 +209,7 @@
     },
     // Controls the flow of a search initiated by the 'My Location' button
     geolocationSearch: function() {
+      models.searchLocation.setUsedGeolocation(true);
       controller.getCurrentLocation()
         .then(controller.reverseGeocode)
         .then(controller.requestPlaces)
@@ -214,6 +220,7 @@
     },
     // Controls the flow of a search initiated by clicking a location in Recent Searches
     recentSearch: function(location) {
+      models.searchLocation.setUsedGeolocation(false);
       controller.setSearchLocation(location);
       controller.requestPlaces()
         .then(controller.sortPlaces)
@@ -759,64 +766,6 @@
         this.alert.classList.remove('hidden');
       }
     },
-    itemModal: {
-      init: function() {
-        this.itemModal = document.getElementById('itemModal');
-        this.itemModalTitle = document.getElementById('itemModalTitle');
-        this.itemModalOpenNow = document.getElementById('itemModalOpenNow');
-        this.itemModalWebsite = document.getElementById('itemModalWebsite');
-        this.itemModalAddress = document.getElementById('itemModalAddress');
-        this.itemModalPhoneNum = document.getElementById('itemModalPhoneNum');
-        this.itemModalDrivingInfo = document.getElementById('itemModalDrivingInfo');
-        this.itemModalTransitInfo = document.getElementById('itemModalTransitInfo');
-        this.itemModalHoursOpen = document.getElementById('itemModalHoursOpen');
-      },
-      populate: function() {
-        var currentDay = new Date().getDay();
-        // Adjust to start week on Monday for hoursOpen
-        currentDay -= 1;
-        // Adjust for Sundays: JS uses a value of 0 and Google uses a value of 6
-        currentDay = currentDay === -1 ? 6 : currentDay;
-        this.itemModalTitle.textContent = models.selectedPlace.name;
-        this.itemModalOpenNow.textContent = models.selectedPlace.openNow;
-        this.itemModalWebsite.setAttribute('href', models.selectedPlace.website);
-        this.itemModalWebsite.textContent = models.selectedPlace.website;
-        this.itemModalAddress.setAttribute('href', models.selectedPlace.googleMapsUrl);
-        this.itemModalAddress.textContent = models.selectedPlace.address;
-        this.itemModalPhoneNum.setAttribute('href', 'tel:' + models.selectedPlace.phoneNum);
-        this.itemModalPhoneNum.textContent = models.selectedPlace.phoneNum;
-
-        if (models.selectedPlace.drivingInfo.duration || models.selectedPlace.drivingInfo.distance) {
-          this.itemModalDrivingInfo.textContent = models.selectedPlace.drivingInfo.duration + ' (' + models.selectedPlace.drivingInfo.distance + ')';
-        } else {
-          this.itemModalDrivingInfo.textContent = 'No driving options';
-        }
-        if (models.selectedPlace.transitInfo.duration || models.selectedPlace.transitInfo.distance) {
-          this.itemModalTransitInfo.textContent = models.selectedPlace.transitInfo.duration + ' (' + models.selectedPlace.transitInfo.distance + ')';
-        } else {
-          this.itemModalTransitInfo.textContent = 'No transit options';
-        }
-
-        this.itemModalHoursOpen.textContent = null;
-        if (models.selectedPlace.hoursOpen) {
-          for (var i=0; i < models.selectedPlace.hoursOpen.length; i++) {
-            var li = document.createElement('li');
-            // Split hoursOpen on ':'
-            var dayTime = models.selectedPlace.hoursOpen[i].split(/:\s/);
-            // <span> is needed to highlight hours for current day
-            li.innerHTML = '<span><strong>' + dayTime[0] + ':</strong>' + dayTime[1] + '</span>';
-            // Highlight current day of week
-            if (i === currentDay) {
-              li.classList.add('current-day');
-            }
-            this.itemModalHoursOpen.appendChild(li);
-          }
-        }
-      },
-      show: function() {
-        $('#itemModal').modal('show');
-      }
-    },
     results: {
       init: function() {
         // Collect DOM elements
@@ -854,38 +803,6 @@
         }
         // Select results tab and panel to show new results
         $('#resultsTab').tab('show');
-      }
-    },
-    moreResultsBtn: {
-      init: function() {
-        // Collect DOM elements
-        this.moreResultsBtn = document.getElementById('moreResultsBtn');
-        // Set default values on DOM elements
-        this.moreResultsBtn.classList.add('hidden');
-        // Add click handlers
-        this.moreResultsBtn.addEventListener('click', function() {
-          views.page.disableButtons();
-          views.page.clear();
-          window.scroll(0, 0);
-        });
-      },
-      addNextPageFn: function() {
-        this.moreResultsBtn.onclick = function() {
-          controller.requestMoreResults();
-        };
-      },
-      show: function() {
-        this.moreResultsBtn.classList.remove('hidden');
-        // Google Places search requires 2 seconds between searches
-        window.setTimeout(function() {
-          moreResultsBtn.removeAttribute('disabled');
-        }, 2000);
-      },
-      disable: function() {
-        this.moreResultsBtn.setAttribute('disabled', true);
-      },
-      hide: function() {
-        this.moreResultsBtn.classList.add('hidden');
       }
     },
     recentSearches: {
@@ -927,6 +844,105 @@
           li.textContent = 'You have no recent searches.';
           this.recentSearchesList.appendChild(li);
         }
+      }
+    },
+    itemModal: {
+      init: function() {
+        this.itemModal = document.getElementById('itemModal');
+        this.itemModalTitle = document.getElementById('itemModalTitle');
+        this.itemModalOpenNow = document.getElementById('itemModalOpenNow');
+        this.itemModalWebsite = document.getElementById('itemModalWebsite');
+        this.itemModalAddress = document.getElementById('itemModalAddress');
+        this.itemModalPhoneNum = document.getElementById('itemModalPhoneNum');
+        this.itemModalDrivingInfo = document.getElementById('itemModalDrivingInfo');
+        this.itemModalUsedGeolocation = document.getElementById('itemModalUsedGeolocation');
+        this.itemModalTransitInfo = document.getElementById('itemModalTransitInfo');
+        this.itemModalHoursOpen = document.getElementById('itemModalHoursOpen');
+        // Set defaults
+        this.itemModalUsedGeolocation.classList.add('hidden');
+      },
+      populate: function() {
+        var currentDay = new Date().getDay();
+        // Adjust to start week on Monday for hoursOpen
+        currentDay -= 1;
+        // Adjust for Sundays: JS uses a value of 0 and Google uses a value of 6
+        currentDay = currentDay === -1 ? 6 : currentDay;
+        this.itemModalTitle.textContent = models.selectedPlace.name;
+        this.itemModalOpenNow.textContent = models.selectedPlace.openNow;
+        this.itemModalWebsite.setAttribute('href', models.selectedPlace.website);
+        this.itemModalWebsite.textContent = models.selectedPlace.website;
+        this.itemModalAddress.setAttribute('href', models.selectedPlace.googleMapsUrl);
+        this.itemModalAddress.textContent = models.selectedPlace.address;
+        this.itemModalPhoneNum.setAttribute('href', 'tel:' + models.selectedPlace.phoneNum);
+        this.itemModalPhoneNum.textContent = models.selectedPlace.phoneNum;
+
+        if (models.searchLocation.usedGeolocation) {
+          this.itemModalUsedGeolocation.classList.add('hidden');
+        } else {
+          this.itemModalUsedGeolocation.classList.remove('hidden');
+        }
+
+        if (models.selectedPlace.drivingInfo.duration || models.selectedPlace.drivingInfo.distance) {
+          this.itemModalDrivingInfo.textContent = models.selectedPlace.drivingInfo.duration + ' (' + models.selectedPlace.drivingInfo.distance + ')';
+        } else {
+          this.itemModalDrivingInfo.textContent = 'No driving options';
+        }
+        if (models.selectedPlace.transitInfo.duration || models.selectedPlace.transitInfo.distance) {
+          this.itemModalTransitInfo.textContent = models.selectedPlace.transitInfo.duration + ' (' + models.selectedPlace.transitInfo.distance + ')';
+        } else {
+          this.itemModalTransitInfo.textContent = 'No transit options';
+        }
+
+        this.itemModalHoursOpen.textContent = null;
+        if (models.selectedPlace.hoursOpen) {
+          for (var i=0; i < models.selectedPlace.hoursOpen.length; i++) {
+            var li = document.createElement('li');
+            // Split hoursOpen on ':'
+            var dayTime = models.selectedPlace.hoursOpen[i].split(/:\s/);
+            // <span> is needed to highlight hours for current day
+            li.innerHTML = '<span><strong>' + dayTime[0] + ':</strong>' + dayTime[1] + '</span>';
+            // Highlight current day of week
+            if (i === currentDay) {
+              li.classList.add('current-day');
+            }
+            this.itemModalHoursOpen.appendChild(li);
+          }
+        }
+      },
+      show: function() {
+        $('#itemModal').modal('show');
+      }
+    },
+    moreResultsBtn: {
+      init: function() {
+        // Collect DOM elements
+        this.moreResultsBtn = document.getElementById('moreResultsBtn');
+        // Set default values on DOM elements
+        this.moreResultsBtn.classList.add('hidden');
+        // Add click handlers
+        this.moreResultsBtn.addEventListener('click', function() {
+          views.page.disableButtons();
+          views.page.clear();
+          window.scroll(0, 0);
+        });
+      },
+      addNextPageFn: function() {
+        this.moreResultsBtn.onclick = function() {
+          controller.requestMoreResults();
+        };
+      },
+      show: function() {
+        this.moreResultsBtn.classList.remove('hidden');
+        // Google Places search requires 2 seconds between searches
+        window.setTimeout(function() {
+          moreResultsBtn.removeAttribute('disabled');
+        }, 2000);
+      },
+      disable: function() {
+        this.moreResultsBtn.setAttribute('disabled', true);
+      },
+      hide: function() {
+        this.moreResultsBtn.classList.add('hidden');
       }
     }
   };
