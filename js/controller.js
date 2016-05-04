@@ -6,7 +6,6 @@ var app = app || {};
     init: function() {
       // Set defaults on variables to control flow of search
       this.newSearch = true;
-      this.usedGeoLocSearch = false;
       // Initialize config, models, & views
       app.config.init();
       app.models.searchLocation.init();
@@ -132,9 +131,6 @@ var app = app || {};
         var success = function(position) {
           app.models.myLocation.setLat(position.coords.latitude);
           app.models.myLocation.setLng(position.coords.longitude);
-          // TO-DO: Set searchLocation if it is a new search
-          app.models.searchLocation.setLat(position.coords.latitude);
-          app.models.searchLocation.setLng(position.coords.longitude);
           resolve();
         };
         var error = function() {
@@ -164,7 +160,6 @@ var app = app || {};
             var formattedAddress = response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name;
             // Sets .formattedAddress as city, state (i.e. New York, NY)
             app.models.myLocation.setFormattedAddress(formattedAddress);
-            app.models.searchLocation.setFormattedAddress(formattedAddress);
           }
           resolve();
         };
