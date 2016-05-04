@@ -239,6 +239,11 @@ var app = app || {};
         if (app.models.searchLocation.usedGeolocation) {
           this.itemModalUsedGeolocation.classList.add('hidden');
         } else {
+          // ADDED
+          this.itemModalUsedGeolocation.addEventListener('click', function() {
+            app.controller.getMyDistance();
+            this.classList.add('hidden');
+          });
           this.itemModalUsedGeolocation.classList.remove('hidden');
         }
 

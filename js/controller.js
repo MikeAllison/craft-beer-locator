@@ -56,6 +56,15 @@ var app = app || {};
         .then(app.controller.requestTransitDistance)
         .then(app.controller.updateModal);
     },
+    // ADDED: Requests distance from you to a place (triggered from itemModal)
+    getMyDistance: function() {
+      app.models.searchLocation.setUsedGeolocation(true);
+      app.controller.getCurrentLocation()
+        .then(app.controller.requestDrivingDistance)
+        .then(app.controller.requestTransitDistance);
+      //app.views.itemModal.itemModalDrivingInfo.textContent = 'New distance';
+      //app.views.itemModal.itemModalTransitInfo.textContent = 'New distance';
+    },
     requestMoreResults: function() {
       console.log('requestMoreResults called');
       var paginationObj = app.models.places.paginationObj;
