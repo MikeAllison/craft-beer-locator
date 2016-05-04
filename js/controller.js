@@ -73,7 +73,7 @@ var app = app || {};
       // TO-DO: Fix this hack
       // Need to wait for AJAX request to finish before moving on and can't use JS promise
       window.setTimeout(function() {
-        app.controller.requestDrivingDistance()
+        app.controller.requestDistance()
           .then(app.controller.sortPlaces)
           .then(app.controller.updatePage)
           .then(app.views.page.enableButtons);
