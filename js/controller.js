@@ -406,7 +406,7 @@ var app = app || {};
             }
             resolve();
           } else {
-            iews.alerts.error('Sorry, please try again.');
+            app.views.alerts.error('Sorry, please try again.');
           }
         }
       });
