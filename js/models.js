@@ -3,11 +3,12 @@ var app = app || {};
 (function() {
 
   app.models = {
-    myLocation: {
+    userLocation: {
       init: function() {
         this.lat = null;
         this.lng = null;
         this.formattedAddress = null;
+        this.totalItems = null;
       },
       setLat: function(lat) {
         this.lat = lat;
@@ -17,6 +18,9 @@ var app = app || {};
       },
       setFormattedAddress: function(address) {
         this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
+      },
+      setTotalItems: function(totalItems) {
+        this.totalItems = totalItems;
       }
     },
     searchLocation: {
@@ -130,10 +134,10 @@ var app = app || {};
         }
 
         var newLocation = {};
-        newLocation.lat = app.models.searchLocation.lat;
-        newLocation.lng = app.models.searchLocation.lng;
-        newLocation.formattedAddress = app.models.searchLocation.formattedAddress;
-        newLocation.totalItems = app.models.searchLocation.totalItems;
+        newLocation.lat = app.models.userLocation.lat || app.models.searchLocation.lat;
+        newLocation.lng = app.models.userLocation.lng || app.models.searchLocation.lng;
+        newLocation.formattedAddress = app.models.userLocation.formattedAddress || app.models.searchLocation.formattedAddress;
+        newLocation.totalItems = app.models.userLocation.totalItems || app.models.searchLocation.totalItems;
         cachedSearches.unshift(newLocation);
 
         localStorage.setItem('recentSearches', JSON.stringify(cachedSearches));

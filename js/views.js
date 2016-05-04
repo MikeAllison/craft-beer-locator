@@ -67,7 +67,7 @@ var app = app || {};
       },
       setTboxPlaceholder: function() {
         this.cityStateTbox.value = null;
-        this.cityStateTbox.setAttribute('placeholder', app.models.searchLocation.formattedAddress);
+        this.cityStateTbox.setAttribute('placeholder', app.models.userLocation.formattedAddress || app.models.searchLocation.formattedAddress);
       },
       disableSearchBtn: function() {
         this.searchBtn.setAttribute('disabled', true);
@@ -215,11 +215,11 @@ var app = app || {};
         this.itemModalAddress = document.getElementById('itemModalAddress');
         this.itemModalPhoneNum = document.getElementById('itemModalPhoneNum');
         this.itemModalDrivingInfo = document.getElementById('itemModalDrivingInfo');
-        this.itemModalUsedGeolocation = document.getElementById('itemModalUsedGeolocation');
+        this.itemModalDistanceWarning = document.getElementById('itemModalDistanceWarning');
         this.itemModalTransitInfo = document.getElementById('itemModalTransitInfo');
         this.itemModalHoursOpen = document.getElementById('itemModalHoursOpen');
         // Set defaults
-        this.itemModalUsedGeolocation.classList.add('hidden');
+        this.itemModalDistanceWarning.classList.add('hidden');
       },
       populate: function() {
         var currentDay = new Date().getDay();
@@ -236,15 +236,13 @@ var app = app || {};
         this.itemModalPhoneNum.setAttribute('href', 'tel:' + app.models.selectedPlace.phoneNum);
         this.itemModalPhoneNum.textContent = app.models.selectedPlace.phoneNum;
 
-        if (app.models.searchLocation.usedGeolocation) {
-          this.itemModalUsedGeolocation.classList.add('hidden');
-        } else {
-          // ADDED
-          this.itemModalUsedGeolocation.addEventListener('click', function() {
-            app.controller.getMyDistance();
-            this.classList.add('hidden');
-          });
-          this.itemModalUsedGeolocation.classList.remove('hidden');
+        this.itemModalDistanceWarning.addEventListener('click', function() {
+          app.controller.getMyDistance();
+          this.classList.add('hidden');
+        });
+        // Only show message if geolocation search isn't being used
+        if (!app.models.userLocation.lat && !app.models.userLocation.lng) {
+          this.itemModalDistanceWarning.classList.remove('hidden');
         }
 
         if (app.models.selectedPlace.drivingInfo.duration || app.models.selectedPlace.drivingInfo.distance) {

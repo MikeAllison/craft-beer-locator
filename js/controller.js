@@ -22,29 +22,32 @@ var app = app || {};
     },
     // Controls the flow of a search initiated by the form
     formSearch: function() {
+      app.models.userLocation.init();
       app.controller.getGeocode()
         .then(app.controller.requestPlaces)
         .then(app.controller.sortPlaces)
-        .then(app.controller.requestDrivingDistance)
+        .then(app.controller.requestDistance)
         .then(app.controller.updatePage)
         .then(app.views.page.enableButtons);
     },
     // Controls the flow of a search initiated by the 'My Location' button
     geolocationSearch: function() {
+      app.models.searchLocation.init();
       app.controller.getCurrentLocation()
         .then(app.controller.reverseGeocode)
         .then(app.controller.requestPlaces)
         .then(app.controller.sortPlaces)
-        .then(app.controller.requestDrivingDistance)
+        .then(app.controller.requestDistance)
         .then(app.controller.updatePage)
         .then(app.views.page.enableButtons);
     },
     // Controls the flow of a search initiated by clicking a location in Recent Searches
     recentSearch: function(location) {
+      app.models.userLocation.init();
       app.controller.setSearchLocation(location);
       app.controller.requestPlaces()
         .then(app.controller.sortPlaces)
-        .then(app.controller.requestDrivingDistance)
+        .then(app.controller.requestDistance)
         .then(app.controller.updatePage)
         .then(app.views.page.enableButtons);
     },
@@ -53,16 +56,16 @@ var app = app || {};
       var requestedPlace = app.models.places.find(place);
       app.controller.setSelectedPlaceDetails(requestedPlace)
         .then(app.controller.requestPlaceDetails)
+        .then(app.controller.requestDrivingDistance)
         .then(app.controller.requestTransitDistance)
         .then(app.controller.updateModal);
     },
-    // ADDED: Requests distance from you to a place (triggered from itemModal)
+    // Requests distance from your location to a place (triggered from itemModal)
     getMyDistance: function() {
       app.controller.getCurrentLocation()
         .then(app.controller.requestDrivingDistance)
-        .then(app.controller.requestTransitDistance);
-      //app.views.itemModal.itemModalDrivingInfo.textContent = 'New distance';
-      //app.views.itemModal.itemModalTransitInfo.textContent = 'New distance';
+        .then(app.controller.requestTransitDistance)
+        .then(app.controller.updateModal);
     },
     requestMoreResults: function() {
       var paginationObj = app.models.places.paginationObj;
@@ -129,8 +132,8 @@ var app = app || {};
     getCurrentLocation: function() {
       return new Promise(function(resolve, reject) {
         var success = function(position) {
-          app.models.myLocation.setLat(position.coords.latitude);
-          app.models.myLocation.setLng(position.coords.longitude);
+          app.models.userLocation.setLat(position.coords.latitude);
+          app.models.userLocation.setLng(position.coords.longitude);
           resolve();
         };
         var error = function() {
@@ -149,7 +152,7 @@ var app = app || {};
     reverseGeocode: function() {
       return new Promise(function(resolve, reject) {
         var httpRequest = new XMLHttpRequest();
-        var params = 'key=' + app.config.google.apiKey + '&latlng=' + app.models.myLocation.lat + ',' + app.models.myLocation.lng;
+        var params = 'key=' + app.config.google.apiKey + '&latlng=' + app.models.userLocation.lat + ',' + app.models.userLocation.lng;
 
         httpRequest.open('GET', app.config.google.geocodingAPI.reqURL + params, true);
         httpRequest.send();
@@ -159,7 +162,7 @@ var app = app || {};
             var response = JSON.parse(httpRequest.responseText);
             var formattedAddress = response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name;
             // Sets .formattedAddress as city, state (i.e. New York, NY)
-            app.models.myLocation.setFormattedAddress(formattedAddress);
+            app.models.userLocation.setFormattedAddress(formattedAddress);
           }
           resolve();
         };
@@ -170,8 +173,10 @@ var app = app || {};
       return new Promise(function(resolve, reject) {
         // Reset so that search location is added to Recent Searches
         app.controller.newSearch = true;
-        // Set params for search
-        var location = new google.maps.LatLng(app.models.searchLocation.lat, app.models.searchLocation.lng);
+        // Set params for search (use userLocation if available)
+        var lat = app.models.userLocation.lat || app.models.searchLocation.lat;
+        var lng = app.models.userLocation.lng || app.models.searchLocation.lng;
+        var location = new google.maps.LatLng(lat, lng);
         var params = {
           location: location,
           rankBy: app.config.settings.search.rankBy,
@@ -208,13 +213,17 @@ var app = app || {};
         }
       });
     },
-    // Requests driving distance info from Google Maps Distance Matrix.
-    requestDrivingDistance: function() {
+    // Requests distance (driving) from Google Maps Distance Matrix for a collection of places
+    requestDistance: function() {
       return new Promise(function(resolve, reject) {
-        var service = new google.maps.DistanceMatrixService();
-        var origin = new google.maps.LatLng(app.models.searchLocation.lat, app.models.searchLocation.lng);
+        // Set params for search (use userLocation if available)
+        var lat = app.models.userLocation.lat || app.models.searchLocation.lat;
+        var lng = app.models.userLocation.lng || app.models.searchLocation.lng;
+        var origin = new google.maps.LatLng(lat, lng);
         var places = app.models.places.get();
         var placesWithDistance = [];
+
+        var service = new google.maps.DistanceMatrixService();
 
         if (places) {
           for (var i=0; i < places.length; i++) {
@@ -242,11 +251,10 @@ var app = app || {};
         function callback(results, status, place) {
           if (status == google.maps.DistanceMatrixStatus.OK) {
             // Guard against no driving options to destination
-            if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
+            if (results.rows[0].elements[0].distance) {
               // Add distance info to each result
               place.drivingInfo = {
-                distance: results.rows[0].elements[0].distance.text,
-                duration: results.rows[0].elements[0].duration.text
+                distance: results.rows[0].elements[0].distance.text
               };
             }
             placesWithDistance.push(place);
@@ -403,11 +411,47 @@ var app = app || {};
         }
       });
     },
-    // Requests subway distance info from Google Maps Distance Matrix.
+    // Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
+    requestDrivingDistance: function() {
+      return new Promise(function(resolve, reject) {
+        // Set params for search (use userLocation if available)
+        var lat = app.models.userLocation.lat || app.models.searchLocation.lat;
+        var lng = app.models.userLocation.lng || app.models.searchLocation.lng;
+        var origin = new google.maps.LatLng(lat, lng);
+        var destination = new google.maps.LatLng(app.models.selectedPlace.lat, app.models.selectedPlace.lng);
+        var params = {
+          origins: [origin],
+          destinations: [destination],
+          travelMode: google.maps.TravelMode.DRIVING,
+          unitSystem: google.maps.UnitSystem.IMPERIAL
+        };
+
+        // Request the distance & pass to callback
+        var service = new google.maps.DistanceMatrixService();
+        service.getDistanceMatrix(params, callback);
+
+        function callback(results, status) {
+          if (status == google.maps.DistanceMatrixStatus.OK) {
+            var distance, duration;
+            // Guard against no transit option to destination
+            if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
+              distance = results.rows[0].elements[0].distance.text;
+              duration = results.rows[0].elements[0].duration.text;
+            }
+            // Add distance and duration info
+            app.models.selectedPlace.setDrivingInfo(distance, duration);
+            resolve();
+          }
+        }
+      });
+    },
+    // Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
     requestTransitDistance: function() {
       return new Promise(function(resolve, reject) {
-        var service = new google.maps.DistanceMatrixService();
-        var origin = new google.maps.LatLng(app.models.searchLocation.lat, app.models.searchLocation.lng);
+        // Set params for search (use userLocation if available)
+        var lat = app.models.userLocation.lat || app.models.searchLocation.lat;
+        var lng = app.models.userLocation.lng || app.models.searchLocation.lng;
+        var origin = new google.maps.LatLng(lat, lng);
         var destination = new google.maps.LatLng(app.models.selectedPlace.lat, app.models.selectedPlace.lng);
         var params = {
           origins: [origin],
@@ -418,6 +462,7 @@ var app = app || {};
         };
 
         // Request the distance & pass to callback
+        var service = new google.maps.DistanceMatrixService();
         service.getDistanceMatrix(params, callback);
 
         function callback(results, status) {
