@@ -3,14 +3,28 @@ var app = app || {};
 (function() {
 
   app.models = {
+    myLocation: {
+      init: function() {
+        this.lat = null;
+        this.lng = null;
+        this.formattedAddress = null;
+      },
+      setLat: function(lat) {
+        this.lat = lat;
+      },
+      setLng: function(lng) {
+        this.lng = lng;
+      },
+      setFormattedAddress: function(address) {
+        this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
+      }
+    },
     searchLocation: {
       init: function() {
         this.lat = null;
         this.lng = null;
         this.formattedAddress = null;
         this.totalItems = null;
-        this.newSearch = true;
-        this.usedGeolocation = false;
       },
       setLat: function(lat) {
         this.lat = lat;
@@ -23,12 +37,6 @@ var app = app || {};
       },
       setTotalItems: function(totalItems) {
         this.totalItems = totalItems;
-      },
-      setNewSearch: function(bool) {
-        this.newSearch = bool;
-      },
-      setUsedGeolocation: function(bool) {
-        this.usedGeolocation = bool;
       }
     },
     selectedPlace: {
@@ -121,12 +129,12 @@ var app = app || {};
           cachedSearches.pop();
         }
 
-        var newSearch = {};
-        newSearch.lat = app.models.searchLocation.lat;
-        newSearch.lng = app.models.searchLocation.lng;
-        newSearch.formattedAddress = app.models.searchLocation.formattedAddress;
-        newSearch.totalItems = app.models.searchLocation.totalItems;
-        cachedSearches.unshift(newSearch);
+        var newLocation = {};
+        newLocation.lat = app.models.searchLocation.lat;
+        newLocation.lng = app.models.searchLocation.lng;
+        newLocation.formattedAddress = app.models.searchLocation.formattedAddress;
+        newLocation.totalItems = app.models.searchLocation.totalItems;
+        cachedSearches.unshift(newLocation);
 
         localStorage.setItem('recentSearches', JSON.stringify(cachedSearches));
       },
