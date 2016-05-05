@@ -21,13 +21,13 @@ var app = app || {};
         if (e.keyCode === 13) {
           app.views.page.disableButtons();
           app.views.page.clear();
-          app.controller.formSearch();
+          app.controllers.formSearch();
         }
       });
       this.searchBtn.addEventListener('click', function() {
         app.views.page.disableButtons();
         app.views.page.clear();
-        app.controller.formSearch();
+        app.controllers.formSearch();
       });
     },
     setTboxPlaceholder: function() {

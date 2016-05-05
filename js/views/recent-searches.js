@@ -31,7 +31,7 @@ var app = app || {};
             return function() {
               app.views.page.disableButtons();
               app.views.page.clear();
-              app.controller.recentSearch(location);
+              app.controllers.recentSearch(location);
             };
           })(recentSearches[i]));
 

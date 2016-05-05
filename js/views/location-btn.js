@@ -13,7 +13,7 @@ var app = app || {};
       this.locationBtn.addEventListener('click', function() {
         app.views.page.disableButtons();
         app.views.page.clear();
-        app.controller.geolocationSearch();
+        app.controllers.geolocationSearch();
       });
     },
     disable: function() {

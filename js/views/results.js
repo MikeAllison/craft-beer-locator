@@ -33,7 +33,7 @@ var app = app || {};
 
           li.addEventListener('click', (function(place) {
             return function() {
-              app.controller.getDetails(place);
+              app.controllers.getDetails(place);
             };
           })(results[i]));
 

@@ -20,7 +20,7 @@ var app = app || {};
     },
     addNextPageFn: function() {
       this.moreResultsBtn.onclick = function() {
-        app.controller.requestMoreResults();
+        app.controllers.requestMoreResults();
       };
     },
     show: function() {
