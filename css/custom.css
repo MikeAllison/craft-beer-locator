@@ -1,4 +1,4 @@
-/*csslint ids:false - silence CSSLint message "Don't use IDs in selectors" */ 
+/*csslint ids:false - silence CSSLint message "Don't use IDs in selectors" */
 
 @media (max-width: 767px) {
   #cityStateTbox {
@@ -113,6 +113,8 @@
   color: #fff;
 }
 
-.text-warning {
+.alert-warning {
+  background-color: #fff;
+  border: 1px solid #e5e5e5;
   color: #D35400;
 }
