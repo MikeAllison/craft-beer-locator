@@ -5,6 +5,7 @@ var app = app || {};
 (function() {
 
   app.views = {
+    // Control multiple items on the page
     page: {
       init: function() {
         // Initialize page settings
@@ -34,12 +35,14 @@ var app = app || {};
         }, 250);
       }
     },
+    // Google Map's map object (needed for API but not displayed on page)
     map: {
       init: function() {
         // Collect DOM elements
         this.map = document.getElementById('map');
       }
     },
+    // City/state form
     form: {
       init: function() {
         // Collect DOM elements
@@ -76,6 +79,7 @@ var app = app || {};
         this.searchBtn.removeAttribute('disabled');
       }
     },
+    // Location button
     locationBtn: {
       init: function() {
         // Collect DOM elements
@@ -94,6 +98,7 @@ var app = app || {};
         this.locationBtn.removeAttribute('disabled');
       }
     },
+    // Page alerts
     alerts: {
       init: function() {
         // Collect DOM elements
@@ -126,6 +131,7 @@ var app = app || {};
         this.alert.classList.remove('hidden');
       }
     },
+    // Results list
     results: {
       init: function() {
         // Collect DOM elements
@@ -165,6 +171,7 @@ var app = app || {};
         $('#resultsTab').tab('show');
       }
     },
+    // Recent searches list
     recentSearches: {
       init: function() {
         // Collect DOM elements
@@ -206,6 +213,7 @@ var app = app || {};
         }
       }
     },
+    // Modal that displays details when selecting a place
     itemModal: {
       init: function() {
         this.itemModal = document.getElementById('itemModal');
@@ -276,6 +284,7 @@ var app = app || {};
         $('#itemModal').modal('show');
       }
     },
+    // More results button if > 20 results are returned from the search
     moreResultsBtn: {
       init: function() {
         // Collect DOM elements
