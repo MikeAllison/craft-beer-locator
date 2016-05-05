@@ -71,6 +71,11 @@
   font-size: 0.9em;
 }
 
+#itemModalDistanceWarning {
+  font-size: 0.8em;
+  line-height: 1.7;
+}
+
 .modal-hours-open li strong {
   margin-right: 10px;
 }
