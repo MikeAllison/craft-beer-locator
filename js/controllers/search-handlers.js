@@ -11,8 +11,8 @@ var app = app || {};
     app.models.userLocation.init();
     app.controllers.getGeocode()
       .then(app.controllers.requestPlaces)
-      .then(app.controllers.sortPlaces)
       .then(app.controllers.requestDistance)
+      .then(app.controllers.sortPlaces)
       .then(app.controllers.updatePage)
       .then(app.views.page.enableButtons);
   };
@@ -23,8 +23,8 @@ var app = app || {};
     app.controllers.getCurrentLocation()
       .then(app.controllers.reverseGeocode)
       .then(app.controllers.requestPlaces)
-      .then(app.controllers.sortPlaces)
       .then(app.controllers.requestDistance)
+      .then(app.controllers.sortPlaces)
       .then(app.controllers.updatePage)
       .then(app.views.page.enableButtons);
   };
@@ -34,8 +34,8 @@ var app = app || {};
     app.models.userLocation.init();
     app.controllers.setSearchLocation(location);
     app.controllers.requestPlaces()
-      .then(app.controllers.sortPlaces)
       .then(app.controllers.requestDistance)
+      .then(app.controllers.sortPlaces)
       .then(app.controllers.updatePage)
       .then(app.views.page.enableButtons);
   };
@@ -50,13 +50,14 @@ var app = app || {};
       .then(app.controllers.updateModal);
   };
 
-  // getMyDistance - Requests distance from your location to a place (triggered from itemModal)
-  app.controllers.getMyDistance = function() {
+  // switchToGeolocation - Requests distance from your location to a place (triggered from itemModal)
+  app.controllers.switchToGeolocation = function() {
     app.controllers.getCurrentLocation()
       .then(app.controllers.requestDrivingDistance)
       .then(app.controllers.requestTransitDistance)
       .then(app.controllers.updateModal)
       .then(app.controllers.requestDistance)
+      .then(app.controllers.sortPlaces)
       .then(app.controllers.updatePage);
   };
 

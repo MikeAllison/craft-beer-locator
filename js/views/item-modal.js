@@ -36,7 +36,7 @@ var app = app || {};
       this.itemModalPhoneNum.textContent = app.models.selectedPlace.phoneNum;
 
       this.itemModalDistanceWarning.addEventListener('click', function() {
-        app.controllers.getMyDistance();
+        app.controllers.switchToGeolocation();
         this.classList.add('hidden');
       });
       // Only show message if geolocation search isn't being used

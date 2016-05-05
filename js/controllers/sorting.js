@@ -6,6 +6,21 @@ var app = app || {};
 
   app.controllers = app.controllers || {};
 
+  // insertionSort - Sorts place results by distance
+  app.controllers.insertionSort = function(unsorted) {
+    var length = unsorted.length;
+
+    for(var i=0; i < length; i++) {
+      var temp = unsorted[i];
+
+      for(var j=i-1; j >= 0 && (parseFloat(unsorted[j].drivingInfo.distance) > parseFloat(temp.drivingInfo.distance)); j--) {
+        unsorted[j+1] = unsorted[j];
+      }
+
+      unsorted[j+1] = temp;
+    }
+  };
+
   // sortPlaces -Handles processing of places returned from Google.
   app.controllers.sortPlaces = function() {
     return new Promise(function(resolve, reject) {
@@ -53,6 +68,10 @@ var app = app || {};
           }
         }
       }
+
+      // Resort because Google doesn't always return places by distance
+      app.controllers.insertionSort(primaryResults);
+      app.controllers.insertionSort(secondaryResults);
 
       // Combine primary and secondary arrays
       sortedResults = primaryResults.concat(secondaryResults);
