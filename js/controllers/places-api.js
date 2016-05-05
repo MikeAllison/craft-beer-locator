@@ -1,3 +1,5 @@
+// Code related to Google Maps Places Library 
+
 var app = app || {};
 
 (function() {

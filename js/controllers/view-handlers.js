@@ -1,3 +1,5 @@
+// Code related to updating views
+
 var app = app || {};
 
 (function() {

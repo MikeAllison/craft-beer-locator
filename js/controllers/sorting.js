@@ -1,3 +1,5 @@
+// Code related to sorting results
+
 var app = app || {};
 
 (function() {

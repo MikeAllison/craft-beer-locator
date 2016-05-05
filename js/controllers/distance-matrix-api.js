@@ -1,3 +1,5 @@
+// Code related to Google Maps Distance Matrix API 
+
 var app = app || {};
 
 (function() {

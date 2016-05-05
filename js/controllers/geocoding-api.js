@@ -1,3 +1,6 @@
+// Code related to Google Geocoding API
+// This could be performed using a Google Maps object but I wanted to practice using AJAX requests
+
 var app = app || {};
 
 (function() {
@@ -5,7 +8,6 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   // getGeocode - Takes a city, state and converts it to lat/lng using Google Geocoding API
-  // This could be performed using a Google Maps object but I wanted to practice using AJAX requests
   app.controllers.getGeocode = function() {
     return new Promise(function(resolve, reject) {
       var tboxVal = app.views.form.cityStateTbox.value;

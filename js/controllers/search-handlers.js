@@ -1,3 +1,5 @@
+// Code related to controlling the flow of searches
+
 var app = app || {};
 
 (function() {
