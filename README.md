@@ -1,10 +1,10 @@
 # craft-beer-finder
 JavaScript app using Google services, HTML5 geolocation, JavaScript promises, localStorage, and sessionStorage to find craft beer in a specified area (but search settings can be modified to search for almost anything)
 
-#### Configuring Search Settings:
+#### Configuring Search Settings (js/config.js):
 
 ```javascript
-app = {
+app.config = {
   init: function() {
     this.settings = {
       search: {
