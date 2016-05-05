@@ -4,10 +4,9 @@ var app = app || {};
 
   app.config = {
     init: function() {
-      // Set the type and radius of thing to search for (i.e. 'brewery' or 'craft beer')
       this.settings = {
         search: {
-          // itemType - Can change: This can be set to anything that you'd like to search for
+          // itemType - Can change: This can be set to anything that you'd like to search for (i.e. 'craft beer' or 'brewery')
           itemType: 'craft beer',
           // rankBy -  Can change: Can be either google.maps.places.RankBy.DISTANCE or google.maps.places.RankBy.PROMINENCE (not a string)
           rankBy: google.maps.places.RankBy.DISTANCE,
