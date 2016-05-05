@@ -49,8 +49,11 @@ var app = app || {};
 
   // updateModal - Updates model when a place is selected
   app.controllers.updateModal = function() {
-    app.views.itemModal.populate();
-    app.views.itemModal.show();
+    return new Promise(function(resolve, reject) {
+      app.views.itemModal.populate();
+      app.views.itemModal.show();
+      resolve();
+    });
   };
 
 })();

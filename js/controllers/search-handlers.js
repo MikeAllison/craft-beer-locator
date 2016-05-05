@@ -55,7 +55,9 @@ var app = app || {};
     app.controllers.getCurrentLocation()
       .then(app.controllers.requestDrivingDistance)
       .then(app.controllers.requestTransitDistance)
-      .then(app.controllers.updateModal);
+      .then(app.controllers.updateModal)
+      .then(app.controllers.requestDistance)
+      .then(app.controllers.updatePage);
   };
 
   // requestMoreResults - Requests more results if > 20 results are returned

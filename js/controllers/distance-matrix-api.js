@@ -1,4 +1,4 @@
-// Code related to Google Maps Distance Matrix API 
+// Code related to Google Maps Distance Matrix API
 
 var app = app || {};
 
