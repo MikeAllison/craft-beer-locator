@@ -19,7 +19,7 @@ var app = app || {};
           // Types (primaryTypes/secondaryTypes/excludedTypes) can be any Google Place Type: https://developers.google.com/places/supported_types
 
           // primaryTypes - Any result having these types will be sorted and listed first (examples: [], ['type1'], ['type1, 'type2'], etc.)
-          primaryTypes: ['bar', 'store'],
+          primaryTypes: ['bar', 'liquor_store'],
 
           // secondaryTypes: Any result having these types will be listed after primaryTypes (examples: [], ['type1'], ['type1, 'type2'], etc.)
           secondaryTypes: ['restaurant'],

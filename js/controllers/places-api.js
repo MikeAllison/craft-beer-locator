@@ -1,4 +1,4 @@
-// Code related to Google Maps Places Library 
+// Code related to Google Maps Places Library
 
 var app = app || {};
 

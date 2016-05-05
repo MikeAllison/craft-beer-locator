@@ -26,13 +26,11 @@ var app = app || {};
         // Check for primary types and push onto array for primary results
         for (var j=0; j < primaryTypes.length; j++) {
           if (places[i].types.includes(primaryTypes[j])) {
-            console.log('Primary: ' + places[i].name);
             hasPrimaryType = true;
           }
         }
         // Push onto the array
         if (hasPrimaryType) {
-          console.log('Pushed to primary: ' + places[i].name);
           primaryResults.push(places[i]);
         }
 
@@ -41,11 +39,9 @@ var app = app || {};
         if (!primaryResults.includes(places[i])) {
           for (var k=0; k < secondaryTypes.length; k++) {
             if (places[i].types.includes(secondaryTypes[k])) {
-              console.log('Secondary: ' + places[i]);
               hasSecondaryType = true;
               for (var l=0; l < excludedTypes.length; l++) {
                 if(places[i].types.includes(excludedTypes[l])) {
-                  console.log('Exclude: ' + places[i]);
                   hasExcludedType = true;
                 }
               }
@@ -53,7 +49,6 @@ var app = app || {};
           }
           // Push onto array for secondary results if it has a secondary (without excluded) type
           if (hasSecondaryType && !hasExcludedType) {
-            console.log('Pushed to secondary: ' + places[i].name);
             secondaryResults.push(places[i]);
           }
         }
