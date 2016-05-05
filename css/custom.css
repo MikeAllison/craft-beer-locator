@@ -1,3 +1,5 @@
+/*csslint ids:false - silence CSSLint message "Don't use IDs in selectors" */ 
+
 @media (max-width: 767px) {
   #cityStateTbox {
     text-align: center;
