@@ -1,6 +1,12 @@
 /*csslint ids:false - silence CSSLint message "Don't use IDs in selectors" */
 
 @media (max-width: 767px) {
+  h3 {
+    font-size: 1.5em;
+  }
+  .city-state-heading {
+    font-size: 1em;
+  }
   #cityStateTbox {
     text-align: center;
   }
