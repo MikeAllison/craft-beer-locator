@@ -69,9 +69,12 @@ var app = app || {};
         }
       }
 
-      // Resort because Google doesn't always return places by distance
-      app.controllers.insertionSort(primaryResults);
-      app.controllers.insertionSort(secondaryResults);
+      // Re-sort because Google doesn't always return places by distance perfectly
+      // Only re-sort if the app's search settings results are returned by distance (not promienence)
+      if (app.config.settings.search.rankBy === google.maps.places.RankBy.DISTANCE) {
+        app.controllers.insertionSort(primaryResults);
+        app.controllers.insertionSort(secondaryResults);
+      }
 
       // Combine primary and secondary arrays
       sortedResults = primaryResults.concat(secondaryResults);
