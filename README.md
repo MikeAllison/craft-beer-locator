@@ -9,12 +9,12 @@ app.config = {
     this.settings = {
       search: {
         itemType: 'craft beer', // Can change: This can be set to anything that you'd like to search for (i.e. 'craft beer' or 'brewery')
-        
+
         rankBy: google.maps.places.RankBy.DISTANCE, // Can change: Can be either google.maps.places.RankBy.DISTANCE or google.maps.places.RankBy.PROMINENCE (not a string)
 
         orderByDistance: true, // Can change: Setting 'true' will force a reordering of results by distance (results from Google's RankBy.DISTANCE aren't always in order)
                                // Set to 'false' if using 'rankBy: google.maps.places.RankBy.PROMINENCE' and don't want results ordered by distance
-                               // Sometimes using 'RankBy.PROMINENCE' and 'orderByDistance: true' returns the most accurate results
+                               // Sometimes using 'RankBy.PROMINENCE' and 'orderByDistance: true' returns the most accurate results by distance
 
         radius: '25000', // Can change: Radius is required if rankBy is set to google.maps.places.RankBy.PROMINENCE (max: 50000)
 
