@@ -9,6 +9,7 @@ app.config = {
     this.settings = {
       search: {
         itemType: 'craft beer', // Can change: This can be set to anything that you'd like to search for (i.e. 'craft beer' or 'brewery')
+        
         rankBy: google.maps.places.RankBy.DISTANCE, // Can change: Can be either google.maps.places.RankBy.DISTANCE or google.maps.places.RankBy.PROMINENCE (not a string)
 
         orderByDistance: true, // Can change: Setting 'true' will force a reordering of results by distance (results from Google's RankBy.DISTANCE aren't always in order)
