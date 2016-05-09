@@ -10,6 +10,10 @@ var app = app || {};
           itemType: 'craft beer',
           // rankBy -  Can change: Can be either google.maps.places.RankBy.DISTANCE or google.maps.places.RankBy.PROMINENCE (not a string)
           rankBy: google.maps.places.RankBy.DISTANCE,
+          // orderByDistance - Can change: Setting 'true' will force a reordering of results by distance (results from Google's RankBy.DISTANCE aren't always in order)
+          // Set to 'false' if using 'rankBy: google.maps.places.RankBy.PROMINENCE' and don't want results ordered by distance
+          // Sometimes using 'RankBy.PROMINENCE' and 'orderByDistance: true' returns the most accurate results
+          orderByDistance: true,
           // radius - Can change: Radius is required if rankBy is set to google.maps.places.RankBy.PROMINENCE (max: 50000)
           radius: '25000',
 

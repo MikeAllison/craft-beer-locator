@@ -69,9 +69,8 @@ var app = app || {};
         }
       }
 
-      // Re-sort because Google doesn't always return places by distance perfectly
-      // Only re-sort if the app's search settings results are returned by distance (not promienence)
-      if (app.config.settings.search.rankBy === google.maps.places.RankBy.DISTANCE) {
+      // Re-sort option because Google doesn't always return places by distance accurately
+      if (app.config.settings.search.orderByDistance) {
         app.controllers.insertionSort(primaryResults);
         app.controllers.insertionSort(secondaryResults);
       }
