@@ -6,7 +6,7 @@ $(function() {
 
   // Set defaults on variables to control flow of search
   this.newSearch = true;
-  
+
   // Initialize config, models, & views
   app.config.init();
   app.models.searchLocation.init();
@@ -18,7 +18,7 @@ $(function() {
   app.views.alerts.init();
   app.views.results.init();
   app.views.recentSearches.init();
-  app.views.itemModal.init();
+  app.views.placeModal.init();
   app.views.moreResultsBtn.init();
 
 });

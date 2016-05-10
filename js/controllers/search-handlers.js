@@ -42,15 +42,17 @@ var app = app || {};
 
   // getDetails - Controls the flow for acquiring details when a specific place is selected
   app.controllers.getDetails = function(place) {
+    app.views.results.disable();
     var requestedPlace = app.models.places.find(place);
     app.controllers.setSelectedPlaceDetails(requestedPlace)
       .then(app.controllers.requestPlaceDetails)
       .then(app.controllers.requestDrivingDistance)
       .then(app.controllers.requestTransitDistance)
       .then(app.controllers.updateModal);
+    app.views.results.enable();
   };
 
-  // switchToGeolocation - Requests distance from your location to a place (triggered from itemModal)
+  // switchToGeolocation - Requests distance from your location to a place (triggered from placeModal)
   app.controllers.switchToGeolocation = function() {
     app.controllers.getCurrentLocation()
       .then(app.controllers.requestDrivingDistance)
