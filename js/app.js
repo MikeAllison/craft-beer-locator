@@ -9,7 +9,7 @@ $(function() {
 
   // Initialize config, models, & views
   app.config.init();
-  app.models.searchLocation.init();
+  app.models.searchLoc.init();
   app.models.places.init();
   app.views.page.init();
   app.views.map.init();

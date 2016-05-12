@@ -17,7 +17,7 @@ var app = app || {};
         if (app.controllers.newSearch) {
           var totalItems = places.length;
 
-          app.models.searchLocation.setTotalItems(paginationObj.hasNextPage ? totalItems + '+' : totalItems);
+          app.models.searchLoc.setTotalItems(paginationObj.hasNextPage ? totalItems + '+' : totalItems);
           app.models.recentSearches.add();
 
           // Set message for alert (first request of location only)

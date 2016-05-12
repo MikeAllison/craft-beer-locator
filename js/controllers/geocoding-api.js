@@ -43,9 +43,9 @@ var app = app || {};
               app.views.page.enableButtons();
               return;
             } else {
-              app.models.searchLocation.setLat(response.results[0].geometry.location.lat);
-              app.models.searchLocation.setLng(response.results[0].geometry.location.lng);
-              app.models.searchLocation.setFormattedAddress(response.results[0].formatted_address);
+              app.models.searchLoc.setLat(response.results[0].geometry.location.lat);
+              app.models.searchLoc.setLng(response.results[0].geometry.location.lng);
+              app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
             }
           }
           resolve();
@@ -60,7 +60,7 @@ var app = app || {};
   app.controllers.reverseGeocode = function() {
     return new Promise(function(resolve, reject) {
       var httpRequest = new XMLHttpRequest();
-      var params = 'key=' + app.config.google.apiKey + '&latlng=' + app.models.userLocation.lat + ',' + app.models.userLocation.lng;
+      var params = 'key=' + app.config.google.apiKey + '&latlng=' + app.models.userLoc.lat + ',' + app.models.userLoc.lng;
 
       httpRequest.open('GET', app.config.google.geocodingAPI.reqURL + params, true);
       httpRequest.send();
@@ -70,7 +70,7 @@ var app = app || {};
           var response = JSON.parse(httpRequest.responseText);
           var formattedAddress = response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name;
           // Sets .formattedAddress as city, state (i.e. New York, NY)
-          app.models.userLocation.setFormattedAddress(formattedAddress);
+          app.models.userLoc.setFormattedAddress(formattedAddress);
         }
         resolve();
       };

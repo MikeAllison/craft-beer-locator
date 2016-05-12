@@ -40,7 +40,7 @@ var app = app || {};
         this.classList.add('hidden');
       });
       // Only show message if geolocation search isn't being used
-      if (!app.models.userLocation.lat && !app.models.userLocation.lng) {
+      if (!app.models.userLoc.lat && !app.models.userLoc.lng) {
         this.placeModalDistanceWarning.classList.remove('hidden');
       }
 

@@ -10,8 +10,8 @@ var app = app || {};
   app.controllers.getCurrentLocation = function() {
     return new Promise(function(resolve, reject) {
       var success = function(position) {
-        app.models.userLocation.setLat(position.coords.latitude);
-        app.models.userLocation.setLng(position.coords.longitude);
+        app.models.userLoc.setLat(position.coords.latitude);
+        app.models.userLoc.setLng(position.coords.longitude);
         resolve();
       };
       var error = function() {

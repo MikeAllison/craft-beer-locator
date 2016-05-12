@@ -6,12 +6,12 @@ var app = app || {};
 
   app.controllers = app.controllers || {};
 
-  // requestMultiDistance - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
-  app.controllers.requestMultiDistance = function() {
+  // reqMultiDistance - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
+  app.controllers.reqMultiDistance = function() {
     return new Promise(function(resolve, reject) {
-      // Set params for search (use userLocation if available)
-      var lat = app.models.userLocation.lat || app.models.searchLocation.lat;
-      var lng = app.models.userLocation.lng || app.models.searchLocation.lng;
+      // Set params for search (use userLoc if available)
+      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
+      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
       var places = app.models.places.get();
       var params = {
         origins: [new google.maps.LatLng(lat, lng)],
@@ -48,12 +48,12 @@ var app = app || {};
     });
   };
 
-  // requestDrivingDistance - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
-  app.controllers.requestDrivingDistance = function() {
+  // reqDrivingDistance - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
+  app.controllers.reqDrivingDistance = function() {
     return new Promise(function(resolve, reject) {
-      // Set params for search (use userLocation if available)
-      var lat = app.models.userLocation.lat || app.models.searchLocation.lat;
-      var lng = app.models.userLocation.lng || app.models.searchLocation.lng;
+      // Set params for search (use userLoc if available)
+      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
+      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
       var params = {
         origins: [new google.maps.LatLng(lat, lng)],
         destinations: [new google.maps.LatLng(app.models.selectedPlace.lat, app.models.selectedPlace.lng)],
@@ -81,12 +81,12 @@ var app = app || {};
     });
   };
 
-  // requestTransitDistance - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
-  app.controllers.requestTransitDistance = function() {
+  // reqTransitDistance - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
+  app.controllers.reqTransitDistance = function() {
     return new Promise(function(resolve, reject) {
-      // Set params for search (use userLocation if available)
-      var lat = app.models.userLocation.lat || app.models.searchLocation.lat;
-      var lng = app.models.userLocation.lng || app.models.searchLocation.lng;
+      // Set params for search (use userLoc if available)
+      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
+      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
       var params = {
         origins: [new google.maps.LatLng(lat, lng)],
         destinations: [new google.maps.LatLng(app.models.selectedPlace.lat, app.models.selectedPlace.lng)],

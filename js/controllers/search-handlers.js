@@ -8,10 +8,10 @@ var app = app || {};
 
   // formSearch - Controls the flow of a search initiated by the form
   app.controllers.formSearch = function() {
-    app.models.userLocation.init();
+    app.models.userLoc.init();
     app.controllers.getGeocode()
-      .then(app.controllers.requestPlaces)
-      .then(app.controllers.requestMultiDistance)
+      .then(app.controllers.reqPlaces)
+      .then(app.controllers.reqMultiDistance)
       .then(app.controllers.sortPlaces)
       .then(app.controllers.updatePage)
       .then(app.views.page.enableButtons);
@@ -19,11 +19,11 @@ var app = app || {};
 
   // geolocationSearch - Controls the flow of a search initiated by the 'My Location' button
   app.controllers.geolocationSearch = function() {
-    app.models.searchLocation.init();
+    app.models.searchLoc.init();
     app.controllers.getCurrentLocation()
       .then(app.controllers.reverseGeocode)
-      .then(app.controllers.requestPlaces)
-      .then(app.controllers.requestMultiDistance)
+      .then(app.controllers.reqPlaces)
+      .then(app.controllers.reqMultiDistance)
       .then(app.controllers.sortPlaces)
       .then(app.controllers.updatePage)
       .then(app.views.page.enableButtons);
@@ -31,10 +31,10 @@ var app = app || {};
 
   // recentSearch - Controls the flow of a search initiated by clicking a location in Recent Searches
   app.controllers.recentSearch = function(location) {
-    app.models.userLocation.init();
+    app.models.userLoc.init();
     app.controllers.setSearchLocation(location);
-    app.controllers.requestPlaces()
-      .then(app.controllers.requestMultiDistance)
+    app.controllers.reqPlaces()
+      .then(app.controllers.reqMultiDistance)
       .then(app.controllers.sortPlaces)
       .then(app.controllers.updatePage)
       .then(app.views.page.enableButtons);
@@ -45,8 +45,8 @@ var app = app || {};
     app.views.results.disable();
     var requestedPlace = app.models.places.find(place);
     app.controllers.setSelectedPlaceDetails(requestedPlace)
-      .then(app.controllers.requestPlaceDetails)
-      .then(app.controllers.requestTransitDistance)
+      .then(app.controllers.reqPlaceDetails)
+      .then(app.controllers.reqTransitDistance)
       .then(app.controllers.updateModal);
     app.views.results.enable();
   };
@@ -54,10 +54,10 @@ var app = app || {};
   // switchToGeolocation - Requests distance from your location to a place (triggered from placeModal)
   app.controllers.switchToGeolocation = function() {
     app.controllers.getCurrentLocation()
-      .then(app.controllers.requestDrivingDistance)
-      .then(app.controllers.requestTransitDistance)
+      .then(app.controllers.reqDrivingDistance)
+      .then(app.controllers.reqTransitDistance)
       .then(app.controllers.updateModal)
-      .then(app.controllers.requestMultiDistance)
+      .then(app.controllers.reqMultiDistance)
       .then(app.controllers.sortPlaces)
       .then(app.controllers.updatePage);
   };
@@ -69,7 +69,7 @@ var app = app || {};
     // TO-DO: Fix this hack
     // Need to wait for AJAX request to finish before moving on and can't use JS promise
     window.setTimeout(function() {
-      app.controllers.requestMultiDistance()
+      app.controllers.reqMultiDistance()
         .then(app.controllers.sortPlaces)
         .then(app.controllers.updatePage)
         .then(app.views.page.enableButtons);

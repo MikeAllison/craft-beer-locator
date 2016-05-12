@@ -4,7 +4,7 @@ var app = app || {};
 
   app.models = app.models || {};
 
-  app.models.userLocation = {
+  app.models.userLoc = {
     init: function() {
       this.lat = null;
       this.lng = null;

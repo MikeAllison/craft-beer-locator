@@ -21,10 +21,10 @@ var app = app || {};
 
   // setSearchLocation - Sets the location to be used by Google Places Search when a location is selected from Recent Places
   app.controllers.setSearchLocation = function(location) {
-    app.models.searchLocation.setLat(location.lat);
-    app.models.searchLocation.setLng(location.lng);
-    app.models.searchLocation.setFormattedAddress(location.formattedAddress);
-    app.models.searchLocation.setTotalItems(location.totalItems);
+    app.models.searchLoc.setLat(location.lat);
+    app.models.searchLoc.setLng(location.lng);
+    app.models.searchLoc.setFormattedAddress(location.formattedAddress);
+    app.models.searchLoc.setTotalItems(location.totalItems);
   };
 
 })();

@@ -6,14 +6,14 @@ var app = app || {};
 
   app.controllers = app.controllers || {};
 
-  // requestPlaces - Sends a lat/lng to Google Places Library and stores results
-  app.controllers.requestPlaces = function() {
+  // reqPlaces - Sends a lat/lng to Google Places Library and stores results
+  app.controllers.reqPlaces = function() {
     return new Promise(function(resolve, reject) {
       // Reset so that search location is added to Recent Searches
       app.controllers.newSearch = true;
-      // Set params for search (use userLocation if available)
-      var lat = app.models.userLocation.lat || app.models.searchLocation.lat;
-      var lng = app.models.userLocation.lng || app.models.searchLocation.lng;
+      // Set params for search (use userLoc if available)
+      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
+      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
       var location = new google.maps.LatLng(lat, lng);
       var params = {
         location: location,
@@ -52,8 +52,8 @@ var app = app || {};
     });
   };
 
-  // requestPlaceDetails - This requests details of the selectedPlace from Google
-  app.controllers.requestPlaceDetails = function() {
+  // reqPlaceDetails - This requests details of the selectedPlace from Google
+  app.controllers.reqPlaceDetails = function() {
     return new Promise(function(resolve, reject) {
       var params = { placeId: app.models.selectedPlace.placeId };
 

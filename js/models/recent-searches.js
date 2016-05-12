@@ -15,10 +15,10 @@ var app = app || {};
       }
 
       var newLocation = {};
-      newLocation.lat = app.models.userLocation.lat || app.models.searchLocation.lat;
-      newLocation.lng = app.models.userLocation.lng || app.models.searchLocation.lng;
-      newLocation.formattedAddress = app.models.userLocation.formattedAddress || app.models.searchLocation.formattedAddress;
-      newLocation.totalItems = app.models.userLocation.totalItems || app.models.searchLocation.totalItems;
+      newLocation.lat = app.models.userLoc.lat || app.models.searchLoc.lat;
+      newLocation.lng = app.models.userLoc.lng || app.models.searchLoc.lng;
+      newLocation.formattedAddress = app.models.userLoc.formattedAddress || app.models.searchLoc.formattedAddress;
+      newLocation.totalItems = app.models.userLoc.totalItems || app.models.searchLoc.totalItems;
       cachedSearches.unshift(newLocation);
 
       localStorage.setItem('recentSearches', JSON.stringify(cachedSearches));
