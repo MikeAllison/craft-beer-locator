@@ -8,6 +8,7 @@ var app = app || {};
 
   // reqPlaces - Sends a lat/lng to Google Places Library and stores results
   app.controllers.reqPlaces = function() {
+    console.log('reqPlaces called');
     return new Promise(function(resolve, reject) {
       // Reset so that search location is added to Recent Searches
       app.controllers.newSearch = true;
@@ -36,25 +37,21 @@ var app = app || {};
           app.models.places.add(results);
           // Store pagination object for more results
           app.models.places.setPaginationObj(pagination);
+          resolve();
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-          app.models.places.init();
-          app.views.alerts.show('info', 'Your request returned no results.');
-          app.views.results.render();
-          app.views.page.enableButtons();
+          reject({ type: 'info', text: 'Your request returned no results.' });
+          return;
         } else {
-          app.models.places.init();
-          app.views.alerts.show('error', 'An error occurred.  Please try again.');
-          app.views.results.clear();
-          app.views.page.enableButtons();
+          reject({ type: 'error', text: 'An error occurred.  Please try again.' });
           return;
         }
-        resolve();
       }
     });
   };
 
   // reqPlaceDetails - This requests details of the selectedPlace from Google
   app.controllers.reqPlaceDetails = function() {
+    console.log('reqPlaceDetails called');
     return new Promise(function(resolve, reject) {
       var params = { placeId: app.models.selectedPlace.placeId };
 
@@ -74,9 +71,7 @@ var app = app || {};
           }
           resolve();
         } else {
-          app.views.alerts.show('error', 'An error occurred.  Please try again.');
-          app.views.results.clear();
-          app.views.page.enableButtons();
+          reject({ type: 'error', text: 'An error occurred.  Please try again.' });
           return;
         }
       }

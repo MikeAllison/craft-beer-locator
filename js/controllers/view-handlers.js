@@ -8,12 +8,13 @@ var app = app || {};
 
   // updatePage - Updates list of results and recent searches
   app.controllers.updatePage = function() {
+    console.log('updatePage called');
     return new Promise(function(resolve, reject) {
       var paginationObj = app.models.places.paginationObj;
 
       var places = app.models.places.get();
       if (!places) {
-        app.views.alerts.show('info', 'Your request returned no results.');
+        reject({ type: 'info', text: 'Your request returned no results.' });
         return;
       }
 
@@ -52,7 +53,7 @@ var app = app || {};
 
   // updateModal - Updates model when a place is selected
   app.controllers.updateModal = function() {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       app.views.placeModal.populate();
       app.views.placeModal.show();
       resolve();

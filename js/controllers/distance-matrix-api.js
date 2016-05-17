@@ -8,6 +8,7 @@ var app = app || {};
 
   // reqMultiDistance - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
   app.controllers.reqMultiDistance = function() {
+    console.log('reqMultiDistance called');
     return new Promise(function(resolve, reject) {
       // Set params for search (use userLoc if available)
       var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
@@ -22,7 +23,7 @@ var app = app || {};
 
       var places = app.models.places.get();
       if (!places) {
-        app.views.alerts.show('info', 'Your request returned no results.');
+        reject({ type: 'info', text: 'Your request returned no results.' });
         return;
       }
 
@@ -48,9 +49,7 @@ var app = app || {};
           app.models.places.add(places);
           resolve();
         } else {
-          app.views.alerts.show('error', 'An error occurred.  Please try again.');
-          app.views.results.clear();
-          app.views.page.enableButtons();
+          reject({ type: 'error', text: 'An error occurred.  Please try again.' });
           return;
         }
       }
@@ -86,9 +85,7 @@ var app = app || {};
           app.models.selectedPlace.setDrivingInfo(distance, duration);
           resolve();
         } else {
-          app.views.alerts.show('error', 'An error occurred.  Please try again.');
-          app.views.results.clear();
-          app.views.page.enableButtons();
+          reject({ type: 'error', text: 'An error occurred.  Please try again.' });
           return;
         }
       }
@@ -125,9 +122,7 @@ var app = app || {};
           app.models.selectedPlace.setTransitInfo(distance, duration);
           resolve();
         } else {
-          app.views.alerts.show('error', 'An error occurred.  Please try again.');
-          app.views.results.clear();
-          app.views.page.enableButtons();
+          reject({ type: 'error', text: 'An error occurred.  Please try again.' });
           return;
         }
       }

@@ -1,4 +1,4 @@
-// Code related to passing data to models 
+// Code related to passing data to models
 
 var app = app || {};
 
@@ -8,7 +8,7 @@ var app = app || {};
 
   // setSelectedPlaceDetails - Sets the initial deails of the requested place for viewing details about it
   app.controllers.setSelectedPlaceDetails = function(place) {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function(resolve) {
       app.models.selectedPlace.init();
       app.models.selectedPlace.setPlaceId(place.place_id);
       app.models.selectedPlace.setLat(place.geometry.location.lat);

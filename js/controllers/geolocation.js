@@ -8,6 +8,7 @@ var app = app || {};
 
   // getCurrentLocation - HTML5 geocoding request for lat/lng for 'My Location' button
   app.controllers.getCurrentLocation = function() {
+    console.log('getCurrentLocation called');
     return new Promise(function(resolve, reject) {
       var success = function(position) {
         app.models.userLoc.setLat(position.coords.latitude);
@@ -15,9 +16,7 @@ var app = app || {};
         resolve();
       };
       var error = function() {
-        app.views.alerts.show('error', 'An error occurred.  Please try again.');
-        app.views.results.clear();
-        app.views.page.enableButtons();
+        reject({ type: 'error', text: 'An error occurred.  Please try again.' });
         return;
       };
       var options = { enableHighAccuracy: true };
@@ -25,8 +24,7 @@ var app = app || {};
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(success, error, options);
       } else {
-        app.views.alerts.show('error', 'Sorry, geolocation is not supported in your browser.');
-        app.views.page.enableButtons();
+        reject({ type: 'error', text: 'Sorry, geolocation is not supported in your browser.' });
         return;
       }
     });

@@ -6,6 +6,16 @@ var app = app || {};
 
   app.controllers = app.controllers || {};
 
+  function stopExecution(msg) {
+    console.log(msg.text);
+    app.models.places.init();
+    app.views.alerts.show(msg.type, msg.text);
+    app.views.results.clear();
+    app.views.placeModal.hide();
+    app.views.page.enableButtons();
+    return;
+  }
+
   // formSearch - Controls the flow of a search initiated by the form
   app.controllers.formSearch = function() {
     app.models.userLoc.init();
@@ -14,7 +24,8 @@ var app = app || {};
       .then(app.controllers.reqMultiDistance)
       .then(app.controllers.sortPlaces)
       .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons);
+      .then(app.views.page.enableButtons)
+      .catch(stopExecution);
   };
 
   // geolocationSearch - Controls the flow of a search initiated by the 'My Location' button
@@ -26,7 +37,8 @@ var app = app || {};
       .then(app.controllers.reqMultiDistance)
       .then(app.controllers.sortPlaces)
       .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons);
+      .then(app.views.page.enableButtons)
+      .catch(stopExecution);
   };
 
   // recentSearch - Controls the flow of a search initiated by clicking a location in Recent Searches
@@ -37,7 +49,8 @@ var app = app || {};
       .then(app.controllers.reqMultiDistance)
       .then(app.controllers.sortPlaces)
       .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons);
+      .then(app.views.page.enableButtons)
+      .catch(stopExecution);
   };
 
   // getDetails - Controls the flow for acquiring details when a specific place is selected
@@ -47,7 +60,8 @@ var app = app || {};
     app.controllers.setSelectedPlaceDetails(requestedPlace)
       .then(app.controllers.reqPlaceDetails)
       .then(app.controllers.reqTransitDistance)
-      .then(app.controllers.updateModal);
+      .then(app.controllers.updateModal)
+      .catch(stopExecution);
     app.views.results.enable();
   };
 
@@ -59,7 +73,8 @@ var app = app || {};
       .then(app.controllers.updateModal)
       .then(app.controllers.reqMultiDistance)
       .then(app.controllers.sortPlaces)
-      .then(app.controllers.updatePage);
+      .then(app.controllers.updatePage)
+      .catch(stopExecution);
   };
 
   // requestMoreResults - Requests more results if > 20 results are returned
@@ -72,7 +87,8 @@ var app = app || {};
       app.controllers.reqMultiDistance()
         .then(app.controllers.sortPlaces)
         .then(app.controllers.updatePage)
-        .then(app.views.page.enableButtons);
+        .then(app.views.page.enableButtons)
+        .catch(stopExecution);
     }, 2000);
   };
 

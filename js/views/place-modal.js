@@ -73,6 +73,9 @@ var app = app || {};
     },
     show: function() {
       $('#placeModal').modal('show');
+    },
+    hide: function() {
+      $('#placeModal').modal('hide');
     }
   };
 

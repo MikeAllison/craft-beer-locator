@@ -23,6 +23,7 @@ var app = app || {};
 
   // sortPlaces -Handles processing of places returned from Google.
   app.controllers.sortPlaces = function() {
+    console.log('sortPlaces called');
     return new Promise(function(resolve, reject) {
       var primaryTypes = app.config.settings.search.primaryTypes;
       var secondaryTypes = app.config.settings.search.secondaryTypes;
@@ -33,7 +34,7 @@ var app = app || {};
 
       var places = app.models.places.get();
       if (!places) {
-        app.views.alerts.show('info', 'Your request returned no results.');
+        reject({ type: 'error', text: 'An error occurred.  Please try again.' });
         return;
       }
 
@@ -86,12 +87,11 @@ var app = app || {};
       if (sortedResults.length > 0) {
         // Adds search results to sessionStorage
         app.models.places.add(sortedResults);
+        resolve();
       } else {
-        app.models.places.init();
-        app.views.alerts.show('info', 'Your request returned no results.');
-        app.views.results.render();
+        reject({ type: 'info', text: 'Your request returned no results.' });
+        return;
       }
-      resolve();
     });
   };
 
