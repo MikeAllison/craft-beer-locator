@@ -8,7 +8,6 @@ var app = app || {};
 
   // getCurrentLocation - HTML5 geocoding request for lat/lng for 'My Location' button
   app.controllers.getCurrentLocation = function() {
-    console.log('getCurrentLocation called');
     return new Promise(function(resolve, reject) {
       var success = function(position) {
         app.models.userLoc.setLat(position.coords.latitude);

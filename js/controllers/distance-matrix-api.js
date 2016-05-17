@@ -8,7 +8,6 @@ var app = app || {};
 
   // reqMultiDistance - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
   app.controllers.reqMultiDistance = function() {
-    console.log('reqMultiDistance called');
     return new Promise(function(resolve, reject) {
       // Set params for search (use userLoc if available)
       var lat = app.models.userLoc.lat || app.models.searchLoc.lat;

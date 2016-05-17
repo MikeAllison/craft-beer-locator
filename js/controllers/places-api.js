@@ -8,7 +8,6 @@ var app = app || {};
 
   // reqPlaces - Sends a lat/lng to Google Places Library and stores results
   app.controllers.reqPlaces = function() {
-    console.log('reqPlaces called');
     return new Promise(function(resolve, reject) {
       // Reset so that search location is added to Recent Searches
       app.controllers.newSearch = true;
@@ -51,7 +50,6 @@ var app = app || {};
 
   // reqPlaceDetails - This requests details of the selectedPlace from Google
   app.controllers.reqPlaceDetails = function() {
-    console.log('reqPlaceDetails called');
     return new Promise(function(resolve, reject) {
       var params = { placeId: app.models.selectedPlace.placeId };
 

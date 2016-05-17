@@ -9,7 +9,6 @@ var app = app || {};
 
   // getGeocode - Takes a city, state and converts it to lat/lng using Google Geocoding API
   app.controllers.getGeocode = function() {
-    console.log('getGeocode called');
     return new Promise(function(resolve, reject) {
       var tboxVal = app.views.form.cityStateTbox.value;
 
@@ -51,7 +50,6 @@ var app = app || {};
 
   // reverseGeocode - Converts lat/lng to a city, state
   app.controllers.reverseGeocode = function() {
-    console.log('reverseGeocode called');
     return new Promise(function(resolve, reject) {
       var httpRequest = new XMLHttpRequest();
       var params = 'key=' + app.config.google.apiKey + '&latlng=' + app.models.userLoc.lat + ',' + app.models.userLoc.lng;

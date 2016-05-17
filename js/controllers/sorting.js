@@ -23,7 +23,6 @@ var app = app || {};
 
   // sortPlaces -Handles processing of places returned from Google.
   app.controllers.sortPlaces = function() {
-    console.log('sortPlaces called');
     return new Promise(function(resolve, reject) {
       var primaryTypes = app.config.settings.search.primaryTypes;
       var secondaryTypes = app.config.settings.search.secondaryTypes;

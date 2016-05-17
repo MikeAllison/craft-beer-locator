@@ -7,7 +7,6 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   function stopExecution(msg) {
-    console.log(msg.text);
     app.models.places.init();
     app.views.alerts.show(msg.type, msg.text);
     app.views.results.clear();

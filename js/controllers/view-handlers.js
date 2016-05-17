@@ -8,7 +8,6 @@ var app = app || {};
 
   // updatePage - Updates list of results and recent searches
   app.controllers.updatePage = function() {
-    console.log('updatePage called');
     return new Promise(function(resolve, reject) {
       var paginationObj = app.models.places.paginationObj;
 
