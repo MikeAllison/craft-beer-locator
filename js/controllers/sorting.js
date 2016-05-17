@@ -33,7 +33,7 @@ var app = app || {};
 
       var places = app.models.places.get();
       if (!places) {
-        reject({ type: 'error', text: 'An error occurred.  Please try again.' });
+        reject({ type: 'error', text: 'An error occurred. Please try again.' });
         return;
       }
 
@@ -83,14 +83,14 @@ var app = app || {};
       // Combine primary and secondary arrays
       sortedResults = primaryResults.concat(secondaryResults);
 
-      if (sortedResults.length > 0) {
-        // Adds search results to sessionStorage
-        app.models.places.add(sortedResults);
-        resolve();
-      } else {
+      if (sortedResults.length < 1) {
         reject({ type: 'info', text: 'Your request returned no results.' });
         return;
       }
+
+      // Adds search results to sessionStorage
+      app.models.places.add(sortedResults);
+      resolve();
     });
   };
 

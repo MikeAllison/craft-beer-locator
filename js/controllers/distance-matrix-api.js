@@ -33,24 +33,24 @@ var app = app || {};
       service.getDistanceMatrix(params, callback);
 
       function callback(results, status) {
-        if (status == google.maps.DistanceMatrixStatus.OK) {
-          for (var i=0; i < results.rows[0].elements.length; i++) {
-            // Guard against no driving options to destination
-            if (results.rows[0].elements[0].distance) {
-              // Add distance info to each result
-              places[i].drivingInfo = {
-                distance: results.rows[0].elements[i].distance.text,
-                duration: results.rows[0].elements[i].duration.text
-              };
-            }
-          }
-          // Save distance and duration info
-          app.models.places.add(places);
-          resolve();
-        } else {
-          reject({ type: 'error', text: 'An error occurred.  Please try again.' });
+        if (status != google.maps.DistanceMatrixStatus.OK) {
+          reject({ type: 'error', text: 'An error occurred. Please try again.' });
           return;
         }
+
+        for (var i=0; i < results.rows[0].elements.length; i++) {
+          // Guard against no driving options to destination
+          if (results.rows[0].elements[0].distance) {
+            // Add distance info to each result
+            places[i].drivingInfo = {
+              distance: results.rows[0].elements[i].distance.text,
+              duration: results.rows[0].elements[i].duration.text
+            };
+          }
+        }
+        // Save distance and duration info
+        app.models.places.add(places);
+        resolve();
       }
     });
   };
@@ -73,20 +73,20 @@ var app = app || {};
       service.getDistanceMatrix(params, callback);
 
       function callback(results, status) {
-        if (status == google.maps.DistanceMatrixStatus.OK) {
-          var distance, duration;
-          // Guard against no transit option to destination
-          if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
-            distance = results.rows[0].elements[0].distance.text;
-            duration = results.rows[0].elements[0].duration.text;
-          }
-          // Save distance and duration info
-          app.models.selectedPlace.setDrivingInfo(distance, duration);
-          resolve();
-        } else {
-          reject({ type: 'error', text: 'An error occurred.  Please try again.' });
+        if (status != google.maps.DistanceMatrixStatus.OK) {
+          reject({ type: 'error', text: 'An error occurred. Please try again.' });
           return;
         }
+
+        var distance, duration;
+        // Guard against no transit option to destination
+        if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
+          distance = results.rows[0].elements[0].distance.text;
+          duration = results.rows[0].elements[0].duration.text;
+        }
+        // Save distance and duration info
+        app.models.selectedPlace.setDrivingInfo(distance, duration);
+        resolve();
       }
     });
   };
@@ -110,20 +110,20 @@ var app = app || {};
       service.getDistanceMatrix(params, callback);
 
       function callback(results, status) {
-        if (status == google.maps.DistanceMatrixStatus.OK) {
-          var distance, duration;
-          // Guard against no transit option to destination
-          if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
-            distance = results.rows[0].elements[0].distance.text;
-            duration = results.rows[0].elements[0].duration.text;
-          }
-          // Save distance and duration info
-          app.models.selectedPlace.setTransitInfo(distance, duration);
-          resolve();
-        } else {
-          reject({ type: 'error', text: 'An error occurred.  Please try again.' });
+        if (status != google.maps.DistanceMatrixStatus.OK) {
+          reject({ type: 'error', text: 'An error occurred. Please try again.' });
           return;
         }
+
+        var distance, duration;
+        // Guard against no transit option to destination
+        if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
+          distance = results.rows[0].elements[0].distance.text;
+          duration = results.rows[0].elements[0].duration.text;
+        }
+        // Save distance and duration info
+        app.models.selectedPlace.setTransitInfo(distance, duration);
+        resolve();
       }
     });
   };

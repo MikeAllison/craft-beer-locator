@@ -31,19 +31,21 @@ var app = app || {};
       service.nearbySearch(params, callback);
 
       function callback(results, status, pagination) {
-        if (status == google.maps.places.PlacesServiceStatus.OK) {
-          // Add results to sessionStorage
-          app.models.places.add(results);
-          // Store pagination object for more results
-          app.models.places.setPaginationObj(pagination);
-          resolve();
-        } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+        if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           reject({ type: 'info', text: 'Your request returned no results.' });
           return;
-        } else {
-          reject({ type: 'error', text: 'An error occurred.  Please try again.' });
+        }
+
+        if (status != google.maps.places.PlacesServiceStatus.OK) {
+          reject({ type: 'error', text: '*An error occurred. Please try again.' });
           return;
         }
+
+        // Add results to sessionStorage
+        app.models.places.add(results);
+        // Store pagination object for more results
+        app.models.places.setPaginationObj(pagination);
+        resolve();
       }
     });
   };
@@ -57,21 +59,21 @@ var app = app || {};
       service.getDetails(params, callback);
 
       function callback(results, status) {
-        if (status == google.maps.places.PlacesServiceStatus.OK) {
-          app.models.selectedPlace.setWebsite(results.website);
-          app.models.selectedPlace.setAddress(results.formatted_address);
-          app.models.selectedPlace.setGoogleMapsUrl(results.url);
-          app.models.selectedPlace.setPhoneNum(results.formatted_phone_number);
-          // This is needed to guard against items without opening_hours
-          if (results.opening_hours) {
-            app.models.selectedPlace.setOpenNow(results.opening_hours.open_now);
-            app.models.selectedPlace.setHoursOpen(results.opening_hours.weekday_text);
-          }
-          resolve();
-        } else {
-          reject({ type: 'error', text: 'An error occurred.  Please try again.' });
+        if (status != google.maps.places.PlacesServiceStatus.OK) {
+          reject({ type: 'error', text: 'An error occurred. Please try again.' });
           return;
         }
+
+        app.models.selectedPlace.setWebsite(results.website);
+        app.models.selectedPlace.setAddress(results.formatted_address);
+        app.models.selectedPlace.setGoogleMapsUrl(results.url);
+        app.models.selectedPlace.setPhoneNum(results.formatted_phone_number);
+        // This is needed to guard against items without opening_hours
+        if (results.opening_hours) {
+          app.models.selectedPlace.setOpenNow(results.opening_hours.open_now);
+          app.models.selectedPlace.setHoursOpen(results.opening_hours.weekday_text);
+        }
+        resolve();
       }
     });
   };

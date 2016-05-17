@@ -11,7 +11,6 @@ var app = app || {};
   app.controllers.getGeocode = function() {
     return new Promise(function(resolve, reject) {
       var tboxVal = app.views.form.cityStateTbox.value;
-
       if (!tboxVal) {
         reject({ type: 'error', text: 'Please enter a location.' });
         return;
@@ -24,23 +23,21 @@ var app = app || {};
 
       httpRequest.onload = function() {
         if (httpRequest.readyState === XMLHttpRequest.DONE) {
-          if (httpRequest.status === 200) {
-            var response = JSON.parse(httpRequest.responseText);
-
-            if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
-              reject({ type: 'error', text: 'Sorry, that location could not be found.' });
-              return;
-            } else {
-              app.models.searchLoc.setLat(response.results[0].geometry.location.lat);
-              app.models.searchLoc.setLng(response.results[0].geometry.location.lng);
-              app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
-              resolve();
-            }
-
-          } else {
-            reject({ type: 'error', text: 'An error occurred.  Please try again.' });
+          if (httpRequest.status !== 200) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
             return;
           }
+
+          var response = JSON.parse(httpRequest.responseText);
+          if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
+            reject({ type: 'error', text: 'Sorry, that location could not be found.' });
+            return;
+          }
+
+          app.models.searchLoc.setLat(response.results[0].geometry.location.lat);
+          app.models.searchLoc.setLng(response.results[0].geometry.location.lng);
+          app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
+          resolve();
         }
       };
 
@@ -59,18 +56,17 @@ var app = app || {};
 
       httpRequest.onload = function() {
         if (httpRequest.readyState === XMLHttpRequest.DONE) {
-          if (httpRequest.status === 200) {
-            var response = JSON.parse(httpRequest.responseText);
-            var formattedAddress = response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name;
-            // Sets .formattedAddress as city, state (i.e. New York, NY)
-            app.models.userLoc.setFormattedAddress(formattedAddress);
-            resolve();
-          } else {
-            reject({ type: 'error', text: 'An error occurred.  Please try again.' });
+          if (httpRequest.status !== 200) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
             return;
           }
-        }
 
+          var response = JSON.parse(httpRequest.responseText);
+          var formattedAddress = response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name;
+          // Sets .formattedAddress as city, state (i.e. New York, NY)
+          app.models.userLoc.setFormattedAddress(formattedAddress);
+          resolve();
+        }
       };
     });
   };
