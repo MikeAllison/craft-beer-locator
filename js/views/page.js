@@ -28,8 +28,6 @@ var app = app || {};
     clear: function() {
       app.views.alerts.clear();
       app.views.results.clear();
-      app.views.moreResultsBtn.hide();
-      app.views.moreResultsBtn.disable();
     },
     disableButtons: function() {
       app.views.form.disableSearchBtn();

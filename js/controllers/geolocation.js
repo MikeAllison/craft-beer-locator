@@ -15,7 +15,10 @@ var app = app || {};
         resolve();
       };
       var error = function() {
-        app.views.alerts.show('error', 'Sorry, please try again.');
+        app.views.alerts.show('error', 'An error occurred.  Please try again.');
+        app.views.results.clear();
+        app.views.page.enableButtons();
+        return;
       };
       var options = { enableHighAccuracy: true };
 
@@ -23,6 +26,8 @@ var app = app || {};
         navigator.geolocation.getCurrentPosition(success, error, options);
       } else {
         app.views.alerts.show('error', 'Sorry, geolocation is not supported in your browser.');
+        app.views.page.enableButtons();
+        return;
       }
     });
   };

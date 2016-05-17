@@ -47,6 +47,11 @@ var app = app || {};
           // Save distance and duration info
           app.models.places.add(places);
           resolve();
+        } else {
+          app.views.alerts.show('error', 'An error occurred.  Please try again.');
+          app.views.results.clear();
+          app.views.page.enableButtons();
+          return;
         }
       }
     });
@@ -80,6 +85,11 @@ var app = app || {};
           // Save distance and duration info
           app.models.selectedPlace.setDrivingInfo(distance, duration);
           resolve();
+        } else {
+          app.views.alerts.show('error', 'An error occurred.  Please try again.');
+          app.views.results.clear();
+          app.views.page.enableButtons();
+          return;
         }
       }
     });
@@ -114,6 +124,11 @@ var app = app || {};
           // Save distance and duration info
           app.models.selectedPlace.setTransitInfo(distance, duration);
           resolve();
+        } else {
+          app.views.alerts.show('error', 'An error occurred.  Please try again.');
+          app.views.results.clear();
+          app.views.page.enableButtons();
+          return;
         }
       }
     });

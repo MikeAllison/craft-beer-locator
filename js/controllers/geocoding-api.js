@@ -25,11 +25,7 @@ var app = app || {};
 
       httpRequest.onload = function() {
         if (httpRequest.readyState === XMLHttpRequest.DONE) {
-          if (httpRequest.status !== 200) {
-            app.views.alerts.show('error', 'Sorry, please try again.');
-            app.views.page.enableButtons();
-            return;
-          } else {
+          if (httpRequest.status === 200) {
             var response = JSON.parse(httpRequest.responseText);
 
             if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
@@ -41,6 +37,12 @@ var app = app || {};
               app.models.searchLoc.setLng(response.results[0].geometry.location.lng);
               app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
             }
+
+          } else {
+            app.views.alerts.show('error', 'An error occurred.  Please try again.');
+            app.views.results.clear();
+            app.views.page.enableButtons();
+            return;
           }
           resolve();
         }

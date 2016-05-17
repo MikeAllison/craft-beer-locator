@@ -12,6 +12,8 @@ var app = app || {};
     },
     clear: function() {
       this.resultsList.textContent = null;
+      app.views.moreResultsBtn.hide();
+      app.views.moreResultsBtn.disable();
     },
     render: function() {
       this.resultsList.textContent = null;

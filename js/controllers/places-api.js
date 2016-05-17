@@ -43,9 +43,10 @@ var app = app || {};
           app.views.page.enableButtons();
         } else {
           app.models.places.init();
-          app.views.alerts.show('error', 'Sorry, please try again.');
-          app.views.results.render();
+          app.views.alerts.show('error', 'An error occurred.  Please try again.');
+          app.views.results.clear();
           app.views.page.enableButtons();
+          return;
         }
         resolve();
       }
@@ -73,7 +74,10 @@ var app = app || {};
           }
           resolve();
         } else {
-          app.views.alerts.show('error', 'Sorry, please try again.');
+          app.views.alerts.show('error', 'An error occurred.  Please try again.');
+          app.views.results.clear();
+          app.views.page.enableButtons();
+          return;
         }
       }
     });
