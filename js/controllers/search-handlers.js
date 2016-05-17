@@ -18,7 +18,9 @@ var app = app || {};
 
   // formSearch - Controls the flow of a search initiated by the form
   app.controllers.formSearch = function() {
+    // Clear user location (search location gets overwritten)
     app.models.userLoc.init();
+
     app.controllers.getGeocode()
       .then(app.controllers.reqPlaces)
       .then(app.controllers.reqMultiDistance)
@@ -30,7 +32,9 @@ var app = app || {};
 
   // geolocationSearch - Controls the flow of a search initiated by the 'My Location' button
   app.controllers.geolocationSearch = function() {
+    // Clear search location (user location gets overwritten)
     app.models.searchLoc.init();
+
     app.controllers.getCurrentLocation()
       .then(app.controllers.reverseGeocode)
       .then(app.controllers.reqPlaces)
@@ -43,8 +47,10 @@ var app = app || {};
 
   // recentSearch - Controls the flow of a search initiated by clicking a location in Recent Searches
   app.controllers.recentSearch = function(location) {
+    // Clear user location & set search location
     app.models.userLoc.init();
     app.controllers.setSearchLocation(location);
+
     app.controllers.reqPlaces()
       .then(app.controllers.reqMultiDistance)
       .then(app.controllers.sortPlaces)
@@ -57,11 +63,13 @@ var app = app || {};
   app.controllers.getDetails = function(place) {
     app.views.results.disable();
     var requestedPlace = app.models.places.find(place);
+
     app.controllers.setSelectedPlaceDetails(requestedPlace)
       .then(app.controllers.reqPlaceDetails)
       .then(app.controllers.reqTransitDistance)
       .then(app.controllers.updateModal)
       .catch(stopExecution);
+
     app.views.results.enable();
   };
 
