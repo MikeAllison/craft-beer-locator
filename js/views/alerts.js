@@ -21,19 +21,19 @@ var app = app || {};
       }
       this.alert.textContent = null;
     },
-    error: function(msg) {
+    show: function(type, msg) {
+      var alertClass;
+
+      if (type === 'error') {
+        alertClass = 'alert-danger';
+      } else if (type === 'info') {
+        alertClass = 'alert-info';
+      } else if (type === 'success') {
+        alertClass = 'alert-success';
+      }
+
       this.alert.textContent = msg;
-      this.alert.classList.add('alert-danger');
-      this.alert.classList.remove('hidden');
-    },
-    info: function(msg) {
-      this.alert.textContent = msg;
-      this.alert.classList.add('alert-info');
-      this.alert.classList.remove('hidden');
-    },
-    success: function(msg) {
-      this.alert.textContent = msg;
-      this.alert.classList.add('alert-success');
+      this.alert.classList.add(alertClass);
       this.alert.classList.remove('hidden');
     }
   };

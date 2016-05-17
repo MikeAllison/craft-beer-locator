@@ -17,28 +17,30 @@ var app = app || {};
       this.resultsList.textContent = null;
       this.resultsList.classList.remove('hidden');
 
-      var results = app.models.places.get();
+      var places = app.models.places.get();
+      if (!places) {
+        app.views.alerts.show('info', 'Your request returned no results.');
+        return;
+      }
 
-      if (results) {
-        for (var i=0; i < results.length; i++) {
-          var li = document.createElement('li');
-          li.classList.add('list-group-item');
-          li.textContent = results[i].name;
+      for (var i=0; i < places.length; i++) {
+        var li = document.createElement('li');
+        li.classList.add('list-group-item');
+        li.textContent = places[i].name;
 
-          var span = document.createElement('span');
-          span.classList.add('badge');
-          span.textContent = results[i].drivingInfo.distance;
+        var span = document.createElement('span');
+        span.classList.add('badge');
+        span.textContent = places[i].drivingInfo.distance;
 
-          li.appendChild(span);
+        li.appendChild(span);
 
-          li.addEventListener('click', (function(place) {
-            return function() {
-              app.controllers.getDetails(place);
-            };
-          })(results[i]));
+        li.addEventListener('click', (function(place) {
+          return function() {
+            app.controllers.getDetails(place);
+          };
+        })(places[i]));
 
-          this.resultsList.appendChild(li);
-        }
+        this.resultsList.appendChild(li);
       }
       // Select results tab and panel to show new results
       $('#resultsTab').tab('show');

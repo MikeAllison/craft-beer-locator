@@ -1,4 +1,4 @@
-// Code related to HTML5 Geolocation 
+// Code related to HTML5 Geolocation
 
 var app = app || {};
 
@@ -15,14 +15,14 @@ var app = app || {};
         resolve();
       };
       var error = function() {
-        app.views.alerts.error('Sorry, please try again.');
+        app.views.alerts.show('error', 'Sorry, please try again.');
       };
       var options = { enableHighAccuracy: true };
 
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(success, error, options);
       } else {
-        app.views.alerts.error('Sorry, geolocation is not supported in your browser.');
+        app.views.alerts.show('error', 'Sorry, geolocation is not supported in your browser.');
       }
     });
   };

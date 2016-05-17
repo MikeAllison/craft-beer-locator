@@ -30,7 +30,12 @@ var app = app || {};
       var primaryResults = [];
       var secondaryResults = [];
       var sortedResults = [];
+
       var places = app.models.places.get();
+      if (!places) {
+        app.views.alerts.show('info', 'Your request returned no results.');
+        return;
+      }
 
       // Sorts results based on relevent/exlcuded categories in app.config.settings.search
       for (var i=0; i < places.length; i++) {
@@ -83,7 +88,7 @@ var app = app || {};
         app.models.places.add(sortedResults);
       } else {
         app.models.places.init();
-        app.views.alerts.info('Your request returned no results.');
+        app.views.alerts.show('info', 'Your request returned no results.');
         app.views.results.render();
       }
       resolve();

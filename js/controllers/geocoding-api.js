@@ -13,33 +13,27 @@ var app = app || {};
       var tboxVal = app.views.form.cityStateTbox.value;
 
       if (!tboxVal) {
-        app.views.alerts.error('Please enter a location.');
+        app.views.alerts.show('error', 'Please enter a location.');
         app.views.page.enableButtons();
         return;
       }
 
       // AJAX request for lat/lng for form submission
       var httpRequest = new XMLHttpRequest();
-      if (!httpRequest) {
-        app.views.alerts.error('Sorry, please try again.');
-        app.views.page.enableButtons();
-        return;
-      }
-
       var params = 'key=' + app.config.google.apiKey + '&address=' + encodeURIComponent(tboxVal);
       httpRequest.open('GET', app.config.google.geocodingAPI.reqURL + params, true);
 
       httpRequest.onload = function() {
         if (httpRequest.readyState === XMLHttpRequest.DONE) {
           if (httpRequest.status !== 200) {
-            app.views.alerts.error('Sorry, please try again.');
+            app.views.alerts.show('error', 'Sorry, please try again.');
             app.views.page.enableButtons();
             return;
           } else {
             var response = JSON.parse(httpRequest.responseText);
 
             if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
-              app.views.alerts.error('Sorry, that location could not be found.');
+              app.views.alerts.show('error', 'Sorry, that location could not be found.');
               app.views.page.enableButtons();
               return;
             } else {

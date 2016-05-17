@@ -12,7 +12,6 @@ var app = app || {};
       // Set params for search (use userLoc if available)
       var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
       var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-      var places = app.models.places.get();
       var params = {
         origins: [new google.maps.LatLng(lat, lng)],
         destinations: [],
@@ -21,12 +20,17 @@ var app = app || {};
       };
       var service = new google.maps.DistanceMatrixService();
 
-      if (places) {
-        for (var i=0; i < places.length; i++) {
-          params.destinations.push(new google.maps.LatLng(places[i].geometry.location.lat, places[i].geometry.location.lng));
-        }
-        service.getDistanceMatrix(params, callback);
+      var places = app.models.places.get();
+      if (!places) {
+        app.views.alerts.show('info', 'Your request returned no results.');
+        return;
       }
+
+      for (var i=0; i < places.length; i++) {
+        params.destinations.push(new google.maps.LatLng(places[i].geometry.location.lat, places[i].geometry.location.lng));
+      }
+
+      service.getDistanceMatrix(params, callback);
 
       function callback(results, status) {
         if (status == google.maps.DistanceMatrixStatus.OK) {

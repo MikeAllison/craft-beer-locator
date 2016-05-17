@@ -38,12 +38,12 @@ var app = app || {};
           app.models.places.setPaginationObj(pagination);
         } else if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           app.models.places.init();
-          app.views.alerts.info('Your request returned no results.');
+          app.views.alerts.show('info', 'Your request returned no results.');
           app.views.results.render();
           app.views.page.enableButtons();
         } else {
           app.models.places.init();
-          app.views.alerts.error('Sorry, please try again.');
+          app.views.alerts.show('error', 'Sorry, please try again.');
           app.views.results.render();
           app.views.page.enableButtons();
         }
@@ -73,7 +73,7 @@ var app = app || {};
           }
           resolve();
         } else {
-          app.views.alerts.error('Sorry, please try again.');
+          app.views.alerts.show('error', 'Sorry, please try again.');
         }
       }
     });
