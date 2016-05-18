@@ -42,8 +42,21 @@ var app = app || {};
           };
         })(places[i]));
 
+        (function(li) {
+            li.addEventListener('mouseover', function() {
+            li.classList.add('hovered');
+          });
+        })(li);
+
+        (function(li) {
+          li.addEventListener('mouseout', function() {
+            li.classList.remove('hovered');
+          });
+        })(li);
+
         this.resultsList.appendChild(li);
       }
+
       // Select results tab and panel to show new results
       $('#resultsTab').tab('show');
     },
