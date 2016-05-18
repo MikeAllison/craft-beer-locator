@@ -66,6 +66,12 @@ var app = app || {};
           });
         })(li);
 
+        (function(li) {
+          li.addEventListener('click', function() {
+            li.classList.add('hovered');
+          });
+        })(li);
+
         this.resultsList.appendChild(li);
       }
 
