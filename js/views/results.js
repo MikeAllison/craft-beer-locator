@@ -54,6 +54,18 @@ var app = app || {};
           });
         })(li);
 
+        (function(li) {
+            li.addEventListener('touchstart', function() {
+            li.classList.add('hovered');
+          });
+        })(li);
+
+        (function(li) {
+          li.addEventListener('touchend', function() {
+            li.classList.remove('hovered');
+          });
+        })(li);
+
         this.resultsList.appendChild(li);
       }
 
