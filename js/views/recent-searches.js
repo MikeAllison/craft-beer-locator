@@ -44,6 +44,12 @@ var app = app || {};
         })(recentSearches[i]));
 
         (function(li) {
+          li.addEventListener('click', function() {
+            li.classList.add('hovered');
+          });
+        })(li);
+
+        (function(li) {
             li.addEventListener('mouseover', function() {
             li.classList.add('hovered');
           });
@@ -64,12 +70,6 @@ var app = app || {};
         (function(li) {
           li.addEventListener('touchend', function() {
             li.classList.remove('hovered');
-          });
-        })(li);
-
-        (function(li) {
-          li.addEventListener('click', function() {
-            li.classList.add('hovered');
           });
         })(li);
 
