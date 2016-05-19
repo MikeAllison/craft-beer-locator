@@ -77,18 +77,6 @@ var app = app || {};
 
       // Select results tab and panel to show new results
       $('#resultsTab').tab('show');
-    },
-    disable: function() {
-      var items = document.getElementsByClassName('list-group-item');
-      for (var i=0; i < items.length; i++) {
-        items[i].classList.add('disabled');
-      }
-    },
-    enable: function() {
-      var items = document.getElementsByClassName('list-group-item');
-      for (var i=0; i < items.length; i++) {
-        items[i].classList.remove('disabled');
-      }
     }
   };
 
