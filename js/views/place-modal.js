@@ -36,6 +36,7 @@ var app = app || {};
       this.placeModalPhoneNum.textContent = app.models.selectedPlace.phoneNum;
 
       this.placeModalDistanceWarning.addEventListener('click', function() {
+        this.classList.add('hovered');
         app.controllers.switchToGeolocation();
         this.classList.add('hidden');
       });
