@@ -46,8 +46,8 @@ var app = app || {};
 
       this.placeModalDistanceWarning.addEventListener('click', function() {
         this.classList.add('clicked');
-        this.classList.add('hidden');
         app.controllers.switchToGeolocation();
+        this.classList.add('hidden');
       });
       // Only show message if geolocation search isn't being used
       if (!app.models.userLoc.lat && !app.models.userLoc.lng) {
