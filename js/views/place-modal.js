@@ -35,8 +35,17 @@ var app = app || {};
       this.placeModalPhoneNum.setAttribute('href', 'tel:' + app.models.selectedPlace.phoneNum);
       this.placeModalPhoneNum.textContent = app.models.selectedPlace.phoneNum;
 
-      this.placeModalDistanceWarning.addEventListener('click', function() {
+      this.placeModalDistanceWarning.addEventListener('mouseover', function() {
         this.classList.add('hovered');
+      });
+
+      this.placeModalDistanceWarning.addEventListener('mouseout', function() {
+        this.classList.remove('hovered');
+        this.classList.remove('clicked');
+      });
+
+      this.placeModalDistanceWarning.addEventListener('click', function() {
+        this.classList.add('clicked');
         app.controllers.switchToGeolocation();
         this.classList.add('hidden');
       });

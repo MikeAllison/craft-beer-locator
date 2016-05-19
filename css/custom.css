@@ -65,8 +65,8 @@
   overflow-x: auto;
 }
 
-.hovered {
-  background-color: #ECF0F1;
+.hovered, .clicked {
+  background-color: #ECF0F1 !important;
 }
 
 .modal-body {

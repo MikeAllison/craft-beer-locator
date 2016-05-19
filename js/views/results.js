@@ -44,12 +44,12 @@ var app = app || {};
 
         (function(li) {
           li.addEventListener('click', function() {
-            li.classList.add('hovered');
+            li.classList.add('clicked');
           });
         })(li);
 
         (function(li) {
-            li.addEventListener('mouseover', function() {
+          li.addEventListener('mouseover', function() {
             li.classList.add('hovered');
           });
         })(li);
@@ -57,6 +57,7 @@ var app = app || {};
         (function(li) {
           li.addEventListener('mouseout', function() {
             li.classList.remove('hovered');
+            li.classList.remove('clicked');
           });
         })(li);
 
