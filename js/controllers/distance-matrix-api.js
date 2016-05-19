@@ -46,6 +46,11 @@ var app = app || {};
               distance: results.rows[0].elements[i].distance.text,
               duration: results.rows[0].elements[i].duration.text
             };
+          } else {
+            places[i].drivingInfo = {
+              distance: null,
+              duration: null
+            };
           }
         }
         // Save distance and duration info
