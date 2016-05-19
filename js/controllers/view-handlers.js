@@ -17,16 +17,9 @@ var app = app || {};
         return;
       }
 
-      // Only set location attributes and it to recent searches if it's the first request of the location
+      // Only set location attributes if it's the first request of the location
       if (app.controllers.newSearch) {
-        var totalItems = places.length;
-
-        app.models.searchLoc.setTotalItems(paginationObj.hasNextPage ? totalItems + '+' : totalItems);
-        app.models.recentSearches.add();
-
-        // Set message for alert (first request of location only)
-        var msg = (!app.config.settings.search.topResultsOnly && paginationObj.hasNextPage) ? 'More than ' : '';
-        app.views.alerts.show('success', msg + totalItems + ' matches! Click on an item for more details.');
+        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
       }
 
       // Handle > 20 matches (Google returns a max of 20 by default)

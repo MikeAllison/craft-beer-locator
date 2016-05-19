@@ -88,6 +88,7 @@ var app = app || {};
         return;
       }
 
+      app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? sortedResults.length + '+' : sortedResults.length);
       // Adds search results to sessionStorage
       app.models.places.add(sortedResults);
       resolve();

@@ -6,14 +6,20 @@ var app = app || {};
 
   app.controllers = app.controllers || {};
 
-  function stopExecution(msg) {
-    // app.models.places.init();
+  app.controllers.stopExecution = function(msg) {
     app.views.alerts.show(msg.type, msg.text);
     app.views.results.clear();
     app.views.placeModal.hide();
     app.views.page.enableButtons();
     return;
-  }
+  };
+
+  app.controllers.addRecentSearch = function() {
+    return new Promise(function(resolve) {
+      app.models.recentSearches.add();
+      resolve();
+    });
+  };
 
   // formSearch - Controls the flow of a search initiated by the form
   app.controllers.formSearch = function() {
@@ -24,9 +30,10 @@ var app = app || {};
       .then(app.controllers.reqPlaces)
       .then(app.controllers.reqMultiDistance)
       .then(app.controllers.sortPlaces)
+      .then(app.controllers.addRecentSearch)
       .then(app.controllers.updatePage)
       .then(app.views.page.enableButtons)
-      .catch(stopExecution);
+      .catch(app.controllers.stopExecution);
   };
 
   // geolocationSearch - Controls the flow of a search initiated by the 'My Location' button
@@ -41,7 +48,7 @@ var app = app || {};
       .then(app.controllers.sortPlaces)
       .then(app.controllers.updatePage)
       .then(app.views.page.enableButtons)
-      .catch(stopExecution);
+      .catch(app.controllers.stopExecution);
   };
 
   // recentSearch - Controls the flow of a search initiated by clicking a location in Recent Searches
@@ -55,7 +62,7 @@ var app = app || {};
       .then(app.controllers.sortPlaces)
       .then(app.controllers.updatePage)
       .then(app.views.page.enableButtons)
-      .catch(stopExecution);
+      .catch(app.controllers.stopExecution);
   };
 
   // getDetails - Controls the flow for acquiring details when a specific place is selected
@@ -66,7 +73,7 @@ var app = app || {};
       .then(app.controllers.reqPlaceDetails)
       .then(app.controllers.reqTransitDistance)
       .then(app.controllers.updateModal)
-      .catch(stopExecution);
+      .catch(app.controllers.stopExecution);
   };
 
   // switchToGeolocation - Requests distance from your location to a place (triggered from placeModal)
@@ -78,7 +85,7 @@ var app = app || {};
       .then(app.controllers.reqMultiDistance)
       .then(app.controllers.sortPlaces)
       .then(app.controllers.updatePage)
-      .catch(stopExecution);
+      .catch(app.controllers.stopExecution);
   };
 
   // requestMoreResults - Requests more results if > 20 results are returned
@@ -92,7 +99,7 @@ var app = app || {};
         .then(app.controllers.sortPlaces)
         .then(app.controllers.updatePage)
         .then(app.views.page.enableButtons)
-        .catch(stopExecution);
+        .catch(app.controllers.stopExecution);
     }, 2000);
   };
 
