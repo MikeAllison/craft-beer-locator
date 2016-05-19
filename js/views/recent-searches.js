@@ -61,12 +61,6 @@ var app = app || {};
           });
         })(li);
 
-        (function(li) {
-            li.addEventListener('touchstart', function() {
-            li.classList.add('hovered');
-          });
-        })(li);
-
         this.recentSearchesList.appendChild(li);
       }
     }
