@@ -133,3 +133,7 @@
   border: 1px solid #e5e5e5;
   color: #D35400;
 }
+
+.nav > li > a:hover {
+  background-color: #ECF0F1;
+}
