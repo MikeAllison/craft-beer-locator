@@ -14,13 +14,6 @@ var app = app || {};
     return;
   };
 
-  app.controllers.addRecentSearch = function() {
-    return new Promise(function(resolve) {
-      app.models.recentSearches.add();
-      resolve();
-    });
-  };
-
   // formSearch - Controls the flow of a search initiated by the form
   app.controllers.formSearch = function() {
     // Clear user location (search location gets overwritten)
@@ -46,6 +39,7 @@ var app = app || {};
       .then(app.controllers.reqPlaces)
       .then(app.controllers.reqMultiDistance)
       .then(app.controllers.sortPlaces)
+      .then(app.controllers.addRecentSearch)
       .then(app.controllers.updatePage)
       .then(app.views.page.enableButtons)
       .catch(app.controllers.stopExecution);

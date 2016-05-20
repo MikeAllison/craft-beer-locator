@@ -6,6 +6,14 @@ var app = app || {};
 
   app.controllers = app.controllers || {};
 
+  // setSelectedPlaceDetails - Adds a location to Recent Searches after a search
+  app.controllers.addRecentSearch = function() {
+    return new Promise(function(resolve) {
+      app.models.recentSearches.add();
+      resolve();
+    });
+  };
+
   // setSelectedPlaceDetails - Sets the initial deails of the requested place for viewing details about it
   app.controllers.setSelectedPlaceDetails = function(place) {
     return new Promise(function(resolve) {
