@@ -13,7 +13,7 @@ var app = app || {};
     for(var i=0; i < length; i++) {
       var temp = unsorted[i];
 
-      for(var j=i-1; j >= 0 && (parseFloat(unsorted[j].drivingInfo.distance) > parseFloat(temp.drivingInfo.distance)); j--) {
+      for(var j=i-1; j >= 0 && (parseFloat(unsorted[j].drivingInfo.value) > parseFloat(temp.drivingInfo.value)); j--) {
         unsorted[j+1] = unsorted[j];
       }
 
