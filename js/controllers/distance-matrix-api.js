@@ -38,8 +38,6 @@ var app = app || {};
           return;
         }
 
-        console.dir(results);
-
         for (var i=0; i < results.rows[0].elements.length; i++) {
           // Guard against no driving options to destination
           if (results.rows[0].elements[0].distance) {
