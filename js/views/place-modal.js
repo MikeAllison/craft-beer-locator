@@ -21,19 +21,50 @@ var app = app || {};
       this.placeModalDistanceWarning.classList.add('hidden');
     },
     populate: function() {
+      // Reset hidden fields on each render
+      var sections = document.getElementById('placeModalBody').children;
+      for (var i=0; i < sections.length; i++) {
+        sections[i].classList.remove('hidden');
+      }
+
       var currentDay = new Date().getDay();
       // Adjust to start week on Monday for hoursOpen
       currentDay -= 1;
       // Adjust for Sundays: JS uses a value of 0 and Google uses a value of 6
       currentDay = currentDay === -1 ? 6 : currentDay;
       this.placeModalTitle.textContent = app.models.selectedPlace.name;
-      this.placeModalOpenNow.textContent = app.models.selectedPlace.openNow;
-      this.placeModalWebsite.setAttribute('href', app.models.selectedPlace.website);
-      this.placeModalWebsite.textContent = app.models.selectedPlace.website;
-      this.placeModalAddress.setAttribute('href', app.models.selectedPlace.googleMapsUrl);
-      this.placeModalAddress.textContent = app.models.selectedPlace.address;
-      this.placeModalPhoneNum.setAttribute('href', 'tel:' + app.models.selectedPlace.phoneNum);
-      this.placeModalPhoneNum.textContent = app.models.selectedPlace.phoneNum;
+
+      if (app.models.selectedPlace.openNow) {
+        this.placeModalOpenNow.textContent = app.models.selectedPlace.openNow;
+      } else {
+        this.placeModalOpenNow.parentElement.classList.add('hidden');
+      }
+
+      if (app.models.selectedPlace.website) {
+        this.placeModalWebsite.setAttribute('href', app.models.selectedPlace.website);
+        this.placeModalWebsite.textContent = app.models.selectedPlace.website;
+      } else {
+        this.placeModalWebsite.parentElement.classList.add('hidden');
+      }
+
+      if (app.models.selectedPlace.address) {
+        this.placeModalAddress.setAttribute('href', app.models.selectedPlace.googleMapsUrl);
+        this.placeModalAddress.textContent = app.models.selectedPlace.address;
+      } else {
+        this.placeModalAddress.parentElement.classList.add('hidden');
+      }
+
+      if (app.models.selectedPlace.phoneNum) {
+        this.placeModalPhoneNum.setAttribute('href', 'tel:' + app.models.selectedPlace.phoneNum);
+        this.placeModalPhoneNum.textContent = app.models.selectedPlace.phoneNum;
+      } else {
+        this.placeModalPhoneNum.parentElement.classList.add('hidden');
+      }
+
+      // Only show message if geolocation search isn't being used
+      if (app.models.userLoc.lat && app.models.userLoc.lng) {
+        this.placeModalDistanceWarning.classList.add('hidden');
+      }
 
       this.placeModalDistanceWarning.addEventListener('mouseover', function() {
         this.classList.add('hovered');
@@ -47,12 +78,7 @@ var app = app || {};
       this.placeModalDistanceWarning.addEventListener('click', function() {
         this.classList.add('clicked');
         app.controllers.switchToGeolocation();
-        this.classList.add('hidden');
       });
-      // Only show message if geolocation search isn't being used
-      if (!app.models.userLoc.lat && !app.models.userLoc.lng) {
-        this.placeModalDistanceWarning.classList.remove('hidden');
-      }
 
       if (app.models.selectedPlace.drivingInfo.duration || app.models.selectedPlace.drivingInfo.distance) {
         this.placeModalDrivingInfo.textContent = app.models.selectedPlace.drivingInfo.duration + ' (' + app.models.selectedPlace.drivingInfo.distance + ')';
@@ -67,18 +93,20 @@ var app = app || {};
 
       this.placeModalHoursOpen.textContent = null;
       if (app.models.selectedPlace.hoursOpen) {
-        for (var i=0; i < app.models.selectedPlace.hoursOpen.length; i++) {
+        for (var j=0; j < app.models.selectedPlace.hoursOpen.length; j++) {
           var li = document.createElement('li');
           // Split hoursOpen on ':'
-          var dayTime = app.models.selectedPlace.hoursOpen[i].split(/:\s/);
+          var dayTime = app.models.selectedPlace.hoursOpen[j].split(/:\s/);
           // <span> is needed to highlight hours for current day
           li.innerHTML = '<span><strong>' + dayTime[0] + ':</strong>' + dayTime[1] + '</span>';
           // Highlight current day of week
-          if (i === currentDay) {
+          if (j === currentDay) {
             li.classList.add('current-day');
           }
           this.placeModalHoursOpen.appendChild(li);
         }
+      } else {
+        this.placeModalHoursOpen.parentElement.classList.add('hidden');
       }
     },
     show: function() {
