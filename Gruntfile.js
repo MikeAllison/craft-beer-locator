@@ -14,11 +14,21 @@ module.exports = function(grunt) {
         ],
         dest: 'js/dist/<%= pkg.name %>.js'
       }
+    },
+
+    uglify: {
+      my_target: {
+        files: {
+          'js/dist/<%= pkg.name %>.min.js': ['js/dist/<%= pkg.name %>.js']
+        }
+      }
     }
+
   });
 
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
 
-  grunt.registerTask('default', ['concat']);
+  grunt.registerTask('default', ['concat', 'uglify']);
 
 };
