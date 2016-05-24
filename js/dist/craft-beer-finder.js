@@ -75,8 +75,13 @@ var app = app || {};
         return;
       }
 
-      for (var i=0; i < places.length; i++) {
-        params.destinations.push(new google.maps.LatLng(places[i].geometry.location.lat, places[i].geometry.location.lng));
+      // Flattens array if primary and secondary results have been determined previously
+      if (places.primary || places.secondary) {
+        places = places.primary.concat(places.secondary);
+      }
+
+      for (var k=0; k < places.length; k++) {
+        params.destinations.push(new google.maps.LatLng(places[k].geometry.location.lat, places[k].geometry.location.lng));
       }
 
       service.getDistanceMatrix(params, callback);
@@ -529,7 +534,8 @@ var app = app || {};
       var excludedTypes = app.config.settings.search.excludedTypes;
       var primaryResults = [];
       var secondaryResults = [];
-      var sortedResults = [];
+      var sortedResults = { primary: null, secondary: null };
+      var totalResults;
 
       var places = app.models.places.get();
       if (!places) {
@@ -580,15 +586,16 @@ var app = app || {};
         app.controllers.insertionSort(secondaryResults);
       }
 
-      // Combine primary and secondary arrays
-      sortedResults = primaryResults.concat(secondaryResults);
-
-      if (sortedResults.length < 1) {
+      if (primaryResults.length === 0 && secondaryResults.length === 0) {
         reject({ type: 'info', text: 'Your request returned no results.' });
         return;
       }
 
-      app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? sortedResults.length + '+' : sortedResults.length);
+      sortedResults.primary = primaryResults;
+      sortedResults.secondary = secondaryResults;
+      totalResults = sortedResults.primary.length + sortedResults.secondary.length;
+
+      app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
       // Adds search results to sessionStorage
       app.models.places.add(sortedResults);
       resolve();
@@ -673,9 +680,15 @@ var app = app || {};
     find: function(requestedPlace) {
       var places = this.get();
 
-      for (var i=0; i < places.length; i++) {
-        if (places[i].place_id === requestedPlace.place_id) {
-          return places[i];
+      for (var i=0; i < places.primary.length; i++) {
+        if (places.primary[i].place_id === requestedPlace.place_id) {
+          return places.primary[i];
+        }
+      }
+
+      for (var j=0; j < places.secondary.length; j++) {
+        if (places.secondary[j].place_id === requestedPlace.place_id) {
+          return places.secondary[j];
         }
       }
     },
@@ -1231,16 +1244,27 @@ var app = app || {};
   app.views.results = {
     init: function() {
       // Collect DOM elements
-      this.resultsList = document.getElementById('resultsList');
+      this.primaryResults = document.getElementById('primaryResults');
+      this.primaryResultsList = document.getElementById('primaryResultsList');
+      this.secondaryResults = document.getElementById('secondaryResults');
+      this.secondaryResultsList = document.getElementById('secondaryResultsList');
+      // Set default values on DOM elements
+      this.primaryResults.classList.add('hidden');
+      this.secondaryResults.classList.add('hidden');
     },
     clear: function() {
-      this.resultsList.textContent = null;
+      this.secondaryResults.classList.add('hidden');
+      this.secondaryResults.classList.add('hidden');
+      this.primaryResultsList.textContent = null;
+      this.secondaryResultsList.textContent = null;
       app.views.moreResultsBtn.hide();
       app.views.moreResultsBtn.disable();
     },
     render: function() {
-      this.resultsList.textContent = null;
-      this.resultsList.classList.remove('hidden');
+      this.primaryResults.classList.add('hidden');
+      this.secondaryResults.classList.add('hidden');
+      this.primaryResultsList.textContent = null;
+      this.secondaryResultsList.textContent = null;
 
       var places = app.models.places.get();
       if (!places) {
@@ -1248,14 +1272,15 @@ var app = app || {};
         return;
       }
 
-      for (var i=0; i < places.length; i++) {
+      // Add primary results to DOM
+      for (var i=0; i < places.primary.length; i++) {
         var li = document.createElement('li');
         li.classList.add('list-group-item');
-        li.textContent = places[i].name;
+        li.textContent = places.primary[i].name;
 
         var span = document.createElement('span');
         span.classList.add('badge');
-        span.textContent = places[i].drivingInfo.distance;
+        span.textContent = places.primary[i].drivingInfo.distance;
 
         li.appendChild(span);
 
@@ -1263,7 +1288,7 @@ var app = app || {};
           return function() {
             app.controllers.getDetails(place);
           };
-        })(places[i]));
+        })(places.primary[i]));
 
         (function(li) {
           li.addEventListener('click', function() {
@@ -1284,9 +1309,56 @@ var app = app || {};
           });
         })(li);
 
-        this.resultsList.appendChild(li);
+        this.primaryResultsList.appendChild(li);
       }
 
+      // Add secondary results to DOM
+      for (var j=0; j < places.secondary.length; j++) {
+        var li = document.createElement('li');
+        li.classList.add('list-group-item');
+        li.textContent = places.secondary[j].name;
+
+        var span = document.createElement('span');
+        span.classList.add('badge');
+        span.textContent = places.secondary[j].drivingInfo.distance;
+
+        li.appendChild(span);
+
+        li.addEventListener('click', (function(place) {
+          return function() {
+            app.controllers.getDetails(place);
+          };
+        })(places.secondary[j]));
+
+        (function(li) {
+          li.addEventListener('click', function() {
+            li.classList.add('clicked');
+          });
+        })(li);
+
+        (function(li) {
+          li.addEventListener('mouseover', function() {
+            li.classList.add('hovered');
+          });
+        })(li);
+
+        (function(li) {
+          li.addEventListener('mouseout', function() {
+            li.classList.remove('hovered');
+            li.classList.remove('clicked');
+          });
+        })(li);
+
+        this.secondaryResultsList.appendChild(li);
+      }
+
+      if (places.primary.length > 0) {
+        this.primaryResults.classList.remove('hidden');
+      }
+
+      if (places.secondary.length > 0) {
+        this.secondaryResults.classList.remove('hidden');
+      }
       // Select results tab and panel to show new results
       $('#resultsTab').tab('show');
     }

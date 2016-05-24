@@ -20,9 +20,15 @@
     find: function(requestedPlace) {
       var places = this.get();
 
-      for (var i=0; i < places.length; i++) {
-        if (places[i].place_id === requestedPlace.place_id) {
-          return places[i];
+      for (var i=0; i < places.primary.length; i++) {
+        if (places.primary[i].place_id === requestedPlace.place_id) {
+          return places.primary[i];
+        }
+      }
+
+      for (var j=0; j < places.secondary.length; j++) {
+        if (places.secondary[j].place_id === requestedPlace.place_id) {
+          return places.secondary[j];
         }
       }
     },
