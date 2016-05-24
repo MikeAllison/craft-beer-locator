@@ -40,8 +40,12 @@
   }
 }
 
-#resultsList, #recentSearchesList {
+#primaryResultsList, #recentSearchesList {
   margin-top: 20px;
+}
+
+#results > p {
+  color: #34495e;
 }
 
 .container {

@@ -24,8 +24,8 @@
         return;
       }
 
-      for (var i=0; i < places.length; i++) {
-        params.destinations.push(new google.maps.LatLng(places[i].geometry.location.lat, places[i].geometry.location.lng));
+      for (var k=0; k < places.length; k++) {
+        params.destinations.push(new google.maps.LatLng(places[k].geometry.location.lat, places[k].geometry.location.lng));
       }
 
       service.getDistanceMatrix(params, callback);

@@ -27,7 +27,8 @@
       var excludedTypes = app.config.settings.search.excludedTypes;
       var primaryResults = [];
       var secondaryResults = [];
-      var sortedResults = [];
+      var sortedResults = { primary: null, secondary: null };
+      var totalResults;
 
       var places = app.models.places.get();
       if (!places) {
@@ -78,15 +79,16 @@
         app.controllers.insertionSort(secondaryResults);
       }
 
-      // Combine primary and secondary arrays
-      sortedResults = primaryResults.concat(secondaryResults);
-
-      if (sortedResults.length < 1) {
+      if (primaryResults.length === 0 && secondaryResults.length === 0) {
         reject({ type: 'info', text: 'Your request returned no results.' });
         return;
       }
 
-      app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? sortedResults.length + '+' : sortedResults.length);
+      sortedResults.primary = primaryResults;
+      sortedResults.secondary = secondaryResults;
+      totalResults = sortedResults.primary.length + sortedResults.secondary.length;
+
+      app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
       // Adds search results to sessionStorage
       app.models.places.add(sortedResults);
       resolve();
