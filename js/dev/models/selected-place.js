@@ -1,4 +1,4 @@
-var app = app || {};
+// Selected Place Model
 
 (function() {
 

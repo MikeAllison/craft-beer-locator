@@ -1,7 +1,5 @@
 // Code related to the form and searching with the app
 
-var app = app || {};
-
 (function() {
 
   app.views = app.views || {};

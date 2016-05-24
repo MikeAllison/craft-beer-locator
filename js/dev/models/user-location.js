@@ -1,4 +1,4 @@
-var app = app || {};
+// User Location model
 
 (function() {
 

@@ -1,8 +1,6 @@
-var app = app || {};
+// Start the app
 
 $(function() {
-
-  // Start the app
 
   // Set defaults on variables to control flow of search
   this.newSearch = true;

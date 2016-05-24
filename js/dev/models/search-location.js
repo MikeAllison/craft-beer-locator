@@ -1,4 +1,4 @@
-var app = app || {};
+// Search Location model
 
 (function() {
 

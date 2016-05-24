@@ -1,4 +1,4 @@
-var app = app || {};
+// Recent Searches model
 
 (function() {
 

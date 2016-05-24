@@ -1,7 +1,5 @@
 // Code related to updating views
 
-var app = app || {};
-
 (function() {
 
   app.controllers = app.controllers || {};

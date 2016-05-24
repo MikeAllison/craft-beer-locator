@@ -1,7 +1,5 @@
 // Code related to sorting results
 
-var app = app || {};
-
 (function() {
 
   app.controllers = app.controllers || {};

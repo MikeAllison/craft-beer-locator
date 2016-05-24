@@ -1,7 +1,5 @@
 // Code related to passing data to models
 
-var app = app || {};
-
 (function() {
 
   app.controllers = app.controllers || {};

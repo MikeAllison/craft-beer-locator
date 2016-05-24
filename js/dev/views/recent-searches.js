@@ -1,4 +1,4 @@
-var app = app || {};
+// Code for the Recent Searches list
 
 (function() {
 

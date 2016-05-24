@@ -49,7 +49,609 @@ var app = app || {};
 
 })();
 
-var app = app || {};
+// Code related to Google Maps Distance Matrix API
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  // reqMultiDistance - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
+  app.controllers.reqMultiDistance = function() {
+    return new Promise(function(resolve, reject) {
+      // Set params for search (use userLoc if available)
+      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
+      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
+      var params = {
+        origins: [new google.maps.LatLng(lat, lng)],
+        destinations: [],
+        travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.IMPERIAL
+      };
+      var service = new google.maps.DistanceMatrixService();
+
+      var places = app.models.places.get();
+      if (!places) {
+        reject({ type: 'info', text: 'Your request returned no results.' });
+        return;
+      }
+
+      for (var i=0; i < places.length; i++) {
+        params.destinations.push(new google.maps.LatLng(places[i].geometry.location.lat, places[i].geometry.location.lng));
+      }
+
+      service.getDistanceMatrix(params, callback);
+
+      function callback(results, status) {
+        if (status != google.maps.DistanceMatrixStatus.OK) {
+          reject({ type: 'error', text: 'An error occurred. Please try again.' });
+          return;
+        }
+
+        for (var i=0; i < results.rows[0].elements.length; i++) {
+          // Guard against no driving options to destination
+          if (results.rows[0].elements[0].distance) {
+            // Add distance info to each result (value is distance in meters which is needed for sorting)
+            places[i].drivingInfo = {
+              value: results.rows[0].elements[i].distance.value,
+              distance: results.rows[0].elements[i].distance.text,
+              duration: results.rows[0].elements[i].duration.text
+            };
+          }
+        }
+        // Save distance and duration info
+        app.models.places.add(places);
+        resolve();
+      }
+    });
+  };
+
+  // reqDrivingDistance - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
+  app.controllers.reqDrivingDistance = function() {
+    return new Promise(function(resolve, reject) {
+      // Set params for search (use userLoc if available)
+      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
+      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
+      var params = {
+        origins: [new google.maps.LatLng(lat, lng)],
+        destinations: [new google.maps.LatLng(app.models.selectedPlace.lat, app.models.selectedPlace.lng)],
+        travelMode: google.maps.TravelMode.DRIVING,
+        unitSystem: google.maps.UnitSystem.IMPERIAL
+      };
+
+      // Request the distance & pass to callback
+      var service = new google.maps.DistanceMatrixService();
+      service.getDistanceMatrix(params, callback);
+
+      function callback(results, status) {
+        if (status != google.maps.DistanceMatrixStatus.OK) {
+          reject({ type: 'error', text: 'An error occurred. Please try again.' });
+          return;
+        }
+
+        var distance, duration;
+        // Guard against no transit option to destination
+        if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
+          distance = results.rows[0].elements[0].distance.text;
+          duration = results.rows[0].elements[0].duration.text;
+        }
+        // Save distance and duration info
+        app.models.selectedPlace.setDrivingInfo(distance, duration);
+        resolve();
+      }
+    });
+  };
+
+  // reqTransitDistance - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
+  app.controllers.reqTransitDistance = function() {
+    return new Promise(function(resolve, reject) {
+      // Set params for search (use userLoc if available)
+      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
+      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
+      var params = {
+        origins: [new google.maps.LatLng(lat, lng)],
+        destinations: [new google.maps.LatLng(app.models.selectedPlace.lat, app.models.selectedPlace.lng)],
+        travelMode: google.maps.TravelMode.TRANSIT,
+        transitOptions: { modes: [google.maps.TransitMode.SUBWAY] },
+        unitSystem: google.maps.UnitSystem.IMPERIAL
+      };
+
+      // Request the distance & pass to callback
+      var service = new google.maps.DistanceMatrixService();
+      service.getDistanceMatrix(params, callback);
+
+      function callback(results, status) {
+        if (status != google.maps.DistanceMatrixStatus.OK) {
+          reject({ type: 'error', text: 'An error occurred. Please try again.' });
+          return;
+        }
+
+        var distance, duration;
+        // Guard against no transit option to destination
+        if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
+          distance = results.rows[0].elements[0].distance.text;
+          duration = results.rows[0].elements[0].duration.text;
+        }
+        // Save distance and duration info
+        app.models.selectedPlace.setTransitInfo(distance, duration);
+        resolve();
+      }
+    });
+  };
+
+})();
+
+// Code related to HTML5 Geolocation
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  // getCurrentLocation - HTML5 geocoding request for lat/lng for 'My Location' button
+  app.controllers.getCurrentLocation = function() {
+    return new Promise(function(resolve, reject) {
+      if (!navigator.geolocation) {
+        reject({ type: 'error', text: 'Sorry, geolocation is not supported in your browser.' });
+        return;
+      }
+
+      var success = function(position) {
+        app.models.userLoc.setLat(position.coords.latitude);
+        app.models.userLoc.setLng(position.coords.longitude);
+        resolve();
+      };
+      var error = function() {
+        reject({ type: 'error', text: 'An error occurred. Please try again.' });
+        return;
+      };
+      var options = { enableHighAccuracy: true };
+
+      navigator.geolocation.getCurrentPosition(success, error, options);
+    });
+  };
+
+})();
+
+// Code related to Google Geocoding API
+// This could be performed using a Google Maps object but I wanted to practice using AJAX requests
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  // getGeocode - Takes a city, state and converts it to lat/lng using Google Geocoding API
+  app.controllers.getGeocode = function() {
+    return new Promise(function(resolve, reject) {
+      var tboxVal = app.views.form.cityStateTbox.value;
+      if (!tboxVal) {
+        reject({ type: 'error', text: 'Please enter a location.' });
+        return;
+      }
+
+      // AJAX request for lat/lng for form submission
+      var httpRequest = new XMLHttpRequest();
+      var params = 'key=' + app.config.google.apiKey + '&address=' + encodeURIComponent(tboxVal);
+      httpRequest.open('GET', app.config.google.geocodingAPI.reqURL + params, true);
+
+      httpRequest.onload = function() {
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest.status !== 200) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
+            return;
+          }
+
+          var response = JSON.parse(httpRequest.responseText);
+          if (response.status === 'ZERO_RESULTS' || response.results[0].geometry.bounds === undefined) {
+            reject({ type: 'error', text: 'Sorry, that location could not be found.' });
+            return;
+          }
+
+          app.models.searchLoc.setLat(response.results[0].geometry.location.lat);
+          app.models.searchLoc.setLng(response.results[0].geometry.location.lng);
+          app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
+          resolve();
+        }
+      };
+
+      httpRequest.send();
+    });
+  };
+
+  // reverseGeocode - Converts lat/lng to a city, state
+  app.controllers.reverseGeocode = function() {
+    return new Promise(function(resolve, reject) {
+      var httpRequest = new XMLHttpRequest();
+      var params = 'key=' + app.config.google.apiKey + '&latlng=' + app.models.userLoc.lat + ',' + app.models.userLoc.lng;
+
+      httpRequest.open('GET', app.config.google.geocodingAPI.reqURL + params, true);
+      httpRequest.send();
+
+      httpRequest.onload = function() {
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+          if (httpRequest.status !== 200) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
+            return;
+          }
+
+          var response = JSON.parse(httpRequest.responseText);
+          var formattedAddress = response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name;
+          // Sets .formattedAddress as city, state (i.e. New York, NY)
+          app.models.userLoc.setFormattedAddress(formattedAddress);
+          resolve();
+        }
+      };
+    });
+  };
+
+})();
+
+// Code related to passing data to models
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  // setSelectedPlaceDetails - Adds a location to Recent Searches after a search
+  app.controllers.addRecentSearch = function() {
+    return new Promise(function(resolve) {
+      app.models.recentSearches.add();
+      resolve();
+    });
+  };
+
+  // setSelectedPlaceDetails - Sets the initial deails of the requested place for viewing details about it
+  app.controllers.setSelectedPlaceDetails = function(place) {
+    return new Promise(function(resolve) {
+      app.models.selectedPlace.init();
+      app.models.selectedPlace.setPlaceId(place.place_id);
+      app.models.selectedPlace.setLat(place.geometry.location.lat);
+      app.models.selectedPlace.setLng(place.geometry.location.lng);
+      app.models.selectedPlace.setName(place.name);
+      app.models.selectedPlace.setDrivingInfo(place.drivingInfo.distance, place.drivingInfo.duration);
+      resolve();
+    });
+  };
+
+  // setSearchLocation - Sets the location to be used by Google Places Search when a location is selected from Recent Places
+  app.controllers.setSearchLocation = function(location) {
+    app.models.searchLoc.setLat(location.lat);
+    app.models.searchLoc.setLng(location.lng);
+    app.models.searchLoc.setFormattedAddress(location.formattedAddress);
+    app.models.searchLoc.setTotalItems(location.totalItems);
+  };
+
+})();
+
+// Code related to Google Maps Places Library
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  // reqPlaces - Sends a lat/lng to Google Places Library and stores results
+  app.controllers.reqPlaces = function() {
+    return new Promise(function(resolve, reject) {
+      // Reset so that search location is added to Recent Searches
+      app.controllers.newSearch = true;
+      // Set params for search (use userLoc if available)
+      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
+      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
+      var location = new google.maps.LatLng(lat, lng);
+      var params = {
+        location: location,
+        rankBy: app.config.settings.search.rankBy,
+        keyword: app.config.settings.search.itemType
+      };
+
+      // Radius is required on request if ranked by PROMINENCE
+      if (params.rankBy === google.maps.places.RankBy.PROMINENCE) {
+        params.radius = app.config.settings.search.radius;
+      }
+
+      // Google map isn't shown on page but is required for PlacesService constructor
+      var service = new google.maps.places.PlacesService(app.views.map.map);
+      service.nearbySearch(params, callback);
+
+      function callback(results, status, pagination) {
+        if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+          reject({ type: 'info', text: 'Your request returned no results.' });
+          return;
+        }
+
+        if (status != google.maps.places.PlacesServiceStatus.OK) {
+          reject({ type: 'error', text: '*An error occurred. Please try again.' });
+          return;
+        }
+
+        // Add results to sessionStorage
+        app.models.places.add(results);
+        // Store pagination object for more results
+        app.models.places.setPaginationObj(pagination);
+        resolve();
+      }
+    });
+  };
+
+  // reqPlaceDetails - This requests details of the selectedPlace from Google
+  app.controllers.reqPlaceDetails = function() {
+    return new Promise(function(resolve, reject) {
+      var params = { placeId: app.models.selectedPlace.placeId };
+
+      service = new google.maps.places.PlacesService(app.views.map.map);
+      service.getDetails(params, callback);
+
+      function callback(results, status) {
+        if (status != google.maps.places.PlacesServiceStatus.OK) {
+          reject({ type: 'error', text: 'An error occurred. Please try again.' });
+          return;
+        }
+
+        app.models.selectedPlace.setWebsite(results.website);
+        app.models.selectedPlace.setAddress(results.formatted_address);
+        app.models.selectedPlace.setGoogleMapsUrl(results.url);
+        app.models.selectedPlace.setPhoneNum(results.formatted_phone_number);
+        // This is needed to guard against items without opening_hours
+        if (results.opening_hours) {
+          app.models.selectedPlace.setOpenNow(results.opening_hours.open_now);
+          app.models.selectedPlace.setHoursOpen(results.opening_hours.weekday_text);
+        }
+        resolve();
+      }
+    });
+  };
+
+})();
+
+// Code related to controlling the flow of searches
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  app.controllers.stopExecution = function(msg) {
+    app.views.alerts.show(msg.type, msg.text);
+    app.views.results.clear();
+    app.views.placeModal.hide();
+    app.views.page.enableButtons();
+    return;
+  };
+
+  // formSearch - Controls the flow of a search initiated by the form
+  app.controllers.formSearch = function() {
+    // Clear user location (search location gets overwritten)
+    app.models.userLoc.init();
+
+    app.controllers.getGeocode()
+      .then(app.controllers.reqPlaces)
+      .then(app.controllers.reqMultiDistance)
+      .then(app.controllers.sortPlaces)
+      .then(app.controllers.addRecentSearch)
+      .then(app.controllers.updatePage)
+      .then(app.views.page.enableButtons)
+      .catch(app.controllers.stopExecution);
+  };
+
+  // geolocationSearch - Controls the flow of a search initiated by the 'My Location' button
+  app.controllers.geolocationSearch = function() {
+    // Clear search location (user location gets overwritten)
+    app.models.searchLoc.init();
+
+    app.controllers.getCurrentLocation()
+      .then(app.controllers.reverseGeocode)
+      .then(app.controllers.reqPlaces)
+      .then(app.controllers.reqMultiDistance)
+      .then(app.controllers.sortPlaces)
+      .then(app.controllers.addRecentSearch)
+      .then(app.controllers.updatePage)
+      .then(app.views.page.enableButtons)
+      .catch(app.controllers.stopExecution);
+  };
+
+  // recentSearch - Controls the flow of a search initiated by clicking a location in Recent Searches
+  app.controllers.recentSearch = function(location) {
+    // Clear user location & set search location
+    app.models.userLoc.init();
+    app.controllers.setSearchLocation(location);
+
+    app.controllers.reqPlaces()
+      .then(app.controllers.reqMultiDistance)
+      .then(app.controllers.sortPlaces)
+      .then(app.controllers.updatePage)
+      .then(app.views.page.enableButtons)
+      .catch(app.controllers.stopExecution);
+  };
+
+  // getDetails - Controls the flow for acquiring details when a specific place is selected
+  app.controllers.getDetails = function(place) {
+    var requestedPlace = app.models.places.find(place);
+
+    app.controllers.setSelectedPlaceDetails(requestedPlace)
+      .then(app.controllers.reqPlaceDetails)
+      .then(app.controllers.reqTransitDistance)
+      .then(app.controllers.updateModal)
+      .catch(app.controllers.stopExecution);
+  };
+
+  // switchToGeolocation - Requests distance from your location to a place (triggered from placeModal)
+  app.controllers.switchToGeolocation = function() {
+    app.controllers.getCurrentLocation()
+      .then(app.controllers.reqDrivingDistance)
+      .then(app.controllers.reqTransitDistance)
+      .then(app.controllers.updateModal)
+      .then(app.controllers.reqMultiDistance)
+      .then(app.controllers.sortPlaces)
+      .then(app.controllers.updatePage)
+      .catch(app.controllers.stopExecution);
+  };
+
+  // requestMoreResults - Requests more results if > 20 results are returned
+  app.controllers.requestMoreResults = function() {
+    var paginationObj = app.models.places.paginationObj;
+    paginationObj.nextPage();
+    // TO-DO: Fix this hack
+    // Need to wait for AJAX request to finish before moving on and can't use JS promise
+    window.setTimeout(function() {
+      app.controllers.reqMultiDistance()
+        .then(app.controllers.sortPlaces)
+        .then(app.controllers.updatePage)
+        .then(app.views.page.enableButtons)
+        .catch(app.controllers.stopExecution);
+    }, 2000);
+  };
+
+})();
+
+// Code related to sorting results
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  // insertionSort - Sorts place results by distance
+  app.controllers.insertionSort = function(unsorted) {
+    var length = unsorted.length;
+
+    for(var i=0; i < length; i++) {
+      var temp = unsorted[i];
+
+      for(var j=i-1; j >= 0 && (parseFloat(unsorted[j].drivingInfo.value) > parseFloat(temp.drivingInfo.value)); j--) {
+        unsorted[j+1] = unsorted[j];
+      }
+
+      unsorted[j+1] = temp;
+    }
+  };
+
+  // sortPlaces -Handles processing of places returned from Google.
+  app.controllers.sortPlaces = function() {
+    return new Promise(function(resolve, reject) {
+      var primaryTypes = app.config.settings.search.primaryTypes;
+      var secondaryTypes = app.config.settings.search.secondaryTypes;
+      var excludedTypes = app.config.settings.search.excludedTypes;
+      var primaryResults = [];
+      var secondaryResults = [];
+      var sortedResults = [];
+
+      var places = app.models.places.get();
+      if (!places) {
+        reject({ type: 'error', text: 'An error occurred. Please try again.' });
+        return;
+      }
+
+      // Sorts results based on relevent/exlcuded categories in app.config.settings.search
+      for (var i=0; i < places.length; i++) {
+        var hasPrimaryType = false;
+        var hasSecondaryType = false;
+        var hasExcludedType = false;
+
+        // Check for primary types and push onto array for primary results
+        for (var j=0; j < primaryTypes.length; j++) {
+          if (places[i].types.includes(primaryTypes[j])) {
+            hasPrimaryType = true;
+          }
+        }
+        // Push onto the array
+        if (hasPrimaryType) {
+          primaryResults.push(places[i]);
+        }
+
+        // If the primary array doesn't contain the result, check for secondary types...
+        // ...but make sure that it doesn't have a type on the excluded list
+        if (!primaryResults.includes(places[i])) {
+          for (var k=0; k < secondaryTypes.length; k++) {
+            if (places[i].types.includes(secondaryTypes[k])) {
+              hasSecondaryType = true;
+              for (var l=0; l < excludedTypes.length; l++) {
+                if(places[i].types.includes(excludedTypes[l])) {
+                  hasExcludedType = true;
+                }
+              }
+            }
+          }
+          // Push onto array for secondary results if it has a secondary (without excluded) type
+          if (hasSecondaryType && !hasExcludedType) {
+            secondaryResults.push(places[i]);
+          }
+        }
+      }
+
+      // Re-sort option because Google doesn't always return places by distance accurately
+      if (app.config.settings.search.orderByDistance) {
+        app.controllers.insertionSort(primaryResults);
+        app.controllers.insertionSort(secondaryResults);
+      }
+
+      // Combine primary and secondary arrays
+      sortedResults = primaryResults.concat(secondaryResults);
+
+      if (sortedResults.length < 1) {
+        reject({ type: 'info', text: 'Your request returned no results.' });
+        return;
+      }
+
+      app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? sortedResults.length + '+' : sortedResults.length);
+      // Adds search results to sessionStorage
+      app.models.places.add(sortedResults);
+      resolve();
+    });
+  };
+
+})();
+
+// Code related to updating views
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  // updatePage - Updates list of results and recent searches
+  app.controllers.updatePage = function() {
+    return new Promise(function(resolve, reject) {
+      var paginationObj = app.models.places.paginationObj;
+
+      var places = app.models.places.get();
+      if (!places) {
+        reject({ type: 'info', text: 'Your request returned no results.' });
+        return;
+      }
+
+      // Only set location attributes if it's the first request of the location
+      if (app.controllers.newSearch) {
+        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
+      }
+
+      // Handle > 20 matches (Google returns a max of 20 by default)
+      if (!app.config.settings.search.topResultsOnly && paginationObj.hasNextPage) {
+        // Prevent addition of locations to Recent Searches if more button is pressed
+        app.controllers.newSearch = false;
+        // Attaches click listener to moreResultsBtn for pagination.nextPage()
+        app.views.moreResultsBtn.addNextPageFn(paginationObj);
+        app.views.moreResultsBtn.show();
+      } else {
+        app.views.moreResultsBtn.hide();
+      }
+
+      // Set placeholder attribute on textbox
+      app.views.form.setTboxPlaceholder();
+
+      // Render views with updated results
+      app.views.recentSearches.render();
+      app.views.results.render();
+      resolve();
+    });
+  };
+
+  // updateModal - Updates model when a place is selected
+  app.controllers.updateModal = function() {
+    return new Promise(function(resolve) {
+      app.views.placeModal.populate();
+      app.views.placeModal.show();
+      resolve();
+    });
+  };
+
+})();
+
+// Places model
 
 (function() {
 
@@ -84,7 +686,7 @@ var app = app || {};
 
 })();
 
-var app = app || {};
+// Recent Searches model
 
 (function() {
 
@@ -116,7 +718,7 @@ var app = app || {};
 
 })();
 
-var app = app || {};
+// Search Location model
 
 (function() {
 
@@ -145,7 +747,7 @@ var app = app || {};
 
 })();
 
-var app = app || {};
+// Selected Place Model
 
 (function() {
 
@@ -208,7 +810,7 @@ var app = app || {};
 
 })();
 
-var app = app || {};
+// User Location model
 
 (function() {
 
@@ -237,7 +839,7 @@ var app = app || {};
 
 })();
 
-var app = app || {};
+// Code for page alerts
 
 (function() {
 
@@ -280,8 +882,6 @@ var app = app || {};
 })();
 
 // Code related to the form and searching with the app
-
-var app = app || {};
 
 (function() {
 
@@ -381,7 +981,7 @@ var app = app || {};
 
 })();
 
-var app = app || {};
+// Code for modifying elements on the page
 
 (function() {
 
@@ -426,7 +1026,7 @@ var app = app || {};
 
 })();
 
-var app = app || {};
+// Code for the modal of a selected place
 
 (function() {
 
@@ -550,7 +1150,7 @@ var app = app || {};
 
 })();
 
-var app = app || {};
+// Code for the Recent Searches list
 
 (function() {
 
@@ -621,7 +1221,7 @@ var app = app || {};
 
 })();
 
-var app = app || {};
+// Code for the list of results
 
 (function() {
 
@@ -694,11 +1294,9 @@ var app = app || {};
 
 })();
 
-var app = app || {};
+// Start the app
 
 $(function() {
-
-  // Start the app
 
   // Set defaults on variables to control flow of search
   this.newSearch = true;

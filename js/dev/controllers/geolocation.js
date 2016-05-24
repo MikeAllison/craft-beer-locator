@@ -1,7 +1,5 @@
 // Code related to HTML5 Geolocation
 
-var app = app || {};
-
 (function() {
 
   app.controllers = app.controllers || {};

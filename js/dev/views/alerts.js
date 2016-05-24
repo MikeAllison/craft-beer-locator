@@ -1,4 +1,4 @@
-var app = app || {};
+// Code for page alerts
 
 (function() {
 

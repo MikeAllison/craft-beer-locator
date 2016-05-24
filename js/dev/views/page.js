@@ -1,4 +1,4 @@
-var app = app || {};
+// Code for modifying elements on the page
 
 (function() {
 

@@ -1,4 +1,4 @@
-var app = app || {};
+// Code for the modal of a selected place
 
 (function() {
 
