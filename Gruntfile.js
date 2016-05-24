@@ -22,13 +22,23 @@ module.exports = function(grunt) {
           'js/dist/<%= pkg.name %>.min.js': ['js/dist/<%= pkg.name %>.js']
         }
       }
+    },
+
+    cssmin: {
+      target: {
+        files: [{
+          src: 'css/dev/custom.css',
+          dest: 'css/custom.min.css'
+        }]
+      }
     }
 
   });
 
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
 
-  grunt.registerTask('default', ['concat', 'uglify']);
+  grunt.registerTask('default', ['concat', 'uglify', 'cssmin']);
 
 };
