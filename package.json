@@ -1,0 +1,26 @@
+{
+  "name": "craft-beer-finder",
+  "version": "1.0.0",
+  "description": "JavaScript app using Google services, HTML5 geolocation, JavaScript promises, localStorage, and sessionStorage to find craft beer in a specified area (but search settings can be modified to search for almost anything)",
+  "main": "index.html",
+  "dependencies": {
+    "grunt-cli": "^1.2.0"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-contrib-concat": "^1.0.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MikeAllison/craft-beer-finder.git"
+  },
+  "author": "Mike Allison",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MikeAllison/craft-beer-finder/issues"
+  },
+  "homepage": "https://craft-beer-finder.5apps.com"
+}
