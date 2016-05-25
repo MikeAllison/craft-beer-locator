@@ -4,13 +4,13 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
 
     watch: {
-      css: {
-        files: ['css/dev/*.css'],
-        tasks: ['cssmin']
-      },
       scripts: {
         files: ['js/dev/**/*.js'],
         tasks: ['concat', 'uglify']
+      },
+      css: {
+        files: ['css/dev/*.css'],
+        tasks: ['cssmin']
       }
     },
 
