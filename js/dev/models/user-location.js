@@ -13,9 +13,6 @@
       this.formattedAddress = null;
       this.totalItems = null;
     },
-    setLat: function(lat) {
-      this.lat = lat;
-    },
     setLng: function(lng) {
       this.lng = lng;
     },

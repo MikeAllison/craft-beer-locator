@@ -42,7 +42,7 @@
         // Add results to sessionStorage
         app.models.places.add(results);
         // Store pagination object for more results
-        app.models.places.setPaginationObj(pagination);
+        app.models.places.paginationObj = pagination;
         resolve();
       }
     });

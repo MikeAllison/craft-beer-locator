@@ -122,10 +122,10 @@ var app = app || {};
   app.controllers.setSelectedPlaceDetails = function(place) {
     return new Promise(function(resolve) {
       app.models.selectedPlace.init();
-      app.models.selectedPlace.setPlaceId(place.place_id);
-      app.models.selectedPlace.setLat(place.geometry.location.lat);
-      app.models.selectedPlace.setLng(place.geometry.location.lng);
-      app.models.selectedPlace.setName(place.name);
+      app.models.selectedPlace.placeId = place.place_id;
+      app.models.selectedPlace.lat = place.geometry.location.lat;
+      app.models.selectedPlace.lng = place.geometry.location.lng;
+      app.models.selectedPlace.name = place.name;
       app.models.selectedPlace.setDrivingInfo(place.drivingInfo.distance, place.drivingInfo.duration);
       resolve();
     });
@@ -133,8 +133,8 @@ var app = app || {};
 
   // setSearchLocation - Sets the location to be used by Google Places Search when a location is selected from Recent Places
   app.controllers.setSearchLocation = function(location) {
-    app.models.searchLoc.setLat(location.lat);
-    app.models.searchLoc.setLng(location.lng);
+    app.models.searchLoc.lat = location.lat;
+    app.models.searchLoc.lng = location.lng;
     app.models.searchLoc.setFormattedAddress(location.formattedAddress);
     app.models.searchLoc.setTotalItems(location.totalItems);
   };
@@ -309,7 +309,7 @@ $(function() {
   app.models.places = {
     init: function() {
       sessionStorage.clear();
-      this.paginationObj = {};
+      this.paginationObj = null;
     },
     // Adds an array of results of search to sessionStorage
     add: function(places) {
@@ -333,9 +333,6 @@ $(function() {
           return places.secondary[j];
         }
       }
-    },
-    setPaginationObj: function(paginationObj) {
-      this.paginationObj = paginationObj;
     }
   };
 
@@ -390,9 +387,6 @@ $(function() {
       this.formattedAddress = null;
       this.totalItems = null;
     },
-    setLat: function(lat) {
-      this.lat = lat;
-    },
     setLng: function(lng) {
       this.lng = lng;
     },
@@ -428,18 +422,6 @@ $(function() {
       this.drivingInfo = {};
       this.transitInfo = {};
       this.hoursOpen = null;
-    },
-    setPlaceId: function(placeId) {
-      this.placeId = placeId;
-    },
-    setLat: function(lat) {
-      this.lat = lat;
-    },
-    setLng: function(lng) {
-      this.lng = lng;
-    },
-    setName: function(name) {
-      this.name = name;
     },
     setOpenNow: function(openNow) {
       this.openNow = openNow ? 'Yes' : 'No';
@@ -485,9 +467,6 @@ $(function() {
       this.lng = null;
       this.formattedAddress = null;
       this.totalItems = null;
-    },
-    setLat: function(lat) {
-      this.lat = lat;
     },
     setLng: function(lng) {
       this.lng = lng;
@@ -653,14 +632,16 @@ $(function() {
       }
 
       var success = function(position) {
-        app.models.userLoc.setLat(position.coords.latitude);
-        app.models.userLoc.setLng(position.coords.longitude);
+        app.models.userLoc.lat = position.coords.latitude;
+        app.models.userLoc.lng = position.coords.longitude;
         resolve();
       };
+
       var error = function() {
         reject({ type: 'error', text: 'An error occurred. Please try again.' });
         return;
       };
+      
       var options = { enableHighAccuracy: true };
 
       navigator.geolocation.getCurrentPosition(success, error, options);
@@ -703,8 +684,8 @@ $(function() {
             return;
           }
 
-          app.models.searchLoc.setLat(response.results[0].geometry.location.lat);
-          app.models.searchLoc.setLng(response.results[0].geometry.location.lng);
+          app.models.searchLoc.lat = response.results[0].geometry.location.lat;
+          app.models.searchLoc.lng = response.results[0].geometry.location.lng;
           app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
           resolve();
         }
@@ -786,7 +767,7 @@ $(function() {
         // Add results to sessionStorage
         app.models.places.add(results);
         // Store pagination object for more results
-        app.models.places.setPaginationObj(pagination);
+        app.models.places.paginationObj = pagination;
         resolve();
       }
     });
