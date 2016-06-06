@@ -1,4 +1,6 @@
-// User Location model
+/*********************
+  User Location Model
+**********************/
 
 (function() {
 

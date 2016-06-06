@@ -1,4 +1,6 @@
-// Start the app
+/***************
+  Start the app
+****************/
 
 $(function() {
 

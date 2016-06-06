@@ -1,4 +1,6 @@
-// Places model
+/**************
+  Places Model
+***************/
 
 (function() {
 

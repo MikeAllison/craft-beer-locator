@@ -1,4 +1,6 @@
-// Search Location model
+/***********************
+  Search Location Model
+************************/
 
 (function() {
 

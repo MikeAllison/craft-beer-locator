@@ -1,4 +1,6 @@
-// Recent Searches model
+/***********************
+  Recent Searches Model
+************************/
 
 (function() {
 

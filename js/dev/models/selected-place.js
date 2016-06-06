@@ -1,4 +1,6 @@
-// Selected Place Model
+/**********************
+  Selected Place Model
+***********************/
 
 (function() {
 

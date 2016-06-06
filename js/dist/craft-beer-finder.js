@@ -1,3 +1,7 @@
+/***************
+  Search config
+****************/
+
 var app = app || {};
 
 (function() {
@@ -49,6 +53,53 @@ var app = app || {};
 
 })();
 
+/********************************************************************
+  formSearch() - Controls the flow of a search initiated by the form
+*********************************************************************/
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  app.controllers.formSearch = function() {
+    app.models.userLoc.init();
+
+    app.controllers.getGeocode()
+      .then(app.controllers.reqPlaces)
+      .then(app.controllers.reqMultiDistance)
+      .then(app.controllers.sortPlaces)
+      .then(app.controllers.addRecentSearch)
+      .then(app.controllers.updatePage)
+      .then(app.views.page.enableButtons)
+      .catch(app.controllers.stopExecution);
+  };
+  
+})();
+
+/*******************************************************************************************
+  geolocationSearch() - Controls the flow of a search initiated by the 'My Location' button
+********************************************************************************************/
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  app.controllers.geolocationSearch = function() {
+    app.models.searchLoc.init();
+
+    app.controllers.getCurrentLocation()
+      .then(app.controllers.reverseGeocode)
+      .then(app.controllers.reqPlaces)
+      .then(app.controllers.reqMultiDistance)
+      .then(app.controllers.sortPlaces)
+      .then(app.controllers.addRecentSearch)
+      .then(app.controllers.updatePage)
+      .then(app.views.page.enableButtons)
+      .catch(app.controllers.stopExecution);
+  };
+
+})();
+
 // Code related to passing data to models
 
 (function() {
@@ -86,7 +137,27 @@ var app = app || {};
 
 })();
 
-// Code related to controlling the flow of searches
+/****************************************************************************************************
+  recentSearch() - Controls the flow of a search initiated by clicking a location in Recent Searches
+*****************************************************************************************************/
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  app.controllers.recentSearch = function(location) {
+    app.models.userLoc.init();
+    app.controllers.setSearchLocation(location);
+
+    app.controllers.reqPlaces()
+      .then(app.controllers.reqMultiDistance)
+      .then(app.controllers.sortPlaces)
+      .then(app.controllers.updatePage)
+      .then(app.views.page.enableButtons)
+      .catch(app.controllers.stopExecution);
+  };
+
+})();
 
 (function() {
 
@@ -100,52 +171,9 @@ var app = app || {};
     return;
   };
 
-  // formSearch - Controls the flow of a search initiated by the form
-  app.controllers.formSearch = function() {
-    // Clear user location (search location gets overwritten)
-    app.models.userLoc.init();
-
-    app.controllers.getGeocode()
-      .then(app.controllers.reqPlaces)
-      .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.addRecentSearch)
-      .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons)
-      .catch(app.controllers.stopExecution);
-  };
-
-  // geolocationSearch - Controls the flow of a search initiated by the 'My Location' button
-  app.controllers.geolocationSearch = function() {
-    // Clear search location (user location gets overwritten)
-    app.models.searchLoc.init();
-
-    app.controllers.getCurrentLocation()
-      .then(app.controllers.reverseGeocode)
-      .then(app.controllers.reqPlaces)
-      .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.addRecentSearch)
-      .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons)
-      .catch(app.controllers.stopExecution);
-  };
-
-  // recentSearch - Controls the flow of a search initiated by clicking a location in Recent Searches
-  app.controllers.recentSearch = function(location) {
-    // Clear user location & set search location
-    app.models.userLoc.init();
-    app.controllers.setSearchLocation(location);
-
-    app.controllers.reqPlaces()
-      .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons)
-      .catch(app.controllers.stopExecution);
-  };
-
-  // getDetails - Controls the flow for acquiring details when a specific place is selected
+  /******************************************************************************************
+    getDetails() - Controls the flow for acquiring details when a specific place is selected
+  *******************************************************************************************/
   app.controllers.getDetails = function(place) {
     var requestedPlace = app.models.places.find(place);
 
@@ -156,7 +184,9 @@ var app = app || {};
       .catch(app.controllers.stopExecution);
   };
 
-  // switchToGeolocation - Requests distance from your location to a place (triggered from placeModal)
+  /*****************************************************************************************************
+    switchToGeolocation() - Requests distance from your location to a place (triggered from placeModal)
+  ******************************************************************************************************/
   app.controllers.switchToGeolocation = function() {
     app.controllers.getCurrentLocation()
       .then(app.controllers.reqDrivingDistance)
@@ -168,7 +198,9 @@ var app = app || {};
       .catch(app.controllers.stopExecution);
   };
 
-  // requestMoreResults - Requests more results if > 20 results are returned
+  /***************************************************************************
+    requestMoreResults() - Requests more results if > 20 results are returned
+  ****************************************************************************/
   app.controllers.requestMoreResults = function() {
     var paginationObj = app.models.places.paginationObj;
     paginationObj.nextPage();
@@ -239,7 +271,9 @@ var app = app || {};
 
 })();
 
-// Start the app
+/***************
+  Start the app
+****************/
 
 $(function() {
 
@@ -262,7 +296,9 @@ $(function() {
 
 });
 
-// Places model
+/**************
+  Places Model
+***************/
 
 (function() {
 
@@ -303,7 +339,9 @@ $(function() {
 
 })();
 
-// Recent Searches model
+/***********************
+  Recent Searches Model
+************************/
 
 (function() {
 
@@ -335,7 +373,9 @@ $(function() {
 
 })();
 
-// Search Location model
+/***********************
+  Search Location Model
+************************/
 
 (function() {
 
@@ -364,7 +404,9 @@ $(function() {
 
 })();
 
-// Selected Place Model
+/**********************
+  Selected Place Model
+***********************/
 
 (function() {
 
@@ -427,7 +469,9 @@ $(function() {
 
 })();
 
-// User Location model
+/*********************
+  User Location Model
+**********************/
 
 (function() {
 
@@ -875,13 +919,14 @@ $(function() {
 
 })();
 
-// Code for page alerts
+/**********************
+  Code for page alerts
+***********************/
 
 (function() {
 
   app.views = app.views || {};
 
-  // Page alerts
   app.views.alerts = {
     init: function() {
       // Collect DOM elements
@@ -917,7 +962,9 @@ $(function() {
 
 })();
 
-// Code related to the form and searching with the app
+/*******************************
+  Code for the form and buttons
+********************************/
 
 (function() {
 
@@ -1017,7 +1064,9 @@ $(function() {
 
 })();
 
-// Code for modifying elements on the page
+/********************************************
+  Code interacting with elements on the page
+*********************************************/
 
 (function() {
 
@@ -1062,7 +1111,9 @@ $(function() {
 
 })();
 
-// Code for the modal of a selected place
+/****************************************
+  Code for the modal of a selected place
+*****************************************/
 
 (function() {
 
@@ -1186,7 +1237,9 @@ $(function() {
 
 })();
 
-// Code for the Recent Searches list
+/***********************************
+  Code for the Recent Searches list
+************************************/
 
 (function() {
 
@@ -1257,7 +1310,9 @@ $(function() {
 
 })();
 
-// Code for the list of results
+/***************************
+  Code for the results list
+****************************/
 
 (function() {
 
