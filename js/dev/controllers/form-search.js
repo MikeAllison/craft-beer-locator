@@ -7,6 +7,8 @@
   app.controllers = app.controllers || {};
 
   app.controllers.formSearch = function() {
+    this.newSearch = true;
+    
     app.models.userLoc.init();
 
     app.controllers.getGeocode()
@@ -18,5 +20,5 @@
       .then(app.views.page.enableButtons)
       .catch(app.controllers.stopExecution);
   };
-  
+
 })();

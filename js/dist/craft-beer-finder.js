@@ -62,6 +62,8 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.formSearch = function() {
+    this.newSearch = true;
+    
     app.models.userLoc.init();
 
     app.controllers.getGeocode()
@@ -73,7 +75,7 @@ var app = app || {};
       .then(app.views.page.enableButtons)
       .catch(app.controllers.stopExecution);
   };
-  
+
 })();
 
 /*******************************************************************************************
@@ -85,6 +87,8 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.geolocationSearch = function() {
+    this.newSearch = true;
+    
     app.models.searchLoc.init();
 
     app.controllers.getCurrentLocation()
@@ -146,6 +150,8 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.recentSearch = function(location) {
+    this.newSearch = true;
+    
     app.models.userLoc.init();
     app.controllers.setSearchLocation(location);
 
@@ -277,10 +283,6 @@ var app = app || {};
 
 $(function() {
 
-  // Set defaults on variables to control flow of search
-  this.newSearch = true;
-
-  // Initialize config, models, & views
   app.config.init();
   app.models.searchLoc.init();
   app.models.places.init();
