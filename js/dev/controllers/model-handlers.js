@@ -4,12 +4,9 @@
 
   app.controllers = app.controllers || {};
 
-  // setSelectedPlaceDetails - Adds a location to Recent Searches after a search
+  // addRecentSearch() - Adds a location to Recent Searches after a search
   app.controllers.addRecentSearch = function() {
-    return new Promise(function(resolve) {
-      app.models.recentSearches.add();
-      resolve();
-    });
+    app.models.recentSearches.add();
   };
 
   // setSelectedPlaceDetails - Sets the initial deails of the requested place for viewing details about it

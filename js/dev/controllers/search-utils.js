@@ -32,8 +32,13 @@
       .then(app.controllers.reqTransitDistance)
       .then(app.controllers.updateModal)
       .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.updatePage)
+      .then(function() {
+        var sortedResults = app.controllers.sortPlaces();
+        var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
+        app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
+        app.models.places.add(sortedResults);
+        app.controllers.updatePage();
+      })
       .catch(app.controllers.stopExecution);
   };
 

@@ -63,16 +63,21 @@ var app = app || {};
 
   app.controllers.formSearch = function() {
     this.newSearch = true;
-    
+
     app.models.userLoc.init();
 
     app.controllers.getGeocode()
       .then(app.controllers.reqPlaces)
       .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.addRecentSearch)
-      .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons)
+      .then(function() {
+        var sortedResults = app.controllers.sortPlaces();
+        var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
+        app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
+        app.models.places.add(sortedResults);
+        app.controllers.addRecentSearch();
+        app.controllers.updatePage();
+        app.views.page.enableButtons();
+      })
       .catch(app.controllers.stopExecution);
   };
 
@@ -88,17 +93,22 @@ var app = app || {};
 
   app.controllers.geolocationSearch = function() {
     this.newSearch = true;
-    
+
     app.models.searchLoc.init();
 
     app.controllers.getCurrentLocation()
       .then(app.controllers.reverseGeocode)
       .then(app.controllers.reqPlaces)
       .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.addRecentSearch)
-      .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons)
+      .then(function() {
+        var sortedResults = app.controllers.sortPlaces();
+        var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
+        app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
+        app.models.places.add(sortedResults);
+        app.controllers.addRecentSearch();
+        app.controllers.updatePage();
+        app.views.page.enableButtons();
+      })
       .catch(app.controllers.stopExecution);
   };
 
@@ -110,12 +120,9 @@ var app = app || {};
 
   app.controllers = app.controllers || {};
 
-  // setSelectedPlaceDetails - Adds a location to Recent Searches after a search
+  // addRecentSearch() - Adds a location to Recent Searches after a search
   app.controllers.addRecentSearch = function() {
-    return new Promise(function(resolve) {
-      app.models.recentSearches.add();
-      resolve();
-    });
+    app.models.recentSearches.add();
   };
 
   // setSelectedPlaceDetails - Sets the initial deails of the requested place for viewing details about it
@@ -151,15 +158,20 @@ var app = app || {};
 
   app.controllers.recentSearch = function(location) {
     this.newSearch = true;
-    
+
     app.models.userLoc.init();
     app.controllers.setSearchLocation(location);
 
     app.controllers.reqPlaces()
       .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons)
+      .then(function() {
+        var sortedResults = app.controllers.sortPlaces();
+        var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
+        app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
+        app.models.places.add(sortedResults);
+        app.controllers.updatePage();
+        app.views.page.enableButtons();
+      })
       .catch(app.controllers.stopExecution);
   };
 
@@ -199,8 +211,13 @@ var app = app || {};
       .then(app.controllers.reqTransitDistance)
       .then(app.controllers.updateModal)
       .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.updatePage)
+      .then(function() {
+        var sortedResults = app.controllers.sortPlaces();
+        var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
+        app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
+        app.models.places.add(sortedResults);
+        app.controllers.updatePage();
+      })
       .catch(app.controllers.stopExecution);
   };
 
@@ -231,39 +248,31 @@ var app = app || {};
 
   // updatePage - Updates list of results and recent searches
   app.controllers.updatePage = function() {
-    return new Promise(function(resolve, reject) {
-      var paginationObj = app.models.places.paginationObj;
+    var paginationObj = app.models.places.paginationObj;
+    var places = app.models.places.get();
 
-      var places = app.models.places.get();
-      if (!places) {
-        reject({ type: 'info', text: 'Your request returned no results.' });
-        return;
-      }
+    // Only set location attributes if it's the first request of the location
+    if (app.controllers.newSearch) {
+      app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
+    }
 
-      // Only set location attributes if it's the first request of the location
-      if (app.controllers.newSearch) {
-        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-      }
+    // Handle > 20 matches (Google returns a max of 20 by default)
+    if (!app.config.settings.search.topResultsOnly && paginationObj.hasNextPage) {
+      // Prevent addition of locations to Recent Searches if more button is pressed
+      app.controllers.newSearch = false;
+      // Attaches click listener to moreResultsBtn for pagination.nextPage()
+      app.views.moreResultsBtn.addNextPageFn(paginationObj);
+      app.views.moreResultsBtn.show();
+    } else {
+      app.views.moreResultsBtn.hide();
+    }
 
-      // Handle > 20 matches (Google returns a max of 20 by default)
-      if (!app.config.settings.search.topResultsOnly && paginationObj.hasNextPage) {
-        // Prevent addition of locations to Recent Searches if more button is pressed
-        app.controllers.newSearch = false;
-        // Attaches click listener to moreResultsBtn for pagination.nextPage()
-        app.views.moreResultsBtn.addNextPageFn(paginationObj);
-        app.views.moreResultsBtn.show();
-      } else {
-        app.views.moreResultsBtn.hide();
-      }
+    // Set placeholder attribute on textbox
+    app.views.form.setTboxPlaceholder();
 
-      // Set placeholder attribute on textbox
-      app.views.form.setTboxPlaceholder();
-
-      // Render views with updated results
-      app.views.recentSearches.render();
-      app.views.results.render();
-      resolve();
-    });
+    // Render views with updated results
+    app.views.recentSearches.render();
+    app.views.results.render();
   };
 
   // updateModal - Updates model when a place is selected
@@ -820,20 +829,14 @@ $(function() {
 
   // sortPlaces -Handles processing of places returned from Google.
   app.controllers.sortPlaces = function() {
-    return new Promise(function(resolve, reject) {
       var primaryTypes = app.config.settings.search.primaryTypes;
       var secondaryTypes = app.config.settings.search.secondaryTypes;
       var excludedTypes = app.config.settings.search.excludedTypes;
       var primaryResults = [];
       var secondaryResults = [];
       var sortedResults = { primary: null, secondary: null };
-      var totalResults;
 
       var places = app.models.places.get();
-      if (!places) {
-        reject({ type: 'error', text: 'An error occurred. Please try again.' });
-        return;
-      }
 
       // Sorts results based on relevent/exlcuded categories in app.config.settings.search
       for (var i=0; i < places.length; i++) {
@@ -885,13 +888,8 @@ $(function() {
 
       sortedResults.primary = primaryResults;
       sortedResults.secondary = secondaryResults;
-      totalResults = sortedResults.primary.length + sortedResults.secondary.length;
 
-      app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
-      // Adds search results to sessionStorage
-      app.models.places.add(sortedResults);
-      resolve();
-    });
+      return sortedResults;
   };
 
 })();

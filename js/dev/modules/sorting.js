@@ -21,20 +21,14 @@
 
   // sortPlaces -Handles processing of places returned from Google.
   app.controllers.sortPlaces = function() {
-    return new Promise(function(resolve, reject) {
       var primaryTypes = app.config.settings.search.primaryTypes;
       var secondaryTypes = app.config.settings.search.secondaryTypes;
       var excludedTypes = app.config.settings.search.excludedTypes;
       var primaryResults = [];
       var secondaryResults = [];
       var sortedResults = { primary: null, secondary: null };
-      var totalResults;
 
       var places = app.models.places.get();
-      if (!places) {
-        reject({ type: 'error', text: 'An error occurred. Please try again.' });
-        return;
-      }
 
       // Sorts results based on relevent/exlcuded categories in app.config.settings.search
       for (var i=0; i < places.length; i++) {
@@ -86,13 +80,8 @@
 
       sortedResults.primary = primaryResults;
       sortedResults.secondary = secondaryResults;
-      totalResults = sortedResults.primary.length + sortedResults.secondary.length;
 
-      app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
-      // Adds search results to sessionStorage
-      app.models.places.add(sortedResults);
-      resolve();
-    });
+      return sortedResults;
   };
 
 })();
