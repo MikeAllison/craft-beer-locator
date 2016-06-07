@@ -5,33 +5,29 @@
   app.controllers = app.controllers || {};
 
   // reqMultiDistance - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
-  app.controllers.reqMultiDistance = function() {
+  app.controllers.reqMultiDistance = function(lat, lng, destinations) {
     return new Promise(function(resolve, reject) {
-      // Set params for search (use userLoc if available)
-      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
+      var lat = app.models.userLoc.lat || app.models.searchLoc.lat; // This
+      var lng = app.models.userLoc.lng || app.models.searchLoc.lng; // This
       var params = {
         origins: [new google.maps.LatLng(lat, lng)],
-        destinations: [],
+        destinations: destinations,
         travelMode: google.maps.TravelMode.DRIVING,
         unitSystem: google.maps.UnitSystem.IMPERIAL
       };
       var service = new google.maps.DistanceMatrixService();
 
-      var places = app.models.places.get();
-      if (!places) {
-        reject({ type: 'info', text: 'Your request returned no results.' });
-        return;
-      }
+      var places = app.models.places.get(); // This
 
+      // TO-DO: Take this out and test (sorting usually happens after this)
       // Flattens array if primary and secondary results have been determined previously
-      if (places.primary || places.secondary) {
+      if (places.primary || places.secondary) { // THIS...
         places = places.primary.concat(places.secondary);
-      }
+      } // ...TO THIS
 
-      for (var k=0; k < places.length; k++) {
+      for (var k=0; k < places.length; k++) { // THIS...
         params.destinations.push(new google.maps.LatLng(places[k].geometry.location.lat, places[k].geometry.location.lng));
-      }
+      } // ...TO THIS
 
       service.getDistanceMatrix(params, callback);
 
@@ -41,7 +37,7 @@
           return;
         }
 
-        for (var i=0; i < results.rows[0].elements.length; i++) {
+        for (var i=0; i < results.rows[0].elements.length; i++) { // THIS...
           // Guard against no driving options to destination
           if (results.rows[0].elements[0].distance) {
             // Add distance info to each result (value is distance in meters which is needed for sorting)
@@ -51,10 +47,10 @@
               duration: results.rows[0].elements[i].duration.text
             };
           }
-        }
-        // Save distance and duration info
-        app.models.places.add(places);
-        resolve();
+        } // ...TO THIS
+
+        app.models.places.add(places); // This
+        resolve(results);
       }
     });
   };
