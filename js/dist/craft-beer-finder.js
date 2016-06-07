@@ -363,7 +363,7 @@ var app = app || {};
         }
 
         if (status != google.maps.places.PlacesServiceStatus.OK) {
-          reject({ type: 'error', text: '*An error occurred. Please try again.' });
+          reject({ type: 'error', text: 'An error occurred. Please try again.' });
           return;
         }
 
