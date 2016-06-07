@@ -1,4 +1,6 @@
-// Places model
+/**************
+  Places Model
+***************/
 
 (function() {
 
@@ -7,7 +9,7 @@
   app.models.places = {
     init: function() {
       sessionStorage.clear();
-      this.paginationObj = {};
+      this.paginationObj = null;
     },
     // Adds an array of results of search to sessionStorage
     add: function(places) {
@@ -31,9 +33,6 @@
           return places.secondary[j];
         }
       }
-    },
-    setPaginationObj: function(paginationObj) {
-      this.paginationObj = paginationObj;
     }
   };
 

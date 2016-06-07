@@ -1,10 +1,11 @@
-// Code for page alerts
+/**********************
+  Code for page alerts
+***********************/
 
 (function() {
 
   app.views = app.views || {};
 
-  // Page alerts
   app.views.alerts = {
     init: function() {
       // Collect DOM elements

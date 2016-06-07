@@ -1,4 +1,6 @@
-// Code related to the form and searching with the app
+/*******************************
+  Code for the form and buttons
+********************************/
 
 (function() {
 

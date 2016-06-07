@@ -1,3 +1,7 @@
+/***************
+  Search config
+****************/
+
 var app = app || {};
 
 (function() {
@@ -44,6 +48,428 @@ var app = app || {};
       this.google.geocodingAPI = {
         reqURL: 'https://maps.googleapis.com/maps/api/geocode/json?'
       };
+    }
+  };
+
+})();
+
+/********************************************************************
+  formSearch() - Controls the flow of a search initiated by the form
+*********************************************************************/
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  app.controllers.formSearch = function() {
+    this.newSearch = true;
+    
+    app.models.userLoc.init();
+
+    app.controllers.getGeocode()
+      .then(app.controllers.reqPlaces)
+      .then(app.controllers.reqMultiDistance)
+      .then(app.controllers.sortPlaces)
+      .then(app.controllers.addRecentSearch)
+      .then(app.controllers.updatePage)
+      .then(app.views.page.enableButtons)
+      .catch(app.controllers.stopExecution);
+  };
+
+})();
+
+/*******************************************************************************************
+  geolocationSearch() - Controls the flow of a search initiated by the 'My Location' button
+********************************************************************************************/
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  app.controllers.geolocationSearch = function() {
+    this.newSearch = true;
+    
+    app.models.searchLoc.init();
+
+    app.controllers.getCurrentLocation()
+      .then(app.controllers.reverseGeocode)
+      .then(app.controllers.reqPlaces)
+      .then(app.controllers.reqMultiDistance)
+      .then(app.controllers.sortPlaces)
+      .then(app.controllers.addRecentSearch)
+      .then(app.controllers.updatePage)
+      .then(app.views.page.enableButtons)
+      .catch(app.controllers.stopExecution);
+  };
+
+})();
+
+// Code related to passing data to models
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  // setSelectedPlaceDetails - Adds a location to Recent Searches after a search
+  app.controllers.addRecentSearch = function() {
+    return new Promise(function(resolve) {
+      app.models.recentSearches.add();
+      resolve();
+    });
+  };
+
+  // setSelectedPlaceDetails - Sets the initial deails of the requested place for viewing details about it
+  app.controllers.setSelectedPlaceDetails = function(place) {
+    return new Promise(function(resolve) {
+      app.models.selectedPlace.init();
+      app.models.selectedPlace.placeId = place.place_id;
+      app.models.selectedPlace.lat = place.geometry.location.lat;
+      app.models.selectedPlace.lng = place.geometry.location.lng;
+      app.models.selectedPlace.name = place.name;
+      app.models.selectedPlace.setDrivingInfo(place.drivingInfo.distance, place.drivingInfo.duration);
+      resolve();
+    });
+  };
+
+  // setSearchLocation - Sets the location to be used by Google Places Search when a location is selected from Recent Places
+  app.controllers.setSearchLocation = function(location) {
+    app.models.searchLoc.lat = location.lat;
+    app.models.searchLoc.lng = location.lng;
+    app.models.searchLoc.setFormattedAddress(location.formattedAddress);
+    app.models.searchLoc.setTotalItems(location.totalItems);
+  };
+
+})();
+
+/****************************************************************************************************
+  recentSearch() - Controls the flow of a search initiated by clicking a location in Recent Searches
+*****************************************************************************************************/
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  app.controllers.recentSearch = function(location) {
+    this.newSearch = true;
+    
+    app.models.userLoc.init();
+    app.controllers.setSearchLocation(location);
+
+    app.controllers.reqPlaces()
+      .then(app.controllers.reqMultiDistance)
+      .then(app.controllers.sortPlaces)
+      .then(app.controllers.updatePage)
+      .then(app.views.page.enableButtons)
+      .catch(app.controllers.stopExecution);
+  };
+
+})();
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  app.controllers.stopExecution = function(msg) {
+    app.views.alerts.show(msg.type, msg.text);
+    app.views.results.clear();
+    app.views.placeModal.hide();
+    app.views.page.enableButtons();
+    return;
+  };
+
+  /******************************************************************************************
+    getDetails() - Controls the flow for acquiring details when a specific place is selected
+  *******************************************************************************************/
+  app.controllers.getDetails = function(place) {
+    var requestedPlace = app.models.places.find(place);
+
+    app.controllers.setSelectedPlaceDetails(requestedPlace)
+      .then(app.controllers.reqPlaceDetails)
+      .then(app.controllers.reqTransitDistance)
+      .then(app.controllers.updateModal)
+      .catch(app.controllers.stopExecution);
+  };
+
+  /*****************************************************************************************************
+    switchToGeolocation() - Requests distance from your location to a place (triggered from placeModal)
+  ******************************************************************************************************/
+  app.controllers.switchToGeolocation = function() {
+    app.controllers.getCurrentLocation()
+      .then(app.controllers.reqDrivingDistance)
+      .then(app.controllers.reqTransitDistance)
+      .then(app.controllers.updateModal)
+      .then(app.controllers.reqMultiDistance)
+      .then(app.controllers.sortPlaces)
+      .then(app.controllers.updatePage)
+      .catch(app.controllers.stopExecution);
+  };
+
+  /***************************************************************************
+    requestMoreResults() - Requests more results if > 20 results are returned
+  ****************************************************************************/
+  app.controllers.requestMoreResults = function() {
+    var paginationObj = app.models.places.paginationObj;
+    paginationObj.nextPage();
+    // TO-DO: Fix this hack
+    // Need to wait for AJAX request to finish before moving on and can't use JS promise
+    window.setTimeout(function() {
+      app.controllers.reqMultiDistance()
+        .then(app.controllers.sortPlaces)
+        .then(app.controllers.updatePage)
+        .then(app.views.page.enableButtons)
+        .catch(app.controllers.stopExecution);
+    }, 2000);
+  };
+
+})();
+
+// Code related to updating views
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  // updatePage - Updates list of results and recent searches
+  app.controllers.updatePage = function() {
+    return new Promise(function(resolve, reject) {
+      var paginationObj = app.models.places.paginationObj;
+
+      var places = app.models.places.get();
+      if (!places) {
+        reject({ type: 'info', text: 'Your request returned no results.' });
+        return;
+      }
+
+      // Only set location attributes if it's the first request of the location
+      if (app.controllers.newSearch) {
+        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
+      }
+
+      // Handle > 20 matches (Google returns a max of 20 by default)
+      if (!app.config.settings.search.topResultsOnly && paginationObj.hasNextPage) {
+        // Prevent addition of locations to Recent Searches if more button is pressed
+        app.controllers.newSearch = false;
+        // Attaches click listener to moreResultsBtn for pagination.nextPage()
+        app.views.moreResultsBtn.addNextPageFn(paginationObj);
+        app.views.moreResultsBtn.show();
+      } else {
+        app.views.moreResultsBtn.hide();
+      }
+
+      // Set placeholder attribute on textbox
+      app.views.form.setTboxPlaceholder();
+
+      // Render views with updated results
+      app.views.recentSearches.render();
+      app.views.results.render();
+      resolve();
+    });
+  };
+
+  // updateModal - Updates model when a place is selected
+  app.controllers.updateModal = function() {
+    return new Promise(function(resolve) {
+      app.views.placeModal.populate();
+      app.views.placeModal.show();
+      resolve();
+    });
+  };
+
+})();
+
+/***************
+  Start the app
+****************/
+
+$(function() {
+
+  app.config.init();
+  app.models.searchLoc.init();
+  app.models.places.init();
+  app.views.page.init();
+  app.views.map.init();
+  app.views.form.init();
+  app.views.locationBtn.init();
+  app.views.alerts.init();
+  app.views.results.init();
+  app.views.recentSearches.init();
+  app.views.placeModal.init();
+  app.views.moreResultsBtn.init();
+
+});
+
+/**************
+  Places Model
+***************/
+
+(function() {
+
+  app.models = app.models || {};
+
+  app.models.places = {
+    init: function() {
+      sessionStorage.clear();
+      this.paginationObj = null;
+    },
+    // Adds an array of results of search to sessionStorage
+    add: function(places) {
+      sessionStorage.setItem('places', JSON.stringify(places));
+    },
+    // Retrieves an array of results of search from sessionStorage
+    get: function() {
+      return JSON.parse(sessionStorage.getItem('places'));
+    },
+    find: function(requestedPlace) {
+      var places = this.get();
+
+      for (var i=0; i < places.primary.length; i++) {
+        if (places.primary[i].place_id === requestedPlace.place_id) {
+          return places.primary[i];
+        }
+      }
+
+      for (var j=0; j < places.secondary.length; j++) {
+        if (places.secondary[j].place_id === requestedPlace.place_id) {
+          return places.secondary[j];
+        }
+      }
+    }
+  };
+
+})();
+
+/***********************
+  Recent Searches Model
+************************/
+
+(function() {
+
+  app.models = app.models || {};
+
+  app.models.recentSearches = {
+    add: function() {
+      var cachedSearches = this.get();
+
+      if (!cachedSearches) {
+        cachedSearches = [];
+      } else if (cachedSearches.length >= 5) {
+        cachedSearches.pop();
+      }
+
+      var newLocation = {};
+      newLocation.lat = app.models.userLoc.lat || app.models.searchLoc.lat;
+      newLocation.lng = app.models.userLoc.lng || app.models.searchLoc.lng;
+      newLocation.formattedAddress = app.models.userLoc.formattedAddress || app.models.searchLoc.formattedAddress;
+      newLocation.totalItems = app.models.userLoc.totalItems || app.models.searchLoc.totalItems;
+      cachedSearches.unshift(newLocation);
+
+      localStorage.setItem('recentSearches', JSON.stringify(cachedSearches));
+    },
+    get: function() {
+      return JSON.parse(localStorage.getItem('recentSearches'));
+    }
+  };
+
+})();
+
+/***********************
+  Search Location Model
+************************/
+
+(function() {
+
+  app.models = app.models || {};
+
+  app.models.searchLoc = {
+    init: function() {
+      this.lat = null;
+      this.lng = null;
+      this.formattedAddress = null;
+      this.totalItems = null;
+    },
+    setFormattedAddress: function(address) {
+      this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
+    },
+    setTotalItems: function(totalItems) {
+      this.totalItems = totalItems;
+    }
+  };
+
+})();
+
+/**********************
+  Selected Place Model
+***********************/
+
+(function() {
+
+  app.models = app.models || {};
+
+  app.models.selectedPlace = {
+    init: function() {
+      this.placeId = null;
+      this.lat = null;
+      this.lng = null;
+      this.name = null;
+      this.openNow = null;
+      this.website = null;
+      this.address = null;
+      this.googleMapsUrl = null;
+      this.phoneNum = null;
+      this.drivingInfo = {};
+      this.transitInfo = {};
+      this.hoursOpen = null;
+    },
+    setOpenNow: function(openNow) {
+      this.openNow = openNow ? 'Yes' : 'No';
+    },
+    setWebsite: function(website) {
+      this.website = website ? website : '';
+    },
+    setAddress: function(address) {
+      this.address = address.replace(/, United States/i, '');
+    },
+    setGoogleMapsUrl: function(googleMapsUrl) {
+      this.googleMapsUrl = googleMapsUrl ? googleMapsUrl : '';
+    },
+    setPhoneNum: function(phoneNum) {
+      this.phoneNum = phoneNum ? phoneNum : '';
+    },
+    setDrivingInfo: function(distance, duration) {
+      this.drivingInfo.distance = distance ? distance : '';
+      this.drivingInfo.duration = duration ? duration : '';
+    },
+    setTransitInfo: function(distance, duration) {
+      this.transitInfo.distance = distance ? distance : '';
+      this.transitInfo.duration = duration ? duration : '';
+    },
+    setHoursOpen: function(hoursOpen) {
+      this.hoursOpen = hoursOpen ? hoursOpen : '';
+    }
+  };
+
+})();
+
+/*********************
+  User Location Model
+**********************/
+
+(function() {
+
+  app.models = app.models || {};
+
+  app.models.userLoc = {
+    init: function() {
+      this.lat = null;
+      this.lng = null;
+      this.formattedAddress = null;
+      this.totalItems = null;
+    },
+    setFormattedAddress: function(address) {
+      this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
+    },
+    setTotalItems: function(totalItems) {
+      this.totalItems = totalItems;
     }
   };
 
@@ -200,14 +626,16 @@ var app = app || {};
       }
 
       var success = function(position) {
-        app.models.userLoc.setLat(position.coords.latitude);
-        app.models.userLoc.setLng(position.coords.longitude);
+        app.models.userLoc.lat = position.coords.latitude;
+        app.models.userLoc.lng = position.coords.longitude;
         resolve();
       };
+
       var error = function() {
         reject({ type: 'error', text: 'An error occurred. Please try again.' });
         return;
       };
+      
       var options = { enableHighAccuracy: true };
 
       navigator.geolocation.getCurrentPosition(success, error, options);
@@ -250,8 +678,8 @@ var app = app || {};
             return;
           }
 
-          app.models.searchLoc.setLat(response.results[0].geometry.location.lat);
-          app.models.searchLoc.setLng(response.results[0].geometry.location.lng);
+          app.models.searchLoc.lat = response.results[0].geometry.location.lat;
+          app.models.searchLoc.lng = response.results[0].geometry.location.lng;
           app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
           resolve();
         }
@@ -285,43 +713,6 @@ var app = app || {};
         }
       };
     });
-  };
-
-})();
-
-// Code related to passing data to models
-
-(function() {
-
-  app.controllers = app.controllers || {};
-
-  // setSelectedPlaceDetails - Adds a location to Recent Searches after a search
-  app.controllers.addRecentSearch = function() {
-    return new Promise(function(resolve) {
-      app.models.recentSearches.add();
-      resolve();
-    });
-  };
-
-  // setSelectedPlaceDetails - Sets the initial deails of the requested place for viewing details about it
-  app.controllers.setSelectedPlaceDetails = function(place) {
-    return new Promise(function(resolve) {
-      app.models.selectedPlace.init();
-      app.models.selectedPlace.setPlaceId(place.place_id);
-      app.models.selectedPlace.setLat(place.geometry.location.lat);
-      app.models.selectedPlace.setLng(place.geometry.location.lng);
-      app.models.selectedPlace.setName(place.name);
-      app.models.selectedPlace.setDrivingInfo(place.drivingInfo.distance, place.drivingInfo.duration);
-      resolve();
-    });
-  };
-
-  // setSearchLocation - Sets the location to be used by Google Places Search when a location is selected from Recent Places
-  app.controllers.setSearchLocation = function(location) {
-    app.models.searchLoc.setLat(location.lat);
-    app.models.searchLoc.setLng(location.lng);
-    app.models.searchLoc.setFormattedAddress(location.formattedAddress);
-    app.models.searchLoc.setTotalItems(location.totalItems);
   };
 
 })();
@@ -370,7 +761,7 @@ var app = app || {};
         // Add results to sessionStorage
         app.models.places.add(results);
         // Store pagination object for more results
-        app.models.places.setPaginationObj(pagination);
+        app.models.places.paginationObj = pagination;
         resolve();
       }
     });
@@ -402,105 +793,6 @@ var app = app || {};
         resolve();
       }
     });
-  };
-
-})();
-
-// Code related to controlling the flow of searches
-
-(function() {
-
-  app.controllers = app.controllers || {};
-
-  app.controllers.stopExecution = function(msg) {
-    app.views.alerts.show(msg.type, msg.text);
-    app.views.results.clear();
-    app.views.placeModal.hide();
-    app.views.page.enableButtons();
-    return;
-  };
-
-  // formSearch - Controls the flow of a search initiated by the form
-  app.controllers.formSearch = function() {
-    // Clear user location (search location gets overwritten)
-    app.models.userLoc.init();
-
-    app.controllers.getGeocode()
-      .then(app.controllers.reqPlaces)
-      .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.addRecentSearch)
-      .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons)
-      .catch(app.controllers.stopExecution);
-  };
-
-  // geolocationSearch - Controls the flow of a search initiated by the 'My Location' button
-  app.controllers.geolocationSearch = function() {
-    // Clear search location (user location gets overwritten)
-    app.models.searchLoc.init();
-
-    app.controllers.getCurrentLocation()
-      .then(app.controllers.reverseGeocode)
-      .then(app.controllers.reqPlaces)
-      .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.addRecentSearch)
-      .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons)
-      .catch(app.controllers.stopExecution);
-  };
-
-  // recentSearch - Controls the flow of a search initiated by clicking a location in Recent Searches
-  app.controllers.recentSearch = function(location) {
-    // Clear user location & set search location
-    app.models.userLoc.init();
-    app.controllers.setSearchLocation(location);
-
-    app.controllers.reqPlaces()
-      .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons)
-      .catch(app.controllers.stopExecution);
-  };
-
-  // getDetails - Controls the flow for acquiring details when a specific place is selected
-  app.controllers.getDetails = function(place) {
-    var requestedPlace = app.models.places.find(place);
-
-    app.controllers.setSelectedPlaceDetails(requestedPlace)
-      .then(app.controllers.reqPlaceDetails)
-      .then(app.controllers.reqTransitDistance)
-      .then(app.controllers.updateModal)
-      .catch(app.controllers.stopExecution);
-  };
-
-  // switchToGeolocation - Requests distance from your location to a place (triggered from placeModal)
-  app.controllers.switchToGeolocation = function() {
-    app.controllers.getCurrentLocation()
-      .then(app.controllers.reqDrivingDistance)
-      .then(app.controllers.reqTransitDistance)
-      .then(app.controllers.updateModal)
-      .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.updatePage)
-      .catch(app.controllers.stopExecution);
-  };
-
-  // requestMoreResults - Requests more results if > 20 results are returned
-  app.controllers.requestMoreResults = function() {
-    var paginationObj = app.models.places.paginationObj;
-    paginationObj.nextPage();
-    // TO-DO: Fix this hack
-    // Need to wait for AJAX request to finish before moving on and can't use JS promise
-    window.setTimeout(function() {
-      app.controllers.reqMultiDistance()
-        .then(app.controllers.sortPlaces)
-        .then(app.controllers.updatePage)
-        .then(app.views.page.enableButtons)
-        .catch(app.controllers.stopExecution);
-    }, 2000);
   };
 
 })();
@@ -604,261 +896,14 @@ var app = app || {};
 
 })();
 
-// Code related to updating views
-
-(function() {
-
-  app.controllers = app.controllers || {};
-
-  // updatePage - Updates list of results and recent searches
-  app.controllers.updatePage = function() {
-    return new Promise(function(resolve, reject) {
-      var paginationObj = app.models.places.paginationObj;
-
-      var places = app.models.places.get();
-      if (!places) {
-        reject({ type: 'info', text: 'Your request returned no results.' });
-        return;
-      }
-
-      // Only set location attributes if it's the first request of the location
-      if (app.controllers.newSearch) {
-        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-      }
-
-      // Handle > 20 matches (Google returns a max of 20 by default)
-      if (!app.config.settings.search.topResultsOnly && paginationObj.hasNextPage) {
-        // Prevent addition of locations to Recent Searches if more button is pressed
-        app.controllers.newSearch = false;
-        // Attaches click listener to moreResultsBtn for pagination.nextPage()
-        app.views.moreResultsBtn.addNextPageFn(paginationObj);
-        app.views.moreResultsBtn.show();
-      } else {
-        app.views.moreResultsBtn.hide();
-      }
-
-      // Set placeholder attribute on textbox
-      app.views.form.setTboxPlaceholder();
-
-      // Render views with updated results
-      app.views.recentSearches.render();
-      app.views.results.render();
-      resolve();
-    });
-  };
-
-  // updateModal - Updates model when a place is selected
-  app.controllers.updateModal = function() {
-    return new Promise(function(resolve) {
-      app.views.placeModal.populate();
-      app.views.placeModal.show();
-      resolve();
-    });
-  };
-
-})();
-
-// Places model
-
-(function() {
-
-  app.models = app.models || {};
-
-  app.models.places = {
-    init: function() {
-      sessionStorage.clear();
-      this.paginationObj = {};
-    },
-    // Adds an array of results of search to sessionStorage
-    add: function(places) {
-      sessionStorage.setItem('places', JSON.stringify(places));
-    },
-    // Retrieves an array of results of search from sessionStorage
-    get: function() {
-      return JSON.parse(sessionStorage.getItem('places'));
-    },
-    find: function(requestedPlace) {
-      var places = this.get();
-
-      for (var i=0; i < places.primary.length; i++) {
-        if (places.primary[i].place_id === requestedPlace.place_id) {
-          return places.primary[i];
-        }
-      }
-
-      for (var j=0; j < places.secondary.length; j++) {
-        if (places.secondary[j].place_id === requestedPlace.place_id) {
-          return places.secondary[j];
-        }
-      }
-    },
-    setPaginationObj: function(paginationObj) {
-      this.paginationObj = paginationObj;
-    }
-  };
-
-})();
-
-// Recent Searches model
-
-(function() {
-
-  app.models = app.models || {};
-
-  app.models.recentSearches = {
-    add: function() {
-      var cachedSearches = this.get();
-
-      if (!cachedSearches) {
-        cachedSearches = [];
-      } else if (cachedSearches.length >= 5) {
-        cachedSearches.pop();
-      }
-
-      var newLocation = {};
-      newLocation.lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-      newLocation.lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-      newLocation.formattedAddress = app.models.userLoc.formattedAddress || app.models.searchLoc.formattedAddress;
-      newLocation.totalItems = app.models.userLoc.totalItems || app.models.searchLoc.totalItems;
-      cachedSearches.unshift(newLocation);
-
-      localStorage.setItem('recentSearches', JSON.stringify(cachedSearches));
-    },
-    get: function() {
-      return JSON.parse(localStorage.getItem('recentSearches'));
-    }
-  };
-
-})();
-
-// Search Location model
-
-(function() {
-
-  app.models = app.models || {};
-
-  app.models.searchLoc = {
-    init: function() {
-      this.lat = null;
-      this.lng = null;
-      this.formattedAddress = null;
-      this.totalItems = null;
-    },
-    setLat: function(lat) {
-      this.lat = lat;
-    },
-    setLng: function(lng) {
-      this.lng = lng;
-    },
-    setFormattedAddress: function(address) {
-      this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
-    },
-    setTotalItems: function(totalItems) {
-      this.totalItems = totalItems;
-    }
-  };
-
-})();
-
-// Selected Place Model
-
-(function() {
-
-  app.models = app.models || {};
-
-  app.models.selectedPlace = {
-    init: function() {
-      this.placeId = null;
-      this.lat = null;
-      this.lng = null;
-      this.name = null;
-      this.openNow = null;
-      this.website = null;
-      this.address = null;
-      this.googleMapsUrl = null;
-      this.phoneNum = null;
-      this.drivingInfo = {};
-      this.transitInfo = {};
-      this.hoursOpen = null;
-    },
-    setPlaceId: function(placeId) {
-      this.placeId = placeId;
-    },
-    setLat: function(lat) {
-      this.lat = lat;
-    },
-    setLng: function(lng) {
-      this.lng = lng;
-    },
-    setName: function(name) {
-      this.name = name;
-    },
-    setOpenNow: function(openNow) {
-      this.openNow = openNow ? 'Yes' : 'No';
-    },
-    setWebsite: function(website) {
-      this.website = website ? website : '';
-    },
-    setAddress: function(address) {
-      this.address = address.replace(/, United States/i, '');
-    },
-    setGoogleMapsUrl: function(googleMapsUrl) {
-      this.googleMapsUrl = googleMapsUrl ? googleMapsUrl : '';
-    },
-    setPhoneNum: function(phoneNum) {
-      this.phoneNum = phoneNum ? phoneNum : '';
-    },
-    setDrivingInfo: function(distance, duration) {
-      this.drivingInfo.distance = distance ? distance : '';
-      this.drivingInfo.duration = duration ? duration : '';
-    },
-    setTransitInfo: function(distance, duration) {
-      this.transitInfo.distance = distance ? distance : '';
-      this.transitInfo.duration = duration ? duration : '';
-    },
-    setHoursOpen: function(hoursOpen) {
-      this.hoursOpen = hoursOpen ? hoursOpen : '';
-    }
-  };
-
-})();
-
-// User Location model
-
-(function() {
-
-  app.models = app.models || {};
-
-  app.models.userLoc = {
-    init: function() {
-      this.lat = null;
-      this.lng = null;
-      this.formattedAddress = null;
-      this.totalItems = null;
-    },
-    setLat: function(lat) {
-      this.lat = lat;
-    },
-    setLng: function(lng) {
-      this.lng = lng;
-    },
-    setFormattedAddress: function(address) {
-      this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
-    },
-    setTotalItems: function(totalItems) {
-      this.totalItems = totalItems;
-    }
-  };
-
-})();
-
-// Code for page alerts
+/**********************
+  Code for page alerts
+***********************/
 
 (function() {
 
   app.views = app.views || {};
 
-  // Page alerts
   app.views.alerts = {
     init: function() {
       // Collect DOM elements
@@ -894,7 +939,9 @@ var app = app || {};
 
 })();
 
-// Code related to the form and searching with the app
+/*******************************
+  Code for the form and buttons
+********************************/
 
 (function() {
 
@@ -994,7 +1041,9 @@ var app = app || {};
 
 })();
 
-// Code for modifying elements on the page
+/********************************************
+  Code interacting with elements on the page
+*********************************************/
 
 (function() {
 
@@ -1039,7 +1088,9 @@ var app = app || {};
 
 })();
 
-// Code for the modal of a selected place
+/****************************************
+  Code for the modal of a selected place
+*****************************************/
 
 (function() {
 
@@ -1163,7 +1214,9 @@ var app = app || {};
 
 })();
 
-// Code for the Recent Searches list
+/***********************************
+  Code for the Recent Searches list
+************************************/
 
 (function() {
 
@@ -1234,7 +1287,9 @@ var app = app || {};
 
 })();
 
-// Code for the list of results
+/***************************
+  Code for the results list
+****************************/
 
 (function() {
 
@@ -1365,26 +1420,3 @@ var app = app || {};
   };
 
 })();
-
-// Start the app
-
-$(function() {
-
-  // Set defaults on variables to control flow of search
-  this.newSearch = true;
-
-  // Initialize config, models, & views
-  app.config.init();
-  app.models.searchLoc.init();
-  app.models.places.init();
-  app.views.page.init();
-  app.views.map.init();
-  app.views.form.init();
-  app.views.locationBtn.init();
-  app.views.alerts.init();
-  app.views.results.init();
-  app.views.recentSearches.init();
-  app.views.placeModal.init();
-  app.views.moreResultsBtn.init();
-
-});

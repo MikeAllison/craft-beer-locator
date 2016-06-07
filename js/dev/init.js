@@ -1,11 +1,9 @@
-// Start the app
+/***************
+  Start the app
+****************/
 
 $(function() {
 
-  // Set defaults on variables to control flow of search
-  this.newSearch = true;
-
-  // Initialize config, models, & views
   app.config.init();
   app.models.searchLoc.init();
   app.models.places.init();

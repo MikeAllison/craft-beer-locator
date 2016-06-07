@@ -1,4 +1,6 @@
-// Selected Place Model
+/**********************
+  Selected Place Model
+***********************/
 
 (function() {
 
@@ -18,18 +20,6 @@
       this.drivingInfo = {};
       this.transitInfo = {};
       this.hoursOpen = null;
-    },
-    setPlaceId: function(placeId) {
-      this.placeId = placeId;
-    },
-    setLat: function(lat) {
-      this.lat = lat;
-    },
-    setLng: function(lng) {
-      this.lng = lng;
-    },
-    setName: function(name) {
-      this.name = name;
     },
     setOpenNow: function(openNow) {
       this.openNow = openNow ? 'Yes' : 'No';

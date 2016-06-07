@@ -1,4 +1,6 @@
-// Code for the list of results
+/***************************
+  Code for the results list
+****************************/
 
 (function() {
 

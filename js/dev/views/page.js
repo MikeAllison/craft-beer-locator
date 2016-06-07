@@ -1,4 +1,6 @@
-// Code for modifying elements on the page
+/********************************************
+  Code interacting with elements on the page
+*********************************************/
 
 (function() {
 

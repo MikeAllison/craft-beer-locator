@@ -1,3 +1,7 @@
+/***************
+  Search config
+****************/
+
 var app = app || {};
 
 (function() {

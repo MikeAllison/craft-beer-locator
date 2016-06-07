@@ -1,4 +1,6 @@
-// Code for the modal of a selected place
+/****************************************
+  Code for the modal of a selected place
+*****************************************/
 
 (function() {
 

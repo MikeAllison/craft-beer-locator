@@ -13,14 +13,16 @@
       }
 
       var success = function(position) {
-        app.models.userLoc.setLat(position.coords.latitude);
-        app.models.userLoc.setLng(position.coords.longitude);
+        app.models.userLoc.lat = position.coords.latitude;
+        app.models.userLoc.lng = position.coords.longitude;
         resolve();
       };
+
       var error = function() {
         reject({ type: 'error', text: 'An error occurred. Please try again.' });
         return;
       };
+      
       var options = { enableHighAccuracy: true };
 
       navigator.geolocation.getCurrentPosition(success, error, options);
@@ -63,8 +65,8 @@
             return;
           }
 
-          app.models.searchLoc.setLat(response.results[0].geometry.location.lat);
-          app.models.searchLoc.setLng(response.results[0].geometry.location.lng);
+          app.models.searchLoc.lat = response.results[0].geometry.location.lat;
+          app.models.searchLoc.lng = response.results[0].geometry.location.lng;
           app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
           resolve();
         }

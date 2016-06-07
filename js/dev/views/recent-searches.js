@@ -1,4 +1,6 @@
-// Code for the Recent Searches list
+/***********************************
+  Code for the Recent Searches list
+************************************/
 
 (function() {
 
