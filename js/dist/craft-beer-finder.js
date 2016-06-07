@@ -387,9 +387,6 @@ $(function() {
       this.formattedAddress = null;
       this.totalItems = null;
     },
-    setLng: function(lng) {
-      this.lng = lng;
-    },
     setFormattedAddress: function(address) {
       this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
     },
@@ -467,9 +464,6 @@ $(function() {
       this.lng = null;
       this.formattedAddress = null;
       this.totalItems = null;
-    },
-    setLng: function(lng) {
-      this.lng = lng;
     },
     setFormattedAddress: function(address) {
       this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
