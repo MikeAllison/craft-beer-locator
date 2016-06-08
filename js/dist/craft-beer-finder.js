@@ -63,10 +63,15 @@ var app = app || {};
 
   app.controllers.formSearch = function() {
     this.newSearch = true;
+    app.models.userLoc.init();
 
     app.controllers.getGeocode()
-      .then(app.controllers.reqPlaces)
       .then(function() {
+        return app.controllers.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
+      })
+      .then(function(results) {
+        app.models.places.add(results);
+
         var places = app.models.places.get();
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
@@ -117,11 +122,16 @@ var app = app || {};
 
   app.controllers.geolocationSearch = function() {
     this.newSearch = true;
+    app.models.searchLoc.init();
 
     app.controllers.getCurrentLocation()
       .then(app.controllers.reverseGeocode)
-      .then(app.controllers.reqPlaces)
       .then(function() {
+        return app.controllers.reqPlaces(app.models.userLoc.lat, app.models.userLoc.lng);
+      })
+      .then(function(results) {
+        app.models.places.add(results);
+
         var places = app.models.places.get();
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
@@ -206,11 +216,14 @@ var app = app || {};
 
   app.controllers.recentSearch = function(location) {
     this.newSearch = true;
+    app.models.userLoc.init();
 
     app.controllers.setSearchLocation(location);
 
-    app.controllers.reqPlaces()
-      .then(function() {
+    app.controllers.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
+      .then(function(results) {
+        app.models.places.add(results);
+
         var places = app.models.places.get();
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
@@ -813,16 +826,13 @@ $(function() {
   app.controllers = app.controllers || {};
 
   // reqPlaces - Sends a lat/lng to Google Places Library and stores results
-  app.controllers.reqPlaces = function() {
+  app.controllers.reqPlaces = function(lat, lng) {
     return new Promise(function(resolve, reject) {
       // Reset so that search location is added to Recent Searches
       app.controllers.newSearch = true;
-      // Set params for search (use userLoc if available)
-      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-      var location = new google.maps.LatLng(lat, lng);
+
       var params = {
-        location: location,
+        location: new google.maps.LatLng(lat, lng),
         rankBy: app.config.settings.search.rankBy,
         keyword: app.config.settings.search.itemType
       };
@@ -846,12 +856,10 @@ $(function() {
           reject({ type: 'error', text: 'An error occurred. Please try again.' });
           return;
         }
-
-        // Add results to sessionStorage
-        app.models.places.add(results);
+        
         // Store pagination object for more results
         app.models.places.paginationObj = pagination;
-        resolve();
+        resolve(results);
       }
     });
   };

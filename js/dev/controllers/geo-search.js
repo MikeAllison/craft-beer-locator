@@ -8,11 +8,16 @@
 
   app.controllers.geolocationSearch = function() {
     this.newSearch = true;
+    app.models.searchLoc.init();
 
     app.controllers.getCurrentLocation()
       .then(app.controllers.reverseGeocode)
-      .then(app.controllers.reqPlaces)
       .then(function() {
+        return app.controllers.reqPlaces(app.models.userLoc.lat, app.models.userLoc.lng);
+      })
+      .then(function(results) {
+        app.models.places.add(results);
+
         var places = app.models.places.get();
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )

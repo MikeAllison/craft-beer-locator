@@ -8,11 +8,14 @@
 
   app.controllers.recentSearch = function(location) {
     this.newSearch = true;
+    app.models.userLoc.init();
 
     app.controllers.setSearchLocation(location);
 
-    app.controllers.reqPlaces()
-      .then(function() {
+    app.controllers.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
+      .then(function(results) {
+        app.models.places.add(results);
+
         var places = app.models.places.get();
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )

@@ -8,10 +8,15 @@
 
   app.controllers.formSearch = function() {
     this.newSearch = true;
+    app.models.userLoc.init();
 
     app.controllers.getGeocode()
-      .then(app.controllers.reqPlaces)
       .then(function() {
+        return app.controllers.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
+      })
+      .then(function(results) {
+        app.models.places.add(results);
+
         var places = app.models.places.get();
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
