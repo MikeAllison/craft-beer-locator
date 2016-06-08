@@ -628,13 +628,17 @@ $(function() {
 
 })();
 
-// Code related to Google Maps Distance Matrix API
+/*************************************************
+  Code related to Google Maps Distance Matrix API
+**************************************************/
 
 (function() {
 
   app.controllers = app.controllers || {};
 
-  // reqMultiDistance - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
+  /**************************************************************************************************************
+    reqMultiDistance() - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
+  ***************************************************************************************************************/
   app.controllers.reqMultiDistance = function(lat, lng, destinations) {
     return new Promise(function(resolve, reject) {
       var params = {
@@ -662,7 +666,9 @@ $(function() {
     });
   };
 
-  // reqDrivingDistance - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
+  /************************************************************************************************************
+    reqDrivingDistance() - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
+  *************************************************************************************************************/
   app.controllers.reqDrivingDistance = function() {
     return new Promise(function(resolve, reject) {
       // Set params for search (use userLoc if available)
@@ -698,7 +704,9 @@ $(function() {
     });
   };
 
-  // reqTransitDistance - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
+  /***********************************************************************************************************
+    reqTransitDistance() - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
+  ************************************************************************************************************/
   app.controllers.reqTransitDistance = function() {
     return new Promise(function(resolve, reject) {
       // Set params for search (use userLoc if available)
@@ -805,7 +813,6 @@ $(function() {
 
 })();
 
-
 /***********************************
   Code related to HTML5 Geolocation
 ************************************/
@@ -841,13 +848,17 @@ $(function() {
 
 })();
 
-// Code related to Google Maps Places Library
+/*********************************************
+  Code related to Google Maps Places Library
+**********************************************/
 
 (function() {
 
   app.controllers = app.controllers || {};
 
-  // reqPlaces - Sends a lat/lng to Google Places Library and stores results
+  /***************************************************************************
+    reqPlaces() - Sends a lat/lng to Google Places Library and stores results
+  ****************************************************************************/
   app.controllers.reqPlaces = function(lat, lng) {
     return new Promise(function(resolve, reject) {
       // Reset so that search location is added to Recent Searches
@@ -878,7 +889,7 @@ $(function() {
           reject({ type: 'error', text: 'An error occurred. Please try again.' });
           return;
         }
-        
+
         // Store pagination object for more results
         app.models.places.paginationObj = pagination;
         resolve(results);
@@ -886,7 +897,9 @@ $(function() {
     });
   };
 
-  // reqPlaceDetails - This requests details of the selectedPlace from Google
+  /****************************************************************************
+    reqPlaceDetails() - This requests details of the selectedPlace from Google
+  *****************************************************************************/
   app.controllers.reqPlaceDetails = function() {
     return new Promise(function(resolve, reject) {
       var params = { placeId: app.models.selectedPlace.placeId };
@@ -916,13 +929,17 @@ $(function() {
 
 })();
 
-// Code related to sorting results
+/*********************************
+  Code related to sorting results
+**********************************/
 
 (function() {
 
   app.controllers = app.controllers || {};
 
-  // insertionSort - Sorts place results by distance
+  /***************************************************
+    insertionSort() - Sorts place results by distance
+  ****************************************************/
   app.controllers.insertionSort = function(unsorted) {
     var length = unsorted.length;
 
@@ -937,7 +954,9 @@ $(function() {
     }
   };
 
-  // sortPlaces -Handles processing of places returned from Google.
+  /******************************************************************
+    sortPlaces() - Handles processing of places returned from Google
+  *******************************************************************/
   app.controllers.sortPlaces = function(places) {
       var primaryTypes = app.config.settings.search.primaryTypes;
       var secondaryTypes = app.config.settings.search.secondaryTypes;

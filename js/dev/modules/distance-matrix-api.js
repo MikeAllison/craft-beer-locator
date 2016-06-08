@@ -1,10 +1,14 @@
-// Code related to Google Maps Distance Matrix API
+/*************************************************
+  Code related to Google Maps Distance Matrix API
+**************************************************/
 
 (function() {
 
   app.controllers = app.controllers || {};
 
-  // reqMultiDistance - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
+  /**************************************************************************************************************
+    reqMultiDistance() - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
+  ***************************************************************************************************************/
   app.controllers.reqMultiDistance = function(lat, lng, destinations) {
     return new Promise(function(resolve, reject) {
       var params = {
@@ -32,7 +36,9 @@
     });
   };
 
-  // reqDrivingDistance - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
+  /************************************************************************************************************
+    reqDrivingDistance() - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
+  *************************************************************************************************************/
   app.controllers.reqDrivingDistance = function() {
     return new Promise(function(resolve, reject) {
       // Set params for search (use userLoc if available)
@@ -68,7 +74,9 @@
     });
   };
 
-  // reqTransitDistance - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
+  /***********************************************************************************************************
+    reqTransitDistance() - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
+  ************************************************************************************************************/
   app.controllers.reqTransitDistance = function() {
     return new Promise(function(resolve, reject) {
       // Set params for search (use userLoc if available)

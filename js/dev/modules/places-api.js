@@ -1,10 +1,14 @@
-// Code related to Google Maps Places Library
+/*********************************************
+  Code related to Google Maps Places Library
+**********************************************/
 
 (function() {
 
   app.controllers = app.controllers || {};
 
-  // reqPlaces - Sends a lat/lng to Google Places Library and stores results
+  /***************************************************************************
+    reqPlaces() - Sends a lat/lng to Google Places Library and stores results
+  ****************************************************************************/
   app.controllers.reqPlaces = function(lat, lng) {
     return new Promise(function(resolve, reject) {
       // Reset so that search location is added to Recent Searches
@@ -35,7 +39,7 @@
           reject({ type: 'error', text: 'An error occurred. Please try again.' });
           return;
         }
-        
+
         // Store pagination object for more results
         app.models.places.paginationObj = pagination;
         resolve(results);
@@ -43,7 +47,9 @@
     });
   };
 
-  // reqPlaceDetails - This requests details of the selectedPlace from Google
+  /****************************************************************************
+    reqPlaceDetails() - This requests details of the selectedPlace from Google
+  *****************************************************************************/
   app.controllers.reqPlaceDetails = function() {
     return new Promise(function(resolve, reject) {
       var params = { placeId: app.models.selectedPlace.placeId };

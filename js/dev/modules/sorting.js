@@ -1,10 +1,14 @@
-// Code related to sorting results
+/*********************************
+  Code related to sorting results
+**********************************/
 
 (function() {
 
   app.controllers = app.controllers || {};
 
-  // insertionSort - Sorts place results by distance
+  /***************************************************
+    insertionSort() - Sorts place results by distance
+  ****************************************************/
   app.controllers.insertionSort = function(unsorted) {
     var length = unsorted.length;
 
@@ -19,7 +23,9 @@
     }
   };
 
-  // sortPlaces -Handles processing of places returned from Google.
+  /******************************************************************
+    sortPlaces() - Handles processing of places returned from Google
+  *******************************************************************/
   app.controllers.sortPlaces = function(places) {
       var primaryTypes = app.config.settings.search.primaryTypes;
       var secondaryTypes = app.config.settings.search.secondaryTypes;
