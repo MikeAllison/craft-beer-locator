@@ -11,8 +11,14 @@
     app.models.searchLoc.init();
 
     app.controllers.getCurrentLocation()
-      .then(app.controllers.reverseGeocode)
       .then(function() {
+        return app.controllers.reverseGeocode(app.models.userLoc.lat, app.models.userLoc.lng);
+      })
+      .then(function(response) {
+        var formattedAddress = response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name;
+        // Sets .formattedAddress as city, state (i.e. New York, NY)
+        app.models.userLoc.setFormattedAddress(formattedAddress);
+
         return app.controllers.reqPlaces(app.models.userLoc.lat, app.models.userLoc.lng);
       })
       .then(function(results) {
