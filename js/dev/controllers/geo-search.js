@@ -14,7 +14,7 @@
       .then(function(position) {
         app.models.userLoc.lat = position.coords.latitude;
         app.models.userLoc.lng = position.coords.longitude;
-        
+
         return app.controllers.reverseGeocode(app.models.userLoc.lat, app.models.userLoc.lng);
       })
       .then(function(response) {

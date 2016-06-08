@@ -139,7 +139,7 @@ var app = app || {};
       .then(function(position) {
         app.models.userLoc.lat = position.coords.latitude;
         app.models.userLoc.lng = position.coords.longitude;
-        
+
         return app.controllers.reverseGeocode(app.models.userLoc.lat, app.models.userLoc.lng);
       })
       .then(function(response) {
@@ -371,13 +371,48 @@ var app = app || {};
   app.controllers.requestMoreResults = function() {
     var paginationObj = app.models.places.paginationObj;
     paginationObj.nextPage();
-    // TO-DO: Fix this hack
+
     // Need to wait for AJAX request to finish before moving on and can't use JS promise
     window.setTimeout(function() {
-      app.controllers.reqMultiDistance()
-        .then(app.controllers.sortPlaces)
-        .then(app.controllers.updatePage)
-        .then(app.views.page.enableButtons)
+      var lat = app.models.userLoc.lat || app.models.userLoc.lat;
+      var lng = app.models.userLoc.lng || app.models.userLoc.lng;
+
+      // STUCK HERE:  getPlaces doesn't return anything unless it's a Promise
+      // var places below is the 1st results of places
+      // May need to move the addition of places out of searches and back into getPlaces
+      var places = app.models.places.get();
+
+      // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
+      var placesCoords = [];
+      for (var i=0; i < places.length; i++) {
+        var latLng = { lat: null, lng: null };
+        latLng.lat = places[i].geometry.location.lat;
+        latLng.lng = places[i].geometry.location.lng;
+        placesCoords.push(latLng);
+      }
+
+      app.controllers.reqMultiDistance(lat, lng, placesCoords)
+        .then(function(places) {
+          var places = app.models.places.get();
+
+          for (var i=0; i < results.rows[0].elements.length; i++) {
+            if (results.rows[0].elements[i].distance) {
+            // Add distance info to each result (value is distance in meters which is needed for sorting)
+              places[i].drivingInfo = {
+                value: results.rows[0].elements[i].distance.value,
+                distance: results.rows[0].elements[i].distance.text,
+                duration: results.rows[0].elements[i].duration.text
+              };
+            }
+          }
+
+          var sortedResults = app.controllers.sortPlaces(places);
+          var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
+          app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
+          app.models.places.add(sortedResults);
+          app.controllers.updatePage();
+          app.views.page.enableButtons();
+        })
         .catch(app.controllers.stopExecution);
     }, 2000);
   };
