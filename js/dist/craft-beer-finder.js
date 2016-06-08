@@ -77,7 +77,7 @@ var app = app || {};
         app.models.searchLoc.lat = response.results[0].geometry.location.lat;
         app.models.searchLoc.lng = response.results[0].geometry.location.lng;
         app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
-        
+
         return app.controllers.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
@@ -97,6 +97,7 @@ var app = app || {};
         return app.controllers.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
+        console.log('DB');
         var places = app.models.places.get();
 
         for (var i=0; i < results.rows[0].elements.length; i++) {
@@ -691,6 +692,7 @@ $(function() {
       service.getDistanceMatrix(params, callback);
 
       function callback(results, status) {
+        console.log(status);
         if (status != google.maps.DistanceMatrixStatus.OK) {
           reject({ type: 'error', text: 'An error occurred. Please try again.' });
           return;
@@ -901,6 +903,7 @@ $(function() {
         rankBy: app.config.settings.search.rankBy,
         keyword: app.config.settings.search.itemType
       };
+      var places = [];
 
       // Radius is required on request if ranked by PROMINENCE
       if (params.rankBy === google.maps.places.RankBy.PROMINENCE) {
@@ -922,9 +925,14 @@ $(function() {
           return;
         }
 
-        // Store pagination object for more results
-        app.models.places.paginationObj = pagination;
-        resolve(results);
+        places = places.concat(results);
+
+        if (pagination.hasNextPage) {
+          pagination.nextPage();
+        } else {
+          resolve(places);
+        }
+
       }
     });
   };

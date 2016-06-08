@@ -26,6 +26,7 @@
       service.getDistanceMatrix(params, callback);
 
       function callback(results, status) {
+        console.log(status);
         if (status != google.maps.DistanceMatrixStatus.OK) {
           reject({ type: 'error', text: 'An error occurred. Please try again.' });
           return;

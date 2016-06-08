@@ -22,7 +22,7 @@
         app.models.searchLoc.lat = response.results[0].geometry.location.lat;
         app.models.searchLoc.lng = response.results[0].geometry.location.lng;
         app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
-        
+
         return app.controllers.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
@@ -42,6 +42,7 @@
         return app.controllers.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
+        console.log('DB');
         var places = app.models.places.get();
 
         for (var i=0; i < results.rows[0].elements.length; i++) {

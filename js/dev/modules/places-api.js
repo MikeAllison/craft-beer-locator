@@ -16,6 +16,7 @@
         rankBy: app.config.settings.search.rankBy,
         keyword: app.config.settings.search.itemType
       };
+      var places = [];
 
       // Radius is required on request if ranked by PROMINENCE
       if (params.rankBy === google.maps.places.RankBy.PROMINENCE) {
@@ -37,9 +38,14 @@
           return;
         }
 
-        // Store pagination object for more results
-        app.models.places.paginationObj = pagination;
-        resolve(results);
+        places = places.concat(results);
+
+        if (pagination.hasNextPage) {
+          pagination.nextPage();
+        } else {
+          resolve(places);
+        }
+
       }
     });
   };
