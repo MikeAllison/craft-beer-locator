@@ -94,21 +94,53 @@ var app = app || {};
   app.controllers.geolocationSearch = function() {
     this.newSearch = true;
 
+    // TO-DO: Possibly remove this if the...
+    // var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
+    // var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
+    // ...is removed
     app.models.searchLoc.init();
 
     app.controllers.getCurrentLocation()
       .then(app.controllers.reverseGeocode)
       .then(app.controllers.reqPlaces)
-      // Get places
-      // Flatten to a one-dimensional array
-      // Push lat, lng onto new destinations array ( [[lat, lng], [lat, lng]] )
-      // Send lat, lng, destinations to reqMultiDistance
-      .then(app.controllers.reqMultiDistance)
-      // Return results
+      .then(function() {
+        // Get places
+        var places = app.models.places.get();
+        // TO-DO: Take this out and test (sorting usually happens after this)
+        // Flatten to a one-dimensional array
+        if (places.primary || places.secondary) {
+          places = places.primary.concat(places.secondary);
+        }
+        // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
+        var placesCoords = [];
+        for (var i=0; i < places.length; i++) {
+          var latLng = { lat: null, lng: null };
+          latLng.lat = places[i].geometry.location.lat;
+          latLng.lng = places[i].geometry.location.lng;
+          placesCoords.push(latLng);
+        }
+        // TO-DO: Possibly remove the variables and searchLoc below
+        // Send lat, lng, destinations to reqMultiDistance
+        var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
+        var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
+        return app.controllers.reqMultiDistance(lat, lng, placesCoords);
+      })
       .then(function(results) {
         // Get saved places
+        var places = app.models.places.get();
         // Add distance & duration
-        var sortedResults = app.controllers.sortPlaces();
+        for (var i=0; i < results.rows[0].elements.length; i++) {
+          if (results.rows[0].elements[i].distance) {
+          // Add distance info to each result (value is distance in meters which is needed for sorting)
+            places[i].drivingInfo = {
+              value: results.rows[0].elements[i].distance.value,
+              distance: results.rows[0].elements[i].distance.text,
+              duration: results.rows[0].elements[i].duration.text
+            };
+          }
+        }
+
+        var sortedResults = app.controllers.sortPlaces(places);
         var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
         app.models.places.add(sortedResults);
@@ -500,27 +532,17 @@ $(function() {
   // reqMultiDistance - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
   app.controllers.reqMultiDistance = function(lat, lng, destinations) {
     return new Promise(function(resolve, reject) {
-      var lat = app.models.userLoc.lat || app.models.searchLoc.lat; // This
-      var lng = app.models.userLoc.lng || app.models.searchLoc.lng; // This
       var params = {
         origins: [new google.maps.LatLng(lat, lng)],
-        destinations: destinations,
+        destinations: [],
         travelMode: google.maps.TravelMode.DRIVING,
         unitSystem: google.maps.UnitSystem.IMPERIAL
       };
       var service = new google.maps.DistanceMatrixService();
 
-      var places = app.models.places.get(); // This
-
-      // TO-DO: Take this out and test (sorting usually happens after this)
-      // Flattens array if primary and secondary results have been determined previously
-      if (places.primary || places.secondary) { // THIS...
-        places = places.primary.concat(places.secondary);
-      } // ...TO THIS
-
-      for (var k=0; k < places.length; k++) { // THIS...
-        params.destinations.push(new google.maps.LatLng(places[k].geometry.location.lat, places[k].geometry.location.lng));
-      } // ...TO THIS
+      for (var i=0; i < destinations.length; i++) {
+        params.destinations.push(new google.maps.LatLng(destinations[i].lat, destinations[i].lng));
+      }
 
       service.getDistanceMatrix(params, callback);
 
@@ -530,19 +552,6 @@ $(function() {
           return;
         }
 
-        for (var i=0; i < results.rows[0].elements.length; i++) { // THIS...
-          // Guard against no driving options to destination
-          if (results.rows[0].elements[0].distance) {
-            // Add distance info to each result (value is distance in meters which is needed for sorting)
-            places[i].drivingInfo = {
-              value: results.rows[0].elements[i].distance.value,
-              distance: results.rows[0].elements[i].distance.text,
-              duration: results.rows[0].elements[i].duration.text
-            };
-          }
-        } // ...TO THIS
-
-        app.models.places.add(places); // This
         resolve(results);
       }
     });
@@ -831,15 +840,13 @@ $(function() {
   };
 
   // sortPlaces -Handles processing of places returned from Google.
-  app.controllers.sortPlaces = function() {
+  app.controllers.sortPlaces = function(places) {
       var primaryTypes = app.config.settings.search.primaryTypes;
       var secondaryTypes = app.config.settings.search.secondaryTypes;
       var excludedTypes = app.config.settings.search.excludedTypes;
       var primaryResults = [];
       var secondaryResults = [];
       var sortedResults = { primary: null, secondary: null };
-
-      var places = app.models.places.get();
 
       // Sorts results based on relevent/exlcuded categories in app.config.settings.search
       for (var i=0; i < places.length; i++) {

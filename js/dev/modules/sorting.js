@@ -20,15 +20,13 @@
   };
 
   // sortPlaces -Handles processing of places returned from Google.
-  app.controllers.sortPlaces = function() {
+  app.controllers.sortPlaces = function(places) {
       var primaryTypes = app.config.settings.search.primaryTypes;
       var secondaryTypes = app.config.settings.search.secondaryTypes;
       var excludedTypes = app.config.settings.search.excludedTypes;
       var primaryResults = [];
       var secondaryResults = [];
       var sortedResults = { primary: null, secondary: null };
-
-      var places = app.models.places.get();
 
       // Sorts results based on relevent/exlcuded categories in app.config.settings.search
       for (var i=0; i < places.length; i++) {

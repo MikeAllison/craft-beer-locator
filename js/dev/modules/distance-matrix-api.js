@@ -7,27 +7,17 @@
   // reqMultiDistance - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
   app.controllers.reqMultiDistance = function(lat, lng, destinations) {
     return new Promise(function(resolve, reject) {
-      var lat = app.models.userLoc.lat || app.models.searchLoc.lat; // This
-      var lng = app.models.userLoc.lng || app.models.searchLoc.lng; // This
       var params = {
         origins: [new google.maps.LatLng(lat, lng)],
-        destinations: destinations,
+        destinations: [],
         travelMode: google.maps.TravelMode.DRIVING,
         unitSystem: google.maps.UnitSystem.IMPERIAL
       };
       var service = new google.maps.DistanceMatrixService();
 
-      var places = app.models.places.get(); // This
-
-      // TO-DO: Take this out and test (sorting usually happens after this)
-      // Flattens array if primary and secondary results have been determined previously
-      if (places.primary || places.secondary) { // THIS...
-        places = places.primary.concat(places.secondary);
-      } // ...TO THIS
-
-      for (var k=0; k < places.length; k++) { // THIS...
-        params.destinations.push(new google.maps.LatLng(places[k].geometry.location.lat, places[k].geometry.location.lng));
-      } // ...TO THIS
+      for (var i=0; i < destinations.length; i++) {
+        params.destinations.push(new google.maps.LatLng(destinations[i].lat, destinations[i].lng));
+      }
 
       service.getDistanceMatrix(params, callback);
 
@@ -37,19 +27,6 @@
           return;
         }
 
-        for (var i=0; i < results.rows[0].elements.length; i++) { // THIS...
-          // Guard against no driving options to destination
-          if (results.rows[0].elements[0].distance) {
-            // Add distance info to each result (value is distance in meters which is needed for sorting)
-            places[i].drivingInfo = {
-              value: results.rows[0].elements[i].distance.value,
-              distance: results.rows[0].elements[i].distance.text,
-              duration: results.rows[0].elements[i].duration.text
-            };
-          }
-        } // ...TO THIS
-
-        app.models.places.add(places); // This
         resolve(results);
       }
     });
