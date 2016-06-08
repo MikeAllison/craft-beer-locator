@@ -18,12 +18,30 @@
         unitSystem: google.maps.UnitSystem.IMPERIAL
       };
       var service = new google.maps.DistanceMatrixService();
+      var allResults = {};
+      var maxDestinations = 25;
 
-      for (var i=0; i < destinations.length; i++) {
-        params.destinations.push(new google.maps.LatLng(destinations[i].lat, destinations[i].lng));
+      if (destinations.length < maxDestinations) {
+        for (var i=0; i < destinations.length; i++) {
+          params.destinations.push(new google.maps.LatLng(destinations[i].lat, destinations[i].lng));
+        }
+        // make the request
+        service.getDistanceMatrix(params, callback);
       }
 
-      service.getDistanceMatrix(params, callback);
+      // If destinations.length > maxRequests
+      // Create a new temp array
+      // Shift the first maxRequests onto temp array
+      // Make request
+      // Add results to allResults
+
+      // Get new destinations.length
+      // return if 0
+      // If destinations.lenth > maxRequests
+      // Create a new temp array
+      // Shift the first maxRequests onto temp array
+      // Make request
+      // Add results to allResults
 
       function callback(results, status) {
         console.log(status);
@@ -31,8 +49,13 @@
           reject({ type: 'error', text: 'An error occurred. Please try again.' });
           return;
         }
+        // Need to add new results to allResults object
+        console.dir(results);
+        allResults = results;
 
-        resolve(results);
+        //if (destinations.length === 0) {
+          resolve(allResults);
+        //}
       }
     });
   };

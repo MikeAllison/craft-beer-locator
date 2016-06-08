@@ -42,7 +42,7 @@
         return app.controllers.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        console.log('DB');
+        console.dir(results);
         var places = app.models.places.get();
 
         for (var i=0; i < results.rows[0].elements.length; i++) {
