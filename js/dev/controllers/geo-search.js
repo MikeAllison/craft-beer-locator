@@ -9,22 +9,12 @@
   app.controllers.geolocationSearch = function() {
     this.newSearch = true;
 
-    // TO-DO: Possibly remove this if the...
-    // var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-    // var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-    // ...is removed
-    app.models.searchLoc.init();
-
     app.controllers.getCurrentLocation()
       .then(app.controllers.reverseGeocode)
       .then(app.controllers.reqPlaces)
       .then(function() {
         var places = app.models.places.get();
-        // TO-DO: Set a console.dir(places) and test (sorting usually happens after this)
-        // Flatten to a one-dimensional array
-        if (places.primary || places.secondary) {
-          places = places.primary.concat(places.secondary);
-        }
+
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
         var placesCoords = [];
         for (var i=0; i < places.length; i++) {
@@ -33,10 +23,8 @@
           latLng.lng = places[i].geometry.location.lng;
           placesCoords.push(latLng);
         }
-        // TO-DO: Possibly remove the variables and searchLoc below
-        var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-        var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-        return app.controllers.reqMultiDistance(lat, lng, placesCoords);
+
+        return app.controllers.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();

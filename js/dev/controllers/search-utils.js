@@ -45,10 +45,8 @@
           latLng.lng = places[i].geometry.location.lng;
           placesCoords.push(latLng);
         }
-        // TO-DO: Possibly remove the variables and searchLoc below
-        var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-        var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-        return app.controllers.reqMultiDistance(lat, lng, placesCoords);
+
+        return app.controllers.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();
