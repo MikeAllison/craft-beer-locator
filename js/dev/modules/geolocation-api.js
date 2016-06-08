@@ -10,17 +10,11 @@
   /******************************************************************************************
     getGeocode() - Takes a city, state and converts it to lat/lng using Google Geocoding API
   *******************************************************************************************/
-  app.controllers.getGeocode = function() {
+  app.controllers.getGeocode = function(location) {
     return new Promise(function(resolve, reject) {
-      var tboxVal = app.views.form.cityStateTbox.value;
-      if (!tboxVal) {
-        reject({ type: 'error', text: 'Please enter a location.' });
-        return;
-      }
-
       // AJAX request for lat/lng for form submission
       var httpRequest = new XMLHttpRequest();
-      var params = 'key=' + app.config.google.apiKey + '&address=' + encodeURIComponent(tboxVal);
+      var params = 'key=' + app.config.google.apiKey + '&address=' + encodeURIComponent(location);
       httpRequest.open('GET', app.config.google.geocodingAPI.reqURL + params, true);
 
       httpRequest.onload = function() {
@@ -36,10 +30,7 @@
             return;
           }
 
-          app.models.searchLoc.lat = response.results[0].geometry.location.lat;
-          app.models.searchLoc.lng = response.results[0].geometry.location.lng;
-          app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
-          resolve();
+          resolve(response);
         }
       };
 
