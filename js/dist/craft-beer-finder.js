@@ -125,7 +125,10 @@ var app = app || {};
     app.models.searchLoc.init();
 
     app.controllers.getCurrentLocation()
-      .then(function() {
+      .then(function(position) {
+        app.models.userLoc.lat = position.coords.latitude;
+        app.models.userLoc.lng = position.coords.longitude;
+        
         return app.controllers.reverseGeocode(app.models.userLoc.lat, app.models.userLoc.lng);
       })
       .then(function(response) {
@@ -299,6 +302,10 @@ var app = app || {};
   ******************************************************************************************************/
   app.controllers.switchToGeolocation = function() {
     app.controllers.getCurrentLocation()
+      .then(function(position) {
+        app.models.userLoc.lat = position.coords.latitude;
+        app.models.userLoc.lng = position.coords.longitude;
+      })
       .then(app.controllers.reqDrivingDistance)
       .then(app.controllers.reqTransitDistance)
       .then(app.controllers.updateModal)
@@ -816,9 +823,7 @@ $(function() {
       }
 
       var success = function(position) {
-        app.models.userLoc.lat = position.coords.latitude;
-        app.models.userLoc.lng = position.coords.longitude;
-        resolve();
+        resolve(position);
       };
 
       var error = function() {

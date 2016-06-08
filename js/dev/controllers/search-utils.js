@@ -28,6 +28,10 @@
   ******************************************************************************************************/
   app.controllers.switchToGeolocation = function() {
     app.controllers.getCurrentLocation()
+      .then(function(position) {
+        app.models.userLoc.lat = position.coords.latitude;
+        app.models.userLoc.lng = position.coords.longitude;
+      })
       .then(app.controllers.reqDrivingDistance)
       .then(app.controllers.reqTransitDistance)
       .then(app.controllers.updateModal)

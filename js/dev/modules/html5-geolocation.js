@@ -18,9 +18,7 @@
       }
 
       var success = function(position) {
-        app.models.userLoc.lat = position.coords.latitude;
-        app.models.userLoc.lng = position.coords.longitude;
-        resolve();
+        resolve(position);
       };
 
       var error = function() {
