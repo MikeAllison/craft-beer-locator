@@ -861,9 +861,6 @@ $(function() {
   ****************************************************************************/
   app.controllers.reqPlaces = function(lat, lng) {
     return new Promise(function(resolve, reject) {
-      // Reset so that search location is added to Recent Searches
-      app.controllers.newSearch = true;
-
       var params = {
         location: new google.maps.LatLng(lat, lng),
         rankBy: app.config.settings.search.rankBy,
