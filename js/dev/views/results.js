@@ -23,8 +23,6 @@
       this.secondaryResults.classList.add('hidden');
       this.primaryResultsList.textContent = null;
       this.secondaryResultsList.textContent = null;
-      app.views.moreResultsBtn.hide();
-      app.views.moreResultsBtn.disable();
     },
     render: function() {
       this.primaryResults.classList.add('hidden');

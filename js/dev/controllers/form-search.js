@@ -7,7 +7,6 @@
   app.controllers = app.controllers || {};
 
   app.controllers.formSearch = function() {
-    this.newSearch = true;
     app.models.userLoc.init();
 
     var tboxVal = app.views.form.cityStateTbox.value;
@@ -42,7 +41,6 @@
         return app.controllers.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        console.dir(results);
         var places = app.models.places.get();
 
         for (var i=0; i < results.rows[0].elements.length; i++) {
@@ -57,8 +55,8 @@
         }
 
         var sortedResults = app.controllers.sortPlaces(places);
-        var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
-        app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
+
+        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.controllers.addRecentSearch();
         app.controllers.updatePage();

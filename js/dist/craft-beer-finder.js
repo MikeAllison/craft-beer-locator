@@ -62,7 +62,6 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.formSearch = function() {
-    this.newSearch = true;
     app.models.userLoc.init();
 
     var tboxVal = app.views.form.cityStateTbox.value;
@@ -97,7 +96,6 @@ var app = app || {};
         return app.controllers.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        console.dir(results);
         var places = app.models.places.get();
 
         for (var i=0; i < results.rows[0].elements.length; i++) {
@@ -112,8 +110,8 @@ var app = app || {};
         }
 
         var sortedResults = app.controllers.sortPlaces(places);
-        var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
-        app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
+
+        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.controllers.addRecentSearch();
         app.controllers.updatePage();
@@ -133,7 +131,6 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.geolocationSearch = function() {
-    this.newSearch = true;
     app.models.searchLoc.init();
 
     app.controllers.getCurrentLocation()
@@ -236,7 +233,6 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.recentSearch = function(location) {
-    this.newSearch = true;
     app.models.userLoc.init();
 
     app.controllers.setSearchLocation(location);
@@ -428,24 +424,9 @@ var app = app || {};
 
   // updatePage - Updates list of results and recent searches
   app.controllers.updatePage = function() {
-    var paginationObj = app.models.places.paginationObj;
     var places = app.models.places.get();
 
-    // Only set location attributes if it's the first request of the location
-    if (app.controllers.newSearch) {
-      app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-    }
-
-    // Handle > 20 matches (Google returns a max of 20 by default)
-    if (!app.config.settings.search.topResultsOnly && paginationObj.hasNextPage) {
-      // Prevent addition of locations to Recent Searches if more button is pressed
-      app.controllers.newSearch = false;
-      // Attaches click listener to moreResultsBtn for pagination.nextPage()
-      app.views.moreResultsBtn.addNextPageFn(paginationObj);
-      app.views.moreResultsBtn.show();
-    } else {
-      app.views.moreResultsBtn.hide();
-    }
+    app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
 
     // Set placeholder attribute on textbox
     app.views.form.setTboxPlaceholder();
@@ -483,7 +464,6 @@ $(function() {
   app.views.results.init();
   app.views.recentSearches.init();
   app.views.placeModal.init();
-  app.views.moreResultsBtn.init();
 
 });
 
@@ -498,7 +478,6 @@ $(function() {
   app.models.places = {
     init: function() {
       sessionStorage.clear();
-      this.paginationObj = null;
     },
     // Adds an array of results of search to sessionStorage
     add: function(places) {
@@ -578,9 +557,6 @@ $(function() {
     },
     setFormattedAddress: function(address) {
       this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
-    },
-    setTotalItems: function(totalItems) {
-      this.totalItems = totalItems;
     }
   };
 
@@ -679,21 +655,48 @@ $(function() {
     return new Promise(function(resolve, reject) {
       var params = {
         origins: [new google.maps.LatLng(lat, lng)],
-        destinations: [],
         travelMode: google.maps.TravelMode.DRIVING,
         unitSystem: google.maps.UnitSystem.IMPERIAL
       };
       var service = new google.maps.DistanceMatrixService();
+      var maxReqDests = 25; // Google's limit of destinations for a single Distance Maxtrix request
       var allResults = {};
-      var maxDestinations = 25;
 
-      if (destinations.length < maxDestinations) {
-        for (var i=0; i < destinations.length; i++) {
-          params.destinations.push(new google.maps.LatLng(destinations[i].lat, destinations[i].lng));
+      console.log('starting destinations: ' + destinations.length);
+
+      while (destinations.length > 0) {
+        params.destinations = [];
+        console.log('inner destinations.length:' + destinations.length);
+        var reqArray = destinations.splice(0, maxReqDests);
+        console.dir(reqArray);
+        for (var i=0; i < reqArray.length; i++) {
+          params.destinations.push(new google.maps.LatLng(reqArray[i].lat, reqArray[i].lng));
         }
-        // make the request
+        console.dir(params);
         service.getDistanceMatrix(params, callback);
       }
+
+      // var totalRequests = Math.ceil(destinations.length / maxReqDests);
+      // console.log('destinations: ' + destinations.length);
+      // console.log('totalRequests: ' + totalRequests);
+      //
+      // var start = 0;
+      // var end = maxReqDests;
+      //
+      // for (var i=0; i < totalRequests; i++) {
+      //   var reqArray = destinations.slice(start, end);
+      //   console.dir(reqArray);
+      //   start += totalRequests;
+      //   end += totalRequests;
+      // }
+
+      // if (destinations.length < maxDestinations) {
+      //   for (var i=0; i < destinations.length; i++) {
+      //     params.destinations.push(new google.maps.LatLng(destinations[i].lat, destinations[i].lng));
+      //   }
+      //
+      //   service.getDistanceMatrix(params, callback);
+      // }
 
       // If destinations.length > maxRequests
       // Create a new temp array
@@ -716,12 +719,17 @@ $(function() {
           return;
         }
         // Need to add new results to allResults object
+        console.log('results');
         console.dir(results);
         allResults = results;
+        console.log('allResults');
+        console.dir(allResults);
 
-        //if (destinations.length === 0) {
+        console.log('destinations.length: ' + destinations.length);
+        if (destinations.length === 0) {
+          console.log('resolve');
           resolve(allResults);
-        //}
+        }
       }
     });
   };
@@ -1193,40 +1201,6 @@ $(function() {
     }
   };
 
-  // More results button if > 20 results are returned from the search
-  app.views.moreResultsBtn = {
-    init: function() {
-      // Collect DOM elements
-      this.moreResultsBtn = document.getElementById('moreResultsBtn');
-      // Set default values on DOM elements
-      this.moreResultsBtn.classList.add('hidden');
-      // Add click handlers
-      this.moreResultsBtn.addEventListener('click', function() {
-        app.views.page.disableButtons();
-        app.views.page.clear();
-        window.scroll(0, 0);
-      });
-    },
-    addNextPageFn: function() {
-      this.moreResultsBtn.onclick = function() {
-        app.controllers.requestMoreResults();
-      };
-    },
-    show: function() {
-      this.moreResultsBtn.classList.remove('hidden');
-      // Google Places search requires 2 seconds between searches
-      window.setTimeout(function() {
-        moreResultsBtn.removeAttribute('disabled');
-      }, 2000);
-    },
-    disable: function() {
-      this.moreResultsBtn.setAttribute('disabled', true);
-    },
-    hide: function() {
-      this.moreResultsBtn.classList.add('hidden');
-    }
-  };
-
 })();
 
 /********************************************
@@ -1500,8 +1474,6 @@ $(function() {
       this.secondaryResults.classList.add('hidden');
       this.primaryResultsList.textContent = null;
       this.secondaryResultsList.textContent = null;
-      app.views.moreResultsBtn.hide();
-      app.views.moreResultsBtn.disable();
     },
     render: function() {
       this.primaryResults.classList.add('hidden');

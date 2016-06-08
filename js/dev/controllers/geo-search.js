@@ -7,7 +7,6 @@
   app.controllers = app.controllers || {};
 
   app.controllers.geolocationSearch = function() {
-    this.newSearch = true;
     app.models.searchLoc.init();
 
     app.controllers.getCurrentLocation()

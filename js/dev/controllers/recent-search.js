@@ -7,7 +7,6 @@
   app.controllers = app.controllers || {};
 
   app.controllers.recentSearch = function(location) {
-    this.newSearch = true;
     app.models.userLoc.init();
 
     app.controllers.setSearchLocation(location);

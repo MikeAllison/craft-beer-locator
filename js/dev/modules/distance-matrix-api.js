@@ -13,21 +13,48 @@
     return new Promise(function(resolve, reject) {
       var params = {
         origins: [new google.maps.LatLng(lat, lng)],
-        destinations: [],
         travelMode: google.maps.TravelMode.DRIVING,
         unitSystem: google.maps.UnitSystem.IMPERIAL
       };
       var service = new google.maps.DistanceMatrixService();
+      var maxReqDests = 25; // Google's limit of destinations for a single Distance Maxtrix request
       var allResults = {};
-      var maxDestinations = 25;
 
-      if (destinations.length < maxDestinations) {
-        for (var i=0; i < destinations.length; i++) {
-          params.destinations.push(new google.maps.LatLng(destinations[i].lat, destinations[i].lng));
+      console.log('starting destinations: ' + destinations.length);
+
+      while (destinations.length > 0) {
+        params.destinations = [];
+        console.log('inner destinations.length:' + destinations.length);
+        var reqArray = destinations.splice(0, maxReqDests);
+        console.dir(reqArray);
+        for (var i=0; i < reqArray.length; i++) {
+          params.destinations.push(new google.maps.LatLng(reqArray[i].lat, reqArray[i].lng));
         }
-        // make the request
+        console.dir(params);
         service.getDistanceMatrix(params, callback);
       }
+
+      // var totalRequests = Math.ceil(destinations.length / maxReqDests);
+      // console.log('destinations: ' + destinations.length);
+      // console.log('totalRequests: ' + totalRequests);
+      //
+      // var start = 0;
+      // var end = maxReqDests;
+      //
+      // for (var i=0; i < totalRequests; i++) {
+      //   var reqArray = destinations.slice(start, end);
+      //   console.dir(reqArray);
+      //   start += totalRequests;
+      //   end += totalRequests;
+      // }
+
+      // if (destinations.length < maxDestinations) {
+      //   for (var i=0; i < destinations.length; i++) {
+      //     params.destinations.push(new google.maps.LatLng(destinations[i].lat, destinations[i].lng));
+      //   }
+      //
+      //   service.getDistanceMatrix(params, callback);
+      // }
 
       // If destinations.length > maxRequests
       // Create a new temp array
@@ -50,12 +77,17 @@
           return;
         }
         // Need to add new results to allResults object
+        console.log('results');
         console.dir(results);
         allResults = results;
+        console.log('allResults');
+        console.dir(allResults);
 
-        //if (destinations.length === 0) {
+        console.log('destinations.length: ' + destinations.length);
+        if (destinations.length === 0) {
+          console.log('resolve');
           resolve(allResults);
-        //}
+        }
       }
     });
   };

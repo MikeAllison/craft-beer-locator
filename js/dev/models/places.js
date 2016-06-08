@@ -9,7 +9,6 @@
   app.models.places = {
     init: function() {
       sessionStorage.clear();
-      this.paginationObj = null;
     },
     // Adds an array of results of search to sessionStorage
     add: function(places) {

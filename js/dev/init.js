@@ -15,6 +15,5 @@ $(function() {
   app.views.results.init();
   app.views.recentSearches.init();
   app.views.placeModal.init();
-  app.views.moreResultsBtn.init();
 
 });
