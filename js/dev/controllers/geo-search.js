@@ -19,9 +19,8 @@
       .then(app.controllers.reverseGeocode)
       .then(app.controllers.reqPlaces)
       .then(function() {
-        // Get places
         var places = app.models.places.get();
-        // TO-DO: Take this out and test (sorting usually happens after this)
+        // TO-DO: Set a console.dir(places) and test (sorting usually happens after this)
         // Flatten to a one-dimensional array
         if (places.primary || places.secondary) {
           places = places.primary.concat(places.secondary);
@@ -35,15 +34,13 @@
           placesCoords.push(latLng);
         }
         // TO-DO: Possibly remove the variables and searchLoc below
-        // Send lat, lng, destinations to reqMultiDistance
         var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
         var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
         return app.controllers.reqMultiDistance(lat, lng, placesCoords);
       })
       .then(function(results) {
-        // Get saved places
         var places = app.models.places.get();
-        // Add distance & duration
+
         for (var i=0; i < results.rows[0].elements.length; i++) {
           if (results.rows[0].elements[i].distance) {
           // Add distance info to each result (value is distance in meters which is needed for sorting)
