@@ -96,6 +96,7 @@ var app = app || {};
         return app.controllers.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
+        //console.dir(results);
         var places = app.models.places.get();
 
         for (var i=0; i < results.rows[0].elements.length; i++) {
@@ -110,7 +111,6 @@ var app = app || {};
         }
 
         var sortedResults = app.controllers.sortPlaces(places);
-
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.controllers.addRecentSearch();
@@ -660,54 +660,76 @@ $(function() {
       };
       var service = new google.maps.DistanceMatrixService();
       var maxDests = 25; // Google's limit of destinations for a single Distance Maxtrix request
-      var allResults = [];
+      var allResults = {
+        originAddresses: null,
+        destinationAddresses: null,
+        rows: null
+      };
 
-      // if (destinations.length < maxDests) {
+      console.log('Total destinations: ' + destinations.length);
+
+      if ((destinations.length > maxDests * 2) && (destinations.length <= maxDests * 3)) {
+        params.destinations = [];
+        var tempDests = [];
+
+        tempDests = destinations.splice(0, maxDests);
+
+        tempDests.forEach(function(destination){
+          params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
+        });
+
+        console.log('50-75');
+        console.dir(tempDests);
+        service.getDistanceMatrix(params, function(results) {
+          if (status != google.maps.DistanceMatrixStatus.OK) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
+            return;
+          }
+
+          console.dir(results);
+        });
+      }
+
+      if ((destinations.length > maxDests) && (destinations.length <= maxDests * 2)) {
+        params.destinations = [];
+        var tempDests = [];
+
+        tempDests = destinations.splice(0, maxDests);
+
+        tempDests.forEach(function(destination){
+          params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
+        });
+
+        console.dir(tempDests);
+        service.getDistanceMatrix(params, function(results) {
+          if (status != google.maps.DistanceMatrixStatus.OK) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
+            return;
+          }
+
+          console.dir(results);
+        });
+      }
+
+      if (destinations.length <= maxDests) {
         params.destinations = [];
 
         destinations.forEach(function(destination){
           params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
         });
 
-        service.getDistanceMatrix(params, callback);
-      // } else {
-        //while (destinations.length > 0) {
-          // (function(destinations) {
-          //   var reqArray = destinations.splice(0, maxDests);
-          //   params.destinations = [];
-          //
-          //   for (var i=0; i < reqArray.length; i++) {
-          //     params.destinations.push(new google.maps.LatLng(reqArray[i].lat, reqArray[i].lng));
-          //   }
-          //
-          //   service.getDistanceMatrix(params, callback);
-          //
-          //   console.dir(results);
-          // })(destinations);
-        //}
-      // }
+        console.log('<25');
+        console.dir(destinations);
+        service.getDistanceMatrix(params, function(results) {
+          if (status != google.maps.DistanceMatrixStatus.OK) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
+            return;
+          }
 
-      // while (destinations.length > 0) {
-      //   params.destinations = [];
-      //
-      //   var reqArray = destinations.splice(0, maxDests);
-      //
-      //   for (var i=0; i < reqArray.length; i++) {
-      //     params.destinations.push(new google.maps.LatLng(reqArray[i].lat, reqArray[i].lng));
-      //     console.dir(params.destinations);
-      //   }
-      //
-      //   service.getDistanceMatrix(params, callback);
-      // }
-
-      function callback(results, status) {
-        if (status != google.maps.DistanceMatrixStatus.OK) {
-          reject({ type: 'error', text: 'An error occurred. Please try again.' });
-          return;
-        }
-
-        resolve(results);
+          console.dir(results);
+        });
       }
+
     });
   };
 
@@ -1006,65 +1028,65 @@ $(function() {
     sortPlaces() - Handles processing of places returned from Google
   *******************************************************************/
   app.controllers.sortPlaces = function(places) {
-      var primaryTypes = app.config.settings.search.primaryTypes;
-      var secondaryTypes = app.config.settings.search.secondaryTypes;
-      var excludedTypes = app.config.settings.search.excludedTypes;
-      var primaryResults = [];
-      var secondaryResults = [];
-      var sortedResults = { primary: null, secondary: null };
+    var primaryTypes = app.config.settings.search.primaryTypes;
+    var secondaryTypes = app.config.settings.search.secondaryTypes;
+    var excludedTypes = app.config.settings.search.excludedTypes;
+    var primaryResults = [];
+    var secondaryResults = [];
+    var sortedResults = { primary: null, secondary: null };
 
-      // Sorts results based on relevent/exlcuded categories in app.config.settings.search
-      for (var i=0; i < places.length; i++) {
-        var hasPrimaryType = false;
-        var hasSecondaryType = false;
-        var hasExcludedType = false;
+    // Sorts results based on relevent/exlcuded categories in app.config.settings.search
+    for (var i=0; i < places.length; i++) {
+      var hasPrimaryType = false;
+      var hasSecondaryType = false;
+      var hasExcludedType = false;
 
-        // Check for primary types and push onto array for primary results
-        for (var j=0; j < primaryTypes.length; j++) {
-          if (places[i].types.includes(primaryTypes[j])) {
-            hasPrimaryType = true;
-          }
+      // Check for primary types and push onto array for primary results
+      for (var j=0; j < primaryTypes.length; j++) {
+        if (places[i].types.includes(primaryTypes[j])) {
+          hasPrimaryType = true;
         }
-        // Push onto the array
-        if (hasPrimaryType) {
-          primaryResults.push(places[i]);
-        }
+      }
+      // Push onto the array
+      if (hasPrimaryType) {
+        primaryResults.push(places[i]);
+      }
 
-        // If the primary array doesn't contain the result, check for secondary types...
-        // ...but make sure that it doesn't have a type on the excluded list
-        if (!primaryResults.includes(places[i])) {
-          for (var k=0; k < secondaryTypes.length; k++) {
-            if (places[i].types.includes(secondaryTypes[k])) {
-              hasSecondaryType = true;
-              for (var l=0; l < excludedTypes.length; l++) {
-                if(places[i].types.includes(excludedTypes[l])) {
-                  hasExcludedType = true;
-                }
+      // If the primary array doesn't contain the result, check for secondary types...
+      // ...but make sure that it doesn't have a type on the excluded list
+      if (!primaryResults.includes(places[i])) {
+        for (var k=0; k < secondaryTypes.length; k++) {
+          if (places[i].types.includes(secondaryTypes[k])) {
+            hasSecondaryType = true;
+            for (var l=0; l < excludedTypes.length; l++) {
+              if(places[i].types.includes(excludedTypes[l])) {
+                hasExcludedType = true;
               }
             }
           }
-          // Push onto array for secondary results if it has a secondary (without excluded) type
-          if (hasSecondaryType && !hasExcludedType) {
-            secondaryResults.push(places[i]);
-          }
+        }
+        // Push onto array for secondary results if it has a secondary (without excluded) type
+        if (hasSecondaryType && !hasExcludedType) {
+          secondaryResults.push(places[i]);
         }
       }
+    }
 
-      // Re-sort option because Google doesn't always return places by distance accurately
-      if (app.config.settings.search.orderByDistance) {
-        app.controllers.insertionSort(primaryResults);
-        app.controllers.insertionSort(secondaryResults);
-      }
+    // Re-sort option because Google doesn't always return places by distance accurately
+    if (app.config.settings.search.orderByDistance) {
+      app.controllers.insertionSort(primaryResults);
+      app.controllers.insertionSort(secondaryResults);
+    }
 
-      if (primaryResults.length === 0 && secondaryResults.length === 0) {
-        reject({ type: 'info', text: 'Your request returned no results.' });
-        return;
-      }
+    if (primaryResults.length === 0 && secondaryResults.length === 0) {
+      reject({ type: 'info', text: 'Your request returned no results.' });
+      return;
+    }
 
-      sortedResults.primary = primaryResults;
-      sortedResults.secondary = secondaryResults;
+    sortedResults.primary = primaryResults;
+    sortedResults.secondary = secondaryResults;
 
-      return sortedResults;
+    return sortedResults;
   };
 
 })();

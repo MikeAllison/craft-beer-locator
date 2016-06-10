@@ -18,54 +18,76 @@
       };
       var service = new google.maps.DistanceMatrixService();
       var maxDests = 25; // Google's limit of destinations for a single Distance Maxtrix request
-      var allResults = [];
+      var allResults = {
+        originAddresses: null,
+        destinationAddresses: null,
+        rows: null
+      };
 
-      // if (destinations.length < maxDests) {
+      console.log('Total destinations: ' + destinations.length);
+
+      if ((destinations.length > maxDests * 2) && (destinations.length <= maxDests * 3)) {
+        params.destinations = [];
+        var tempDests = [];
+
+        tempDests = destinations.splice(0, maxDests);
+
+        tempDests.forEach(function(destination){
+          params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
+        });
+
+        console.log('50-75');
+        console.dir(tempDests);
+        service.getDistanceMatrix(params, function(results) {
+          if (status != google.maps.DistanceMatrixStatus.OK) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
+            return;
+          }
+
+          console.dir(results);
+        });
+      }
+
+      if ((destinations.length > maxDests) && (destinations.length <= maxDests * 2)) {
+        params.destinations = [];
+        var tempDests = [];
+
+        tempDests = destinations.splice(0, maxDests);
+
+        tempDests.forEach(function(destination){
+          params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
+        });
+
+        console.dir(tempDests);
+        service.getDistanceMatrix(params, function(results) {
+          if (status != google.maps.DistanceMatrixStatus.OK) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
+            return;
+          }
+
+          console.dir(results);
+        });
+      }
+
+      if (destinations.length <= maxDests) {
         params.destinations = [];
 
         destinations.forEach(function(destination){
           params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
         });
 
-        service.getDistanceMatrix(params, callback);
-      // } else {
-        //while (destinations.length > 0) {
-          // (function(destinations) {
-          //   var reqArray = destinations.splice(0, maxDests);
-          //   params.destinations = [];
-          //
-          //   for (var i=0; i < reqArray.length; i++) {
-          //     params.destinations.push(new google.maps.LatLng(reqArray[i].lat, reqArray[i].lng));
-          //   }
-          //
-          //   service.getDistanceMatrix(params, callback);
-          //
-          //   console.dir(results);
-          // })(destinations);
-        //}
-      // }
+        console.log('<25');
+        console.dir(destinations);
+        service.getDistanceMatrix(params, function(results) {
+          if (status != google.maps.DistanceMatrixStatus.OK) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
+            return;
+          }
 
-      // while (destinations.length > 0) {
-      //   params.destinations = [];
-      //
-      //   var reqArray = destinations.splice(0, maxDests);
-      //
-      //   for (var i=0; i < reqArray.length; i++) {
-      //     params.destinations.push(new google.maps.LatLng(reqArray[i].lat, reqArray[i].lng));
-      //     console.dir(params.destinations);
-      //   }
-      //
-      //   service.getDistanceMatrix(params, callback);
-      // }
-
-      function callback(results, status) {
-        if (status != google.maps.DistanceMatrixStatus.OK) {
-          reject({ type: 'error', text: 'An error occurred. Please try again.' });
-          return;
-        }
-
-        resolve(results);
+          console.dir(results);
+        });
       }
+
     });
   };
 
