@@ -107,7 +107,7 @@
       }
 
       app.controllers.reqMultiDistance(lat, lng, placesCoords)
-        .then(function(places) {
+        .then(function(results) {
           var places = app.models.places.get();
 
           for (var i=0; i < results.rows[0].elements.length; i++) {
