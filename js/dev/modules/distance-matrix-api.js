@@ -29,9 +29,9 @@
         places = places.primary.concat(places.secondary);
       }
 
-      for (var k=0; k < places.length; k++) {
-        params.destinations.push(new google.maps.LatLng(places[k].geometry.location.lat, places[k].geometry.location.lng));
-      }
+      places.forEach(function(place) {
+        params.destinations.push(new google.maps.LatLng(place.geometry.location.lat, place.geometry.location.lng));
+      });
 
       service.getDistanceMatrix(params, callback);
 
@@ -41,17 +41,18 @@
           return;
         }
 
-        for (var i=0; i < results.rows[0].elements.length; i++) {
+        results.rows[0].elements.forEach(function(element, i) {
           // Guard against no driving options to destination
-          if (results.rows[0].elements[0].distance) {
+          if (element.distance) {
             // Add distance info to each result (value is distance in meters which is needed for sorting)
             places[i].drivingInfo = {
-              value: results.rows[0].elements[i].distance.value,
-              distance: results.rows[0].elements[i].distance.text,
-              duration: results.rows[0].elements[i].duration.text
+              value: element.distance.value,
+              distance: element.distance.text,
+              duration: element.duration.text
             };
           }
-        }
+        });
+
         // Save distance and duration info
         app.models.places.add(places);
         resolve();

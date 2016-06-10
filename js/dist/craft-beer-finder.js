@@ -506,9 +506,9 @@ $(function() {
         places = places.primary.concat(places.secondary);
       }
 
-      for (var k=0; k < places.length; k++) {
-        params.destinations.push(new google.maps.LatLng(places[k].geometry.location.lat, places[k].geometry.location.lng));
-      }
+      places.forEach(function(place) {
+        params.destinations.push(new google.maps.LatLng(place.geometry.location.lat, place.geometry.location.lng));
+      });
 
       service.getDistanceMatrix(params, callback);
 
@@ -518,17 +518,18 @@ $(function() {
           return;
         }
 
-        for (var i=0; i < results.rows[0].elements.length; i++) {
+        results.rows[0].elements.forEach(function(element, i) {
           // Guard against no driving options to destination
-          if (results.rows[0].elements[0].distance) {
+          if (element.distance) {
             // Add distance info to each result (value is distance in meters which is needed for sorting)
             places[i].drivingInfo = {
-              value: results.rows[0].elements[i].distance.value,
-              distance: results.rows[0].elements[i].distance.text,
-              duration: results.rows[0].elements[i].duration.text
+              value: element.distance.value,
+              distance: element.distance.text,
+              duration: element.duration.text
             };
           }
-        }
+        });
+
         // Save distance and duration info
         app.models.places.add(places);
         resolve();
@@ -842,11 +843,11 @@ $(function() {
         var hasExcludedType = false;
 
         // Check for primary types and push onto array for primary results
-        for (var j=0; j < primaryTypes.length; j++) {
-          if (places[i].types.includes(primaryTypes[j])) {
+        primaryTypes.forEach(function(primaryType) {
+          if (places[i].types.includes(primaryType)) {
             hasPrimaryType = true;
           }
-        }
+        });
         // Push onto the array
         if (hasPrimaryType) {
           primaryResults.push(places[i]);
@@ -855,16 +856,18 @@ $(function() {
         // If the primary array doesn't contain the result, check for secondary types...
         // ...but make sure that it doesn't have a type on the excluded list
         if (!primaryResults.includes(places[i])) {
-          for (var k=0; k < secondaryTypes.length; k++) {
-            if (places[i].types.includes(secondaryTypes[k])) {
+          secondaryTypes.forEach(function(secondaryType) {
+            if (places[i].types.includes(secondaryType)) {
               hasSecondaryType = true;
-              for (var l=0; l < excludedTypes.length; l++) {
-                if(places[i].types.includes(excludedTypes[l])) {
+
+              excludedTypes.forEach(function(excludedType) {
+                if(places[i].types.includes(excludedType)) {
                   hasExcludedType = true;
                 }
-              }
+              });
             }
-          }
+          });
+
           // Push onto array for secondary results if it has a secondary (without excluded) type
           if (hasSecondaryType && !hasExcludedType) {
             secondaryResults.push(places[i]);
@@ -1062,10 +1065,10 @@ $(function() {
     init: function() {
       // Initialize page settings
       var searchItemTypeCaps = '';
-      var searchItemType = app.config.settings.search.itemType.split(/\s+/);
-      for (var i=0; i < searchItemType.length; i++) {
-        searchItemTypeCaps += ' ' + searchItemType[i].charAt(0).toUpperCase() + searchItemType[i].slice(1);
-      }
+      var searchItemTypes = app.config.settings.search.itemType.split(/\s+/);
+      searchItemTypes.forEach(function(searchItemType, i) {
+        searchItemTypeCaps += ' ' + searchItemType.charAt(0).toUpperCase() + searchItemType.slice(1);
+      });
       var pageTitle = searchItemTypeCaps + ' Finder';
       document.title = pageTitle;
       document.getElementById('heading').textContent = pageTitle;
