@@ -730,6 +730,20 @@ $(function() {
       //   });
       // }
 
+      if ((destinations.length > maxDests * 2) && (destinations.length <= maxDests * 3)) {
+        params.destinations = [];
+        var tempDests = [];
+
+        tempDests = destinations.splice(0, maxDests);
+
+        tempDests.forEach(function(destination){
+          params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
+        });
+
+        console.dir(tempDests);
+        service.getDistanceMatrix(params, callback);
+      }
+
       if ((destinations.length > maxDests) && (destinations.length <= maxDests * 2)) {
         params.destinations = [];
         var tempDests = [];
@@ -763,11 +777,9 @@ $(function() {
         }
 
         (function(results) {
-          return function() {
-            return results;
-          };
+          return results;
         })(results);
-        
+
         console.log(status);
         console.dir(results);
       }
