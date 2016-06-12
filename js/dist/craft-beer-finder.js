@@ -86,31 +86,30 @@ var app = app || {};
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
         var placesCoords = [];
-        for (var i=0; i < places.length; i++) {
+        places.forEach(function(place) {
           var latLng = { lat: null, lng: null };
-          latLng.lat = places[i].geometry.location.lat;
-          latLng.lng = places[i].geometry.location.lng;
+          latLng.lat = place.geometry.location.lat;
+          latLng.lng = place.geometry.location.lng;
           placesCoords.push(latLng);
-        }
+        });
 
         return app.controllers.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        //console.dir(results);
         var places = app.models.places.get();
 
-        for (var i=0; i < results.rows[0].elements.length; i++) {
-          if (results.rows[0].elements[i].distance) {
-          // Add distance info to each result (value is distance in meters which is needed for sorting)
+        results.rows[0].elements.forEach(function(element, i) {
+          if (element.distance) {
             places[i].drivingInfo = {
-              value: results.rows[0].elements[i].distance.value,
-              distance: results.rows[0].elements[i].distance.text,
-              duration: results.rows[0].elements[i].duration.text
+              value: element.distance.value,
+              distance: element.distance.text,
+              duration: element.duration.text
             };
           }
-        }
+        });
 
         var sortedResults = app.controllers.sortPlaces(places);
+        console.dir(sortedResults);
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.controllers.addRecentSearch();
@@ -154,28 +153,27 @@ var app = app || {};
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
         var placesCoords = [];
-        for (var i=0; i < places.length; i++) {
+        places.forEach(function(place) {
           var latLng = { lat: null, lng: null };
-          latLng.lat = places[i].geometry.location.lat;
-          latLng.lng = places[i].geometry.location.lng;
+          latLng.lat = place.geometry.location.lat;
+          latLng.lng = place.geometry.location.lng;
           placesCoords.push(latLng);
-        }
+        });
 
         return app.controllers.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();
 
-        for (var i=0; i < results.rows[0].elements.length; i++) {
-          if (results.rows[0].elements[i].distance) {
-          // Add distance info to each result (value is distance in meters which is needed for sorting)
+        results.rows[0].elements.forEach(function(element, i) {
+          if (element.distance) {
             places[i].drivingInfo = {
-              value: results.rows[0].elements[i].distance.value,
-              distance: results.rows[0].elements[i].distance.text,
-              duration: results.rows[0].elements[i].duration.text
+              value: element.distance.value,
+              distance: element.distance.text,
+              duration: element.duration.text
             };
           }
-        }
+        });
 
         var sortedResults = app.controllers.sortPlaces(places);
         var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
@@ -245,28 +243,27 @@ var app = app || {};
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
         var placesCoords = [];
-        for (var i=0; i < places.length; i++) {
+        places.forEach(function(place){
           var latLng = { lat: null, lng: null };
-          latLng.lat = places[i].geometry.location.lat;
-          latLng.lng = places[i].geometry.location.lng;
+          latLng.lat = place.geometry.location.lat;
+          latLng.lng = place.geometry.location.lng;
           placesCoords.push(latLng);
-        }
+        });
 
         return app.controllers.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();
 
-        for (var i=0; i < results.rows[0].elements.length; i++) {
-          if (results.rows[0].elements[i].distance) {
-          // Add distance info to each result (value is distance in meters which is needed for sorting)
+        results.rows[0].elements.forEach(function(element, i) {
+          if (element.distance) {
             places[i].drivingInfo = {
-              value: results.rows[0].elements[i].distance.value,
-              distance: results.rows[0].elements[i].distance.text,
-              duration: results.rows[0].elements[i].duration.text
+              value: element.distance.value,
+              distance: element.distance.text,
+              duration: element.duration.text
             };
           }
-        }
+        });
 
         var sortedResults = app.controllers.sortPlaces(places);
         var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
@@ -325,12 +322,12 @@ var app = app || {};
         }
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
         var placesCoords = [];
-        for (var i=0; i < places.length; i++) {
+        places.forEach(function(place) {
           var latLng = { lat: null, lng: null };
-          latLng.lat = places[i].geometry.location.lat;
-          latLng.lng = places[i].geometry.location.lng;
+          latLng.lat = place.geometry.location.lat;
+          latLng.lng = place.geometry.location.lng;
           placesCoords.push(latLng);
-        }
+        });
 
         return app.controllers.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
       })
@@ -342,16 +339,15 @@ var app = app || {};
           places = places.primary.concat(places.secondary);
         }
 
-        for (var i=0; i < results.rows[0].elements.length; i++) {
-          if (results.rows[0].elements[i].distance) {
-            // Add distance info to each result (value is distance in meters which is needed for sorting)
+        results.rows[0].elements.forEach(function(element, i) {
+          if (element.distance) {
             places[i].drivingInfo = {
-              value: results.rows[0].elements[i].distance.value,
-              distance: results.rows[0].elements[i].distance.text,
-              duration: results.rows[0].elements[i].duration.text
+              value: element.distance.value,
+              distance: element.distance.text,
+              duration: element.duration.text
             };
           }
-        }
+        });
 
         var sortedResults = app.controllers.sortPlaces(places);
         var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
@@ -661,129 +657,84 @@ $(function() {
       var service = new google.maps.DistanceMatrixService();
       var maxDests = 25; // Google's limit of destinations for a single Distance Maxtrix request
       var allResults = {
-        originAddresses: null,
-        destinationAddresses: null,
-        rows: null
+        originAddresses: [],
+        destinationAddresses: [],
+        rows: [{ elements: [] }]
       };
 
       console.log('Total destinations: ' + destinations.length);
 
-      // if ((destinations.length > maxDests * 2) && (destinations.length <= maxDests * 3)) {
-      //   params.destinations = [];
-      //   var tempDests = [];
-      //
-      //   tempDests = destinations.splice(0, maxDests);
-      //
-      //   tempDests.forEach(function(destination){
-      //     params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
-      //   });
-      //
-      //   console.log('50-75');
-      //   console.dir(tempDests);
-      //   service.getDistanceMatrix(params, function(results) {
-      //     if (status != google.maps.DistanceMatrixStatus.OK) {
-      //       reject({ type: 'error', text: 'An error occurred. Please try again.' });
-      //       return;
-      //     }
-      //
-      //     console.dir(results);
-      //   });
-      // }
-      //
-      // if ((destinations.length > maxDests) && (destinations.length <= maxDests * 2)) {
-      //   params.destinations = [];
-      //   var tempDests = [];
-      //
-      //   tempDests = destinations.splice(0, maxDests);
-      //
-      //   tempDests.forEach(function(destination){
-      //     params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
-      //   });
-      //
-      //   console.dir(tempDests);
-      //   service.getDistanceMatrix(params, function(results) {
-      //     if (status != google.maps.DistanceMatrixStatus.OK) {
-      //       reject({ type: 'error', text: 'An error occurred. Please try again.' });
-      //       return;
-      //     }
-      //
-      //     console.dir(results);
-      //   });
-      // }
-      //
-      // if (destinations.length <= maxDests) {
-      //   params.destinations = [];
-      //
-      //   destinations.forEach(function(destination){
-      //     params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
-      //   });
-      //
-      //   console.log('<25');
-      //   console.dir(destinations);
-      //   service.getDistanceMatrix(params, function(results) {
-      //     if (status != google.maps.DistanceMatrixStatus.OK) {
-      //       reject({ type: 'error', text: 'An error occurred. Please try again.' });
-      //       return;
-      //     }
-      //
-      //     console.dir(results);
-      //   });
-      // }
-
       if ((destinations.length > maxDests * 2) && (destinations.length <= maxDests * 3)) {
+        console.log('50-75 called');
         params.destinations = [];
         var tempDests = [];
 
         tempDests = destinations.splice(0, maxDests);
 
-        tempDests.forEach(function(destination){
+        tempDests.forEach(function(destination) {
           params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
         });
 
-        console.dir(tempDests);
-        service.getDistanceMatrix(params, callback);
+        service.getDistanceMatrix(params, function(results) {
+          if (status != google.maps.DistanceMatrixStatus.OK) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
+            return;
+          }
+
+          console.dir(results);
+          allResults.push(results);
+        });
       }
 
       if ((destinations.length > maxDests) && (destinations.length <= maxDests * 2)) {
+        console.log('25-50 called');
         params.destinations = [];
         var tempDests = [];
 
         tempDests = destinations.splice(0, maxDests);
 
-        tempDests.forEach(function(destination){
+        tempDests.forEach(function(destination) {
           params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
         });
 
-        console.dir(tempDests);
-        service.getDistanceMatrix(params, callback);
+        service.getDistanceMatrix(params, function(results, status) {
+          if (status != google.maps.DistanceMatrixStatus.OK) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
+            return;
+          }
+
+          console.dir(results);
+          allResults.push(results);
+        });
       }
 
       if (destinations.length <= maxDests) {
+        console.log('<25 called');
         params.destinations = [];
 
-        destinations.forEach(function(destination){
+        destinations.forEach(function(destination) {
           params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
         });
 
-        console.log('<25');
-        console.dir(destinations);
-        service.getDistanceMatrix(params, callback);
+        service.getDistanceMatrix(params, function(results, status) {
+          if (status != google.maps.DistanceMatrixStatus.OK) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
+            return;
+          }
+
+          allResults.originAddresses = results.originAddresses;
+
+          results.destinationAddresses.forEach(function(address) {
+            allResults.destinationAddresses.push(address);
+          });
+
+          results.rows[0].elements.forEach(function(element) {
+            allResults.rows[0].elements.push(element);
+          });
+        });
       }
-
-      function callback(results, status) {
-        if (status != google.maps.DistanceMatrixStatus.OK) {
-          reject({ type: 'error', text: 'An error occurred. Please try again.' });
-          return;
-        }
-
-        (function(results) {
-          return results;
-        })(results);
-
-        console.log(status);
-        console.dir(results);
-      }
-
+      
+      resolve(allResults);
     });
   };
 
@@ -1096,11 +1047,11 @@ $(function() {
       var hasExcludedType = false;
 
       // Check for primary types and push onto array for primary results
-      for (var j=0; j < primaryTypes.length; j++) {
-        if (places[i].types.includes(primaryTypes[j])) {
+      primaryTypes.forEach(function(primaryType) {
+        if (places[i].types.includes(primaryType)) {
           hasPrimaryType = true;
         }
-      }
+      });
       // Push onto the array
       if (hasPrimaryType) {
         primaryResults.push(places[i]);
@@ -1109,16 +1060,18 @@ $(function() {
       // If the primary array doesn't contain the result, check for secondary types...
       // ...but make sure that it doesn't have a type on the excluded list
       if (!primaryResults.includes(places[i])) {
-        for (var k=0; k < secondaryTypes.length; k++) {
-          if (places[i].types.includes(secondaryTypes[k])) {
+        secondaryTypes.forEach(function(secondaryType) {
+          if (places[i].types.includes(secondaryType)) {
             hasSecondaryType = true;
-            for (var l=0; l < excludedTypes.length; l++) {
-              if(places[i].types.includes(excludedTypes[l])) {
+
+            excludedTypes.forEach(function(excludedType) {
+              if(places[i].types.includes(excludedType)) {
                 hasExcludedType = true;
               }
-            }
+            });
           }
-        }
+        });
+
         // Push onto array for secondary results if it has a secondary (without excluded) type
         if (hasSecondaryType && !hasExcludedType) {
           secondaryResults.push(places[i]);
@@ -1277,10 +1230,10 @@ $(function() {
     init: function() {
       // Initialize page settings
       var searchItemTypeCaps = '';
-      var searchItemType = app.config.settings.search.itemType.split(/\s+/);
-      for (var i=0; i < searchItemType.length; i++) {
-        searchItemTypeCaps += ' ' + searchItemType[i].charAt(0).toUpperCase() + searchItemType[i].slice(1);
-      }
+      var searchItemTypes = app.config.settings.search.itemType.split(/\s+/);
+      searchItemTypes.forEach(function(searchItemType, i) {
+        searchItemTypeCaps += ' ' + searchItemType.charAt(0).toUpperCase() + searchItemType.slice(1);
+      });
       var pageTitle = searchItemTypeCaps + ' Finder';
       document.title = pageTitle;
       document.getElementById('heading').textContent = pageTitle;

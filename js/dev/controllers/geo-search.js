@@ -30,28 +30,27 @@
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
         var placesCoords = [];
-        for (var i=0; i < places.length; i++) {
+        places.forEach(function(place) {
           var latLng = { lat: null, lng: null };
-          latLng.lat = places[i].geometry.location.lat;
-          latLng.lng = places[i].geometry.location.lng;
+          latLng.lat = place.geometry.location.lat;
+          latLng.lng = place.geometry.location.lng;
           placesCoords.push(latLng);
-        }
+        });
 
         return app.controllers.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();
 
-        for (var i=0; i < results.rows[0].elements.length; i++) {
-          if (results.rows[0].elements[i].distance) {
-          // Add distance info to each result (value is distance in meters which is needed for sorting)
+        results.rows[0].elements.forEach(function(element, i) {
+          if (element.distance) {
             places[i].drivingInfo = {
-              value: results.rows[0].elements[i].distance.value,
-              distance: results.rows[0].elements[i].distance.text,
-              duration: results.rows[0].elements[i].duration.text
+              value: element.distance.value,
+              distance: element.distance.text,
+              duration: element.duration.text
             };
           }
-        }
+        });
 
         var sortedResults = app.controllers.sortPlaces(places);
         var totalResults = sortedResults.primary.length + sortedResults.secondary.length;

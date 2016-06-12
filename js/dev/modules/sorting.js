@@ -41,11 +41,11 @@
       var hasExcludedType = false;
 
       // Check for primary types and push onto array for primary results
-      for (var j=0; j < primaryTypes.length; j++) {
-        if (places[i].types.includes(primaryTypes[j])) {
+      primaryTypes.forEach(function(primaryType) {
+        if (places[i].types.includes(primaryType)) {
           hasPrimaryType = true;
         }
-      }
+      });
       // Push onto the array
       if (hasPrimaryType) {
         primaryResults.push(places[i]);
@@ -54,16 +54,18 @@
       // If the primary array doesn't contain the result, check for secondary types...
       // ...but make sure that it doesn't have a type on the excluded list
       if (!primaryResults.includes(places[i])) {
-        for (var k=0; k < secondaryTypes.length; k++) {
-          if (places[i].types.includes(secondaryTypes[k])) {
+        secondaryTypes.forEach(function(secondaryType) {
+          if (places[i].types.includes(secondaryType)) {
             hasSecondaryType = true;
-            for (var l=0; l < excludedTypes.length; l++) {
-              if(places[i].types.includes(excludedTypes[l])) {
+
+            excludedTypes.forEach(function(excludedType) {
+              if(places[i].types.includes(excludedType)) {
                 hasExcludedType = true;
               }
-            }
+            });
           }
-        }
+        });
+
         // Push onto array for secondary results if it has a secondary (without excluded) type
         if (hasSecondaryType && !hasExcludedType) {
           secondaryResults.push(places[i]);

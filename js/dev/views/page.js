@@ -19,10 +19,10 @@
     init: function() {
       // Initialize page settings
       var searchItemTypeCaps = '';
-      var searchItemType = app.config.settings.search.itemType.split(/\s+/);
-      for (var i=0; i < searchItemType.length; i++) {
-        searchItemTypeCaps += ' ' + searchItemType[i].charAt(0).toUpperCase() + searchItemType[i].slice(1);
-      }
+      var searchItemTypes = app.config.settings.search.itemType.split(/\s+/);
+      searchItemTypes.forEach(function(searchItemType, i) {
+        searchItemTypeCaps += ' ' + searchItemType.charAt(0).toUpperCase() + searchItemType.slice(1);
+      });
       var pageTitle = searchItemTypeCaps + ' Finder';
       document.title = pageTitle;
       document.getElementById('heading').textContent = pageTitle;
