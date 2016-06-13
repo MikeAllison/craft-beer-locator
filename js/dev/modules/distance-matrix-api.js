@@ -18,86 +18,118 @@
       };
       var service = new google.maps.DistanceMatrixService();
       var maxDests = 25; // Google's limit of destinations for a single Distance Maxtrix request
-      var allResults = {
-        originAddresses: [],
-        destinationAddresses: [],
-        rows: [{ elements: [] }]
-      };
+      var tempDests = null;
 
       console.log('Total destinations: ' + destinations.length);
 
-      if ((destinations.length > maxDests * 2) && (destinations.length <= maxDests * 3)) {
-        console.log('50-75 called');
-        params.destinations = [];
-        var tempDests = [];
+      // if (destinations.length > 50) {
+      //   tempDests = destinations.splice(0, 25);
+      //   params.destinations = [];
+      //
+      //   var first25 = {
+      //     originAddresses: [],
+      //     destinationAddresses: [],
+      //     rows: [{ elements: [] }]
+      //   };
+      //
+      //   (function(tempDests, first25) {
+      //
+      //     tempDests.forEach(function(destination) {
+      //       params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
+      //     });
+      //
+      //     return service.getDistanceMatrix(params, function(results, status) {
+      //       if (status != google.maps.DistanceMatrixStatus.OK) {
+      //         reject({ type: 'error', text: 'An error occurred. Please try again.' });
+      //         return;
+      //       }
+      //
+      //       first25.originAddresses = results.originAddresses;
+      //
+      //       results.destinationAddresses.forEach(function(address) {
+      //         first25.destinationAddresses.push(address);
+      //       });
+      //
+      //       results.rows[0].elements.forEach(function(element) {
+      //         first25.rows[0].elements.push(element);
+      //       });
+      //
+      //       console.dir(first25);
+      //     });
+      //
+      //   })(tempDests, first25);
+      // }
 
-        tempDests = destinations.splice(0, maxDests);
+      // if (destinations.length > 25) {
+      //   tempDests = destinations.splice(0, 25);
+      //   params.destinations = [];
+      //
+      //   var middle25 = {
+      //     originAddresses: [],
+      //     destinationAddresses: [],
+      //     rows: [{ elements: [] }]
+      //   };
+      //
+      //   (function(tempDests, middle25) {
+      //
+      //     tempDests.forEach(function(destination) {
+      //       params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
+      //     });
+      //
+      //     return service.getDistanceMatrix(params, function(results, status) {
+      //       if (status != google.maps.DistanceMatrixStatus.OK) {
+      //         reject({ type: 'error', text: 'An error occurred. Please try again.' });
+      //         return;
+      //       }
+      //
+      //       middle25.originAddresses = results.originAddresses;
+      //
+      //       results.destinationAddresses.forEach(function(address) {
+      //         middle25.destinationAddresses.push(address);
+      //       });
+      //
+      //       results.rows[0].elements.forEach(function(element) {
+      //         middle25.rows[0].elements.push(element);
+      //       });
+      //
+      //       console.dir(middle25);
+      //     });
+      //
+      //   })(tempDests, middle25);
+      // }
+
+      if (destinations.length <= 25) {
+        tempDests = destinations.splice(0, 25);
+        params.destinations = [];
+
+        var last25 = {
+          originAddresses: [],
+          destinationAddresses: [],
+          rows: [{ elements: [] }]
+        };
 
         tempDests.forEach(function(destination) {
           params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
         });
 
-        service.getDistanceMatrix(params, function(results, status) {
-          if (status != google.maps.DistanceMatrixStatus.OK) {
-            reject({ type: 'error', text: 'An error occurred. Please try again.' });
-            return;
-          }
-
-          addResults(results);
-          resolveResults();
-        });
-      }
-
-      if ((destinations.length > maxDests) && (destinations.length <= maxDests * 2)) {
-        console.log('25-50 called');
-        params.destinations = [];
-        var tempDests = [];
-
-        tempDests = destinations.splice(0, maxDests);
-
-        tempDests.forEach(function(destination) {
-          params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
-        });
-
-        service.getDistanceMatrix(params, function(results, status) {
-          if (status != google.maps.DistanceMatrixStatus.OK) {
-            reject({ type: 'error', text: 'An error occurred. Please try again.' });
-            return;
-          }
-
-          addResults(results);
-          resolveResults();
-        });
-      }
-
-      if (destinations.length <= maxDests) {
-        console.log('<25 called');
-        params.destinations = [];
-
-        destinations.forEach(function(destination) {
-          params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
-        });
-
-        service.getDistanceMatrix(params, function(results, status) {
-          if (status != google.maps.DistanceMatrixStatus.OK) {
-            reject({ type: 'error', text: 'An error occurred. Please try again.' });
-            return;
-          }
-
-          addResults(results);
-          resolveResults();
-        });
-      }
-
-      function addResults(results) {
-        allResults.originAddresses = results.originAddresses;
+        last25.originAddresses = results.originAddresses;
 
         results.destinationAddresses.forEach(function(address) {
-          allResults.destinationAddresses.push(address);
+          last25.destinationAddresses.push(address);
         });
 
         results.rows[0].elements.forEach(function(element) {
-          allResults.rows[0].elements.push(element);
+          last25.rows[0].elements.push(element);
+        });
+
+      }
+
+      function executeDistanceReq() {
+        return service.getDistanceMatrix(params, function(results, status) {
+          if (status != google.maps.DistanceMatrixStatus.OK) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
+            return;
+          }
         });
       }
 
