@@ -682,6 +682,7 @@ $(function() {
           }
 
           groupedResults[reqNum] = results;
+          
           resolveResults(groupedResults);
         });
       }
