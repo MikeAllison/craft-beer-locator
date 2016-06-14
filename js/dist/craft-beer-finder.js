@@ -678,11 +678,11 @@ $(function() {
         reqCount--;
       }
 
-      function sendRequest(destinations) {
+      function sendRequest(latLngObjs) {
         var service = new google.maps.DistanceMatrixService();
         var params = {
-          origins: [new google.maps.LatLng(lat, lng)],
-          destinations: destinations,
+          origins: [new google.maps.LatLng(lat, lng)], // lat, lng from getDistanceMatrix args
+          destinations: latLngObjs,
           travelMode: google.maps.TravelMode.DRIVING,
           unitSystem: google.maps.UnitSystem.IMPERIAL
         };
