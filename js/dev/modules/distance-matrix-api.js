@@ -11,14 +11,6 @@
   ***************************************************************************************************************/
   app.controllers.reqMultiDistance = function(lat, lng, destinations) {
     return new Promise(function(resolve, reject) {
-      var params = {
-        origins: [new google.maps.LatLng(lat, lng)],
-        travelMode: google.maps.TravelMode.DRIVING,
-        unitSystem: google.maps.UnitSystem.IMPERIAL
-      };
-
-      var service = null;
-      var reqDests = null;
       var maxDests = 25; // Google's limit of destinations for a single Distance Maxtrix request
       var reqCount = Math.ceil(destinations.length / maxDests);
 
@@ -30,19 +22,33 @@
 
       console.log('Total destinations: ' + destinations.length);
       console.log('Total requests: ' + reqCount);
-      console.log('initial allResults');
-      console.dir(allResults);
 
       while (reqCount > 0) {
-        service = new google.maps.DistanceMatrixService();
-        reqDests = destinations.splice(0, maxDests);
-        params.destinations = [];
-        console.log('Request #: ' + reqCount);
-        console.dir(reqDests);
+        var reqGroup = [];
+        var latLngObjs = [];
 
-        reqDests.forEach(function(destination) {
-          params.destinations.push(new google.maps.LatLng(destination.lat, destination.lng));
+        reqGroup = destinations.splice(0, maxDests);
+
+        console.log('Request #: ' + reqCount);
+        console.dir(reqGroup);
+
+        reqGroup.forEach(function(destination) {
+          latLngObjs.push(new google.maps.LatLng(destination.lat, destination.lng));
         });
+
+        sendRequest(latLngObjs);
+
+        reqCount--;
+      }
+
+      function sendRequest(destinations) {
+        var service = new google.maps.DistanceMatrixService();
+        var params = {
+          origins: [new google.maps.LatLng(lat, lng)],
+          destinations: destinations,
+          travelMode: google.maps.TravelMode.DRIVING,
+          unitSystem: google.maps.UnitSystem.IMPERIAL
+        };
 
         service.getDistanceMatrix(params, function(results, status) {
           if (status != google.maps.DistanceMatrixStatus.OK) {
@@ -50,23 +56,8 @@
             return;
           }
 
-          (function(r) {
-            allResults.originAddresses = r.originAddresses;
-
-            r.destinationAddresses.forEach(function(address) {
-              allResults.destinationAddresses.push(address);
-            });
-
-            r.rows[0].elements.forEach(function(element) {
-              allResults.rows[0].elements.push(element);
-            });
-
-            console.log('ending allResults');
-            console.dir(allResults);
-          })(results);
+          console.dir(results);
         });
-
-        reqCount--;
       }
 
     });
