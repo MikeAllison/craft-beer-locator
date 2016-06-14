@@ -28,6 +28,7 @@
       service.nearbySearch(params, callback);
 
       function callback(results, status, pagination) {
+        console.log('reqPlaces status: ' + status);
         if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           reject({ type: 'info', text: 'Your request returned no results.' });
           return;

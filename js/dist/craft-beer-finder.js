@@ -649,36 +649,23 @@ $(function() {
   app.controllers.reqMultiDistance = function(lat, lng, destinations) {
     return new Promise(function(resolve, reject) {
       var maxDests = 25; // Google's limit of destinations for a single Distance Maxtrix request
-      var reqCount = Math.ceil(destinations.length / maxDests);
+      var totalReqs = Math.ceil(destinations.length / maxDests);
+      var groupedResults = {};
 
-      var allResults = {
-        originAddresses: [],
-        destinationAddresses: [],
-        rows: [{ elements: [] }]
-      };
-
-      console.log('Total destinations: ' + destinations.length);
-      console.log('Total requests: ' + reqCount);
-
-      while (reqCount > 0) {
+      for (i=1; i <= totalReqs; i++) {
         var reqGroup = [];
         var latLngObjs = [];
 
         reqGroup = destinations.splice(0, maxDests);
 
-        console.log('Request #: ' + reqCount);
-        console.dir(reqGroup);
-
         reqGroup.forEach(function(destination) {
           latLngObjs.push(new google.maps.LatLng(destination.lat, destination.lng));
         });
 
-        sendRequest(latLngObjs);
-
-        reqCount--;
+        sendRequest(latLngObjs, i);
       }
 
-      function sendRequest(latLngObjs) {
+      function sendRequest(latLngObjs, reqNum) {
         var service = new google.maps.DistanceMatrixService();
         var params = {
           origins: [new google.maps.LatLng(lat, lng)], // lat, lng from getDistanceMatrix args
@@ -688,13 +675,34 @@ $(function() {
         };
 
         service.getDistanceMatrix(params, function(results, status) {
+          console.log('reqMultiDistance status: ' + status);
           if (status != google.maps.DistanceMatrixStatus.OK) {
             reject({ type: 'error', text: 'An error occurred. Please try again.' });
             return;
           }
 
-          console.dir(results);
+          groupedResults[reqNum] = results;
+          resolveResults(groupedResults);
         });
+      }
+
+      function resolveResults(groupedResults) {
+        var flattenedResults = {
+          originAddresses: [],
+          destinationAddresses: [],
+          rows: [{ elements: [] }]
+        };
+
+        if (groupedResults[totalReqs]) {
+          flattenedResults.originAddresses = groupedResults[1].originAddresses;
+
+          for (i=1; i <= totalReqs; i++) {
+            flattenedResults.destinationAddresses = flattenedResults.destinationAddresses.concat(groupedResults[i].destinationAddresses);
+            flattenedResults.rows[0].elements = flattenedResults.rows[0].elements.concat(groupedResults[i].rows[0].elements);
+          }
+
+          resolve(flattenedResults);
+        }
       }
 
     });
@@ -912,6 +920,7 @@ $(function() {
       service.nearbySearch(params, callback);
 
       function callback(results, status, pagination) {
+        console.log('reqPlaces status: ' + status);
         if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           reject({ type: 'info', text: 'Your request returned no results.' });
           return;
