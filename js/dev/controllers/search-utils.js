@@ -71,8 +71,7 @@
         });
 
         var sortedResults = app.controllers.sortPlaces(places);
-        var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
-        app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
+        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.controllers.updatePage();
       })

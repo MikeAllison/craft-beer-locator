@@ -175,8 +175,7 @@ var app = app || {};
         });
 
         var sortedResults = app.controllers.sortPlaces(places);
-        var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
-        app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
+        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.controllers.addRecentSearch();
         app.controllers.updatePage();
@@ -216,7 +215,7 @@ var app = app || {};
     app.models.searchLoc.lat = location.lat;
     app.models.searchLoc.lng = location.lng;
     app.models.searchLoc.setFormattedAddress(location.formattedAddress);
-    app.models.searchLoc.setTotalItems(location.totalItems);
+    app.models.searchLoc.totalItems = location.totalItems;
   };
 
 })();
@@ -265,8 +264,7 @@ var app = app || {};
         });
 
         var sortedResults = app.controllers.sortPlaces(places);
-        var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
-        app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
+        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.controllers.updatePage();
         app.views.page.enableButtons();
@@ -349,8 +347,7 @@ var app = app || {};
         });
 
         var sortedResults = app.controllers.sortPlaces(places);
-        var totalResults = sortedResults.primary.length + sortedResults.secondary.length;
-        app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
+        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.controllers.updatePage();
       })
