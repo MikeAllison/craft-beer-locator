@@ -55,7 +55,7 @@
         var sortedResults = app.modules.sortPlaces(places);
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
-        app.controllers.addRecentSearch();
+        app.models.recentSearches.add();
         app.controllers.updatePage();
         app.views.page.enableButtons();
       })

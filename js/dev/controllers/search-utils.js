@@ -17,10 +17,16 @@
     // Set params for search (use userLoc if available)
     var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
     var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-    var requestedPlace = app.models.places.find(place);
+    var selectedPlace = app.models.places.find(place);
 
-    app.controllers.setSelectedPlaceDetails(requestedPlace)
-      .then(app.modules.reqPlaceDetails)
+    app.models.selectedPlace.init();
+    app.models.selectedPlace.placeId = selectedPlace.place_id;
+    app.models.selectedPlace.lat = selectedPlace.geometry.location.lat;
+    app.models.selectedPlace.lng = selectedPlace.geometry.location.lng;
+    app.models.selectedPlace.name = selectedPlace.name;
+    app.models.selectedPlace.setDrivingInfo(selectedPlace.drivingInfo.distance, selectedPlace.drivingInfo.duration);
+
+    app.modules.reqPlaceDetails()
       .then(app.modules.reqTransitDistance)
       .then(function() {
         app.views.placeModal.populate();

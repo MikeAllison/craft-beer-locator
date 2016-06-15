@@ -111,7 +111,7 @@ var app = app || {};
         var sortedResults = app.modules.sortPlaces(places);
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
-        app.controllers.addRecentSearch();
+        app.models.recentSearches.add();
         app.controllers.updatePage();
         app.views.page.enableButtons();
       })
@@ -177,7 +177,7 @@ var app = app || {};
         var sortedResults = app.modules.sortPlaces(places);
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
-        app.controllers.addRecentSearch();
+        app.models.recentSearches.add();
         app.controllers.updatePage();
         app.views.page.enableButtons();
       })
@@ -191,24 +191,6 @@ var app = app || {};
 (function() {
 
   app.controllers = app.controllers || {};
-
-  // addRecentSearch() - Adds a location to Recent Searches after a search
-  app.controllers.addRecentSearch = function() {
-    app.models.recentSearches.add();
-  };
-
-  // setSelectedPlaceDetails - Sets the initial deails of the requested place for viewing details about it
-  app.controllers.setSelectedPlaceDetails = function(place) {
-    return new Promise(function(resolve) {
-      app.models.selectedPlace.init();
-      app.models.selectedPlace.placeId = place.place_id;
-      app.models.selectedPlace.lat = place.geometry.location.lat;
-      app.models.selectedPlace.lng = place.geometry.location.lng;
-      app.models.selectedPlace.name = place.name;
-      app.models.selectedPlace.setDrivingInfo(place.drivingInfo.distance, place.drivingInfo.duration);
-      resolve();
-    });
-  };
 
   // setSearchLocation - Sets the location to be used by Google Places Search when a location is selected from Recent Places
   app.controllers.setSearchLocation = function(location) {
@@ -293,10 +275,16 @@ var app = app || {};
     // Set params for search (use userLoc if available)
     var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
     var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-    var requestedPlace = app.models.places.find(place);
+    var selectedPlace = app.models.places.find(place);
 
-    app.controllers.setSelectedPlaceDetails(requestedPlace)
-      .then(app.modules.reqPlaceDetails)
+    app.models.selectedPlace.init();
+    app.models.selectedPlace.placeId = selectedPlace.place_id;
+    app.models.selectedPlace.lat = selectedPlace.geometry.location.lat;
+    app.models.selectedPlace.lng = selectedPlace.geometry.location.lng;
+    app.models.selectedPlace.name = selectedPlace.name;
+    app.models.selectedPlace.setDrivingInfo(selectedPlace.drivingInfo.distance, selectedPlace.drivingInfo.duration);
+
+    app.modules.reqPlaceDetails()
       .then(app.modules.reqTransitDistance)
       .then(function() {
         app.views.placeModal.populate();
