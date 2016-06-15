@@ -4,12 +4,9 @@
 
   app.controllers = app.controllers || {};
 
-  // setSelectedPlaceDetails - Adds a location to Recent Searches after a search
+  // addRecentSearch() - Adds a location to Recent Searches after a search
   app.controllers.addRecentSearch = function() {
-    return new Promise(function(resolve) {
-      app.models.recentSearches.add();
-      resolve();
-    });
+    app.models.recentSearches.add();
   };
 
   // setSelectedPlaceDetails - Sets the initial deails of the requested place for viewing details about it
@@ -30,7 +27,7 @@
     app.models.searchLoc.lat = location.lat;
     app.models.searchLoc.lng = location.lng;
     app.models.searchLoc.setFormattedAddress(location.formattedAddress);
-    app.models.searchLoc.setTotalItems(location.totalItems);
+    app.models.searchLoc.totalItems = location.totalItems;
   };
 
 })();

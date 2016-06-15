@@ -7,18 +7,58 @@
   app.controllers = app.controllers || {};
 
   app.controllers.geolocationSearch = function() {
-    this.newSearch = true;
-    
     app.models.searchLoc.init();
 
     app.controllers.getCurrentLocation()
-      .then(app.controllers.reverseGeocode)
-      .then(app.controllers.reqPlaces)
-      .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.addRecentSearch)
-      .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons)
+      .then(function(position) {
+        app.models.userLoc.lat = position.coords.latitude;
+        app.models.userLoc.lng = position.coords.longitude;
+
+        return app.controllers.reverseGeocode(app.models.userLoc.lat, app.models.userLoc.lng);
+      })
+      .then(function(response) {
+        var formattedAddress = response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name;
+        // Sets .formattedAddress as city, state (i.e. New York, NY)
+        app.models.userLoc.setFormattedAddress(formattedAddress);
+
+        return app.controllers.reqPlaces(app.models.userLoc.lat, app.models.userLoc.lng);
+      })
+      .then(function(results) {
+        app.models.places.add(results);
+
+        var places = app.models.places.get();
+
+        // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
+        var placesCoords = [];
+        places.forEach(function(place) {
+          var latLng = { lat: null, lng: null };
+          latLng.lat = place.geometry.location.lat;
+          latLng.lng = place.geometry.location.lng;
+          placesCoords.push(latLng);
+        });
+
+        return app.controllers.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
+      })
+      .then(function(results) {
+        var places = app.models.places.get();
+
+        results.rows[0].elements.forEach(function(element, i) {
+          if (element.distance) {
+            places[i].drivingInfo = {
+              value: element.distance.value,
+              distance: element.distance.text,
+              duration: element.duration.text
+            };
+          }
+        });
+
+        var sortedResults = app.controllers.sortPlaces(places);
+        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
+        app.models.places.add(sortedResults);
+        app.controllers.addRecentSearch();
+        app.controllers.updatePage();
+        app.views.page.enableButtons();
+      })
       .catch(app.controllers.stopExecution);
   };
 

@@ -1,23 +1,22 @@
-// Code related to Google Maps Places Library
+/*********************************************
+  Code related to Google Maps Places Library
+**********************************************/
 
 (function() {
 
   app.controllers = app.controllers || {};
 
-  // reqPlaces - Sends a lat/lng to Google Places Library and stores results
-  app.controllers.reqPlaces = function() {
+  /***************************************************************************
+    reqPlaces() - Sends a lat/lng to Google Places Library and stores results
+  ****************************************************************************/
+  app.controllers.reqPlaces = function(lat, lng) {
     return new Promise(function(resolve, reject) {
-      // Reset so that search location is added to Recent Searches
-      app.controllers.newSearch = true;
-      // Set params for search (use userLoc if available)
-      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-      var location = new google.maps.LatLng(lat, lng);
       var params = {
-        location: location,
+        location: new google.maps.LatLng(lat, lng),
         rankBy: app.config.settings.search.rankBy,
         keyword: app.config.settings.search.itemType
       };
+      var places = [];
 
       // Radius is required on request if ranked by PROMINENCE
       if (params.rankBy === google.maps.places.RankBy.PROMINENCE) {
@@ -29,6 +28,7 @@
       service.nearbySearch(params, callback);
 
       function callback(results, status, pagination) {
+        console.log('reqPlaces status: ' + status);
         if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           reject({ type: 'info', text: 'Your request returned no results.' });
           return;
@@ -39,16 +39,21 @@
           return;
         }
 
-        // Add results to sessionStorage
-        app.models.places.add(results);
-        // Store pagination object for more results
-        app.models.places.paginationObj = pagination;
-        resolve();
+        places = places.concat(results);
+
+        if (pagination.hasNextPage) {
+          pagination.nextPage();
+        } else {
+          resolve(places);
+        }
+
       }
     });
   };
 
-  // reqPlaceDetails - This requests details of the selectedPlace from Google
+  /****************************************************************************
+    reqPlaceDetails() - This requests details of the selectedPlace from Google
+  *****************************************************************************/
   app.controllers.reqPlaceDetails = function() {
     return new Promise(function(resolve, reject) {
       var params = { placeId: app.models.selectedPlace.placeId };

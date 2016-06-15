@@ -1,66 +1,80 @@
-// Code related to Google Maps Distance Matrix API
+/*************************************************
+  Code related to Google Maps Distance Matrix API
+**************************************************/
 
 (function() {
 
   app.controllers = app.controllers || {};
 
-  // reqMultiDistance - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
-  app.controllers.reqMultiDistance = function() {
+  /**************************************************************************************************************
+    reqMultiDistance() - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
+  ***************************************************************************************************************/
+  app.controllers.reqMultiDistance = function(lat, lng, destinations) {
     return new Promise(function(resolve, reject) {
-      // Set params for search (use userLoc if available)
-      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-      var params = {
-        origins: [new google.maps.LatLng(lat, lng)],
-        destinations: [],
-        travelMode: google.maps.TravelMode.DRIVING,
-        unitSystem: google.maps.UnitSystem.IMPERIAL
-      };
-      var service = new google.maps.DistanceMatrixService();
+      var maxDests = 25; // Google's limit of destinations for a single Distance Maxtrix request
+      var totalReqs = Math.ceil(destinations.length / maxDests);
+      var groupedResults = {};
 
-      var places = app.models.places.get();
-      if (!places) {
-        reject({ type: 'info', text: 'Your request returned no results.' });
-        return;
-      }
+      for (i=1; i <= totalReqs; i++) {
+        var reqGroup = [];
+        var latLngObjs = [];
 
-      // Flattens array if primary and secondary results have been determined previously
-      if (places.primary || places.secondary) {
-        places = places.primary.concat(places.secondary);
-      }
+        reqGroup = destinations.splice(0, maxDests);
 
-      places.forEach(function(place) {
-        params.destinations.push(new google.maps.LatLng(place.geometry.location.lat, place.geometry.location.lng));
-      });
-
-      service.getDistanceMatrix(params, callback);
-
-      function callback(results, status) {
-        if (status != google.maps.DistanceMatrixStatus.OK) {
-          reject({ type: 'error', text: 'An error occurred. Please try again.' });
-          return;
-        }
-
-        results.rows[0].elements.forEach(function(element, i) {
-          // Guard against no driving options to destination
-          if (element.distance) {
-            // Add distance info to each result (value is distance in meters which is needed for sorting)
-            places[i].drivingInfo = {
-              value: element.distance.value,
-              distance: element.distance.text,
-              duration: element.duration.text
-            };
-          }
+        reqGroup.forEach(function(destination) {
+          latLngObjs.push(new google.maps.LatLng(destination.lat, destination.lng));
         });
 
-        // Save distance and duration info
-        app.models.places.add(places);
-        resolve();
+        sendRequest(latLngObjs, i);
       }
+
+      function sendRequest(latLngObjs, reqNum) {
+        var service = new google.maps.DistanceMatrixService();
+        var params = {
+          origins: [new google.maps.LatLng(lat, lng)], // lat, lng from getDistanceMatrix args
+          destinations: latLngObjs,
+          travelMode: google.maps.TravelMode.DRIVING,
+          unitSystem: google.maps.UnitSystem.IMPERIAL
+        };
+
+        service.getDistanceMatrix(params, function(results, status) {
+          console.log('reqMultiDistance status: ' + status);
+          if (status != google.maps.DistanceMatrixStatus.OK) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
+            return;
+          }
+
+          groupedResults[reqNum] = results;
+
+          resolveResults(groupedResults);
+        });
+      }
+
+      function resolveResults(groupedResults) {
+        var flattenedResults = {
+          originAddresses: [],
+          destinationAddresses: [],
+          rows: [{ elements: [] }]
+        };
+
+        if (groupedResults[totalReqs]) {
+          flattenedResults.originAddresses = groupedResults[1].originAddresses;
+
+          for (i=1; i <= totalReqs; i++) {
+            flattenedResults.destinationAddresses = flattenedResults.destinationAddresses.concat(groupedResults[i].destinationAddresses);
+            flattenedResults.rows[0].elements = flattenedResults.rows[0].elements.concat(groupedResults[i].rows[0].elements);
+          }
+
+          resolve(flattenedResults);
+        }
+      }
+
     });
   };
 
-  // reqDrivingDistance - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
+  /************************************************************************************************************
+    reqDrivingDistance() - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
+  *************************************************************************************************************/
   app.controllers.reqDrivingDistance = function() {
     return new Promise(function(resolve, reject) {
       // Set params for search (use userLoc if available)
@@ -96,7 +110,9 @@
     });
   };
 
-  // reqTransitDistance - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
+  /***********************************************************************************************************
+    reqTransitDistance() - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
+  ************************************************************************************************************/
   app.controllers.reqTransitDistance = function() {
     return new Promise(function(resolve, reject) {
       // Set params for search (use userLoc if available)

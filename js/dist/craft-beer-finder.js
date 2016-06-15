@@ -62,17 +62,59 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.formSearch = function() {
-    this.newSearch = true;
-    
     app.models.userLoc.init();
 
-    app.controllers.getGeocode()
-      .then(app.controllers.reqPlaces)
-      .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.addRecentSearch)
-      .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons)
+    var tboxVal = app.views.form.cityStateTbox.value;
+    if (!tboxVal) {
+      app.views.alerts.show('error', 'Please enter a location.');
+      app.views.page.enableButtons();
+      return;
+    }
+
+    app.controllers.getGeocode(tboxVal)
+      .then(function(response) {
+        app.models.searchLoc.lat = response.results[0].geometry.location.lat;
+        app.models.searchLoc.lng = response.results[0].geometry.location.lng;
+        app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
+
+        return app.controllers.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
+      })
+      .then(function(results) {
+        app.models.places.add(results);
+
+        var places = app.models.places.get();
+
+        // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
+        var placesCoords = [];
+        places.forEach(function(place) {
+          var latLng = { lat: null, lng: null };
+          latLng.lat = place.geometry.location.lat;
+          latLng.lng = place.geometry.location.lng;
+          placesCoords.push(latLng);
+        });
+
+        return app.controllers.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
+      })
+      .then(function(results) {
+        var places = app.models.places.get();
+
+        results.rows[0].elements.forEach(function(element, i) {
+          if (element.distance) {
+            places[i].drivingInfo = {
+              value: element.distance.value,
+              distance: element.distance.text,
+              duration: element.duration.text
+            };
+          }
+        });
+
+        var sortedResults = app.controllers.sortPlaces(places);
+        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
+        app.models.places.add(sortedResults);
+        app.controllers.addRecentSearch();
+        app.controllers.updatePage();
+        app.views.page.enableButtons();
+      })
       .catch(app.controllers.stopExecution);
   };
 
@@ -87,18 +129,58 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.geolocationSearch = function() {
-    this.newSearch = true;
-    
     app.models.searchLoc.init();
 
     app.controllers.getCurrentLocation()
-      .then(app.controllers.reverseGeocode)
-      .then(app.controllers.reqPlaces)
-      .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.addRecentSearch)
-      .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons)
+      .then(function(position) {
+        app.models.userLoc.lat = position.coords.latitude;
+        app.models.userLoc.lng = position.coords.longitude;
+
+        return app.controllers.reverseGeocode(app.models.userLoc.lat, app.models.userLoc.lng);
+      })
+      .then(function(response) {
+        var formattedAddress = response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name;
+        // Sets .formattedAddress as city, state (i.e. New York, NY)
+        app.models.userLoc.setFormattedAddress(formattedAddress);
+
+        return app.controllers.reqPlaces(app.models.userLoc.lat, app.models.userLoc.lng);
+      })
+      .then(function(results) {
+        app.models.places.add(results);
+
+        var places = app.models.places.get();
+
+        // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
+        var placesCoords = [];
+        places.forEach(function(place) {
+          var latLng = { lat: null, lng: null };
+          latLng.lat = place.geometry.location.lat;
+          latLng.lng = place.geometry.location.lng;
+          placesCoords.push(latLng);
+        });
+
+        return app.controllers.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
+      })
+      .then(function(results) {
+        var places = app.models.places.get();
+
+        results.rows[0].elements.forEach(function(element, i) {
+          if (element.distance) {
+            places[i].drivingInfo = {
+              value: element.distance.value,
+              distance: element.distance.text,
+              duration: element.duration.text
+            };
+          }
+        });
+
+        var sortedResults = app.controllers.sortPlaces(places);
+        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
+        app.models.places.add(sortedResults);
+        app.controllers.addRecentSearch();
+        app.controllers.updatePage();
+        app.views.page.enableButtons();
+      })
       .catch(app.controllers.stopExecution);
   };
 
@@ -110,12 +192,9 @@ var app = app || {};
 
   app.controllers = app.controllers || {};
 
-  // setSelectedPlaceDetails - Adds a location to Recent Searches after a search
+  // addRecentSearch() - Adds a location to Recent Searches after a search
   app.controllers.addRecentSearch = function() {
-    return new Promise(function(resolve) {
-      app.models.recentSearches.add();
-      resolve();
-    });
+    app.models.recentSearches.add();
   };
 
   // setSelectedPlaceDetails - Sets the initial deails of the requested place for viewing details about it
@@ -136,7 +215,7 @@ var app = app || {};
     app.models.searchLoc.lat = location.lat;
     app.models.searchLoc.lng = location.lng;
     app.models.searchLoc.setFormattedAddress(location.formattedAddress);
-    app.models.searchLoc.setTotalItems(location.totalItems);
+    app.models.searchLoc.totalItems = location.totalItems;
   };
 
 })();
@@ -150,16 +229,46 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.recentSearch = function(location) {
-    this.newSearch = true;
-    
     app.models.userLoc.init();
+
     app.controllers.setSearchLocation(location);
 
-    app.controllers.reqPlaces()
-      .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.updatePage)
-      .then(app.views.page.enableButtons)
+    app.controllers.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
+      .then(function(results) {
+        app.models.places.add(results);
+
+        var places = app.models.places.get();
+
+        // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
+        var placesCoords = [];
+        places.forEach(function(place){
+          var latLng = { lat: null, lng: null };
+          latLng.lat = place.geometry.location.lat;
+          latLng.lng = place.geometry.location.lng;
+          placesCoords.push(latLng);
+        });
+
+        return app.controllers.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
+      })
+      .then(function(results) {
+        var places = app.models.places.get();
+
+        results.rows[0].elements.forEach(function(element, i) {
+          if (element.distance) {
+            places[i].drivingInfo = {
+              value: element.distance.value,
+              distance: element.distance.text,
+              duration: element.duration.text
+            };
+          }
+        });
+
+        var sortedResults = app.controllers.sortPlaces(places);
+        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
+        app.models.places.add(sortedResults);
+        app.controllers.updatePage();
+        app.views.page.enableButtons();
+      })
       .catch(app.controllers.stopExecution);
   };
 
@@ -181,12 +290,19 @@ var app = app || {};
     getDetails() - Controls the flow for acquiring details when a specific place is selected
   *******************************************************************************************/
   app.controllers.getDetails = function(place) {
+    // Set params for search (use userLoc if available)
+    var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
+    var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
     var requestedPlace = app.models.places.find(place);
+    console.dir(requestedPlace);
 
     app.controllers.setSelectedPlaceDetails(requestedPlace)
       .then(app.controllers.reqPlaceDetails)
       .then(app.controllers.reqTransitDistance)
-      .then(app.controllers.updateModal)
+      .then(function() {
+        app.views.placeModal.populate();
+        app.views.placeModal.show();
+      })
       .catch(app.controllers.stopExecution);
   };
 
@@ -195,30 +311,56 @@ var app = app || {};
   ******************************************************************************************************/
   app.controllers.switchToGeolocation = function() {
     app.controllers.getCurrentLocation()
+      .then(function(position) {
+        app.models.userLoc.lat = position.coords.latitude;
+        app.models.userLoc.lng = position.coords.longitude;
+      })
       .then(app.controllers.reqDrivingDistance)
       .then(app.controllers.reqTransitDistance)
-      .then(app.controllers.updateModal)
-      .then(app.controllers.reqMultiDistance)
-      .then(app.controllers.sortPlaces)
-      .then(app.controllers.updatePage)
-      .catch(app.controllers.stopExecution);
-  };
+      .then(function() {
+        app.views.placeModal.populate();
+        app.views.placeModal.show();
 
-  /***************************************************************************
-    requestMoreResults() - Requests more results if > 20 results are returned
-  ****************************************************************************/
-  app.controllers.requestMoreResults = function() {
-    var paginationObj = app.models.places.paginationObj;
-    paginationObj.nextPage();
-    // TO-DO: Fix this hack
-    // Need to wait for AJAX request to finish before moving on and can't use JS promise
-    window.setTimeout(function() {
-      app.controllers.reqMultiDistance()
-        .then(app.controllers.sortPlaces)
-        .then(app.controllers.updatePage)
-        .then(app.views.page.enableButtons)
-        .catch(app.controllers.stopExecution);
-    }, 2000);
+        var places = app.models.places.get();
+        // Flatten to a one-dimensional array
+        if (places.primary || places.secondary) {
+          places = places.primary.concat(places.secondary);
+        }
+        // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
+        var placesCoords = [];
+        places.forEach(function(place) {
+          var latLng = { lat: null, lng: null };
+          latLng.lat = place.geometry.location.lat;
+          latLng.lng = place.geometry.location.lng;
+          placesCoords.push(latLng);
+        });
+
+        return app.controllers.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
+      })
+      .then(function(results) {
+        var places = app.models.places.get();
+
+        // Flatten to a one-dimensional array
+        if (places.primary || places.secondary) {
+          places = places.primary.concat(places.secondary);
+        }
+
+        results.rows[0].elements.forEach(function(element, i) {
+          if (element.distance) {
+            places[i].drivingInfo = {
+              value: element.distance.value,
+              distance: element.distance.text,
+              duration: element.duration.text
+            };
+          }
+        });
+
+        var sortedResults = app.controllers.sortPlaces(places);
+        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
+        app.models.places.add(sortedResults);
+        app.controllers.updatePage();
+      })
+      .catch(app.controllers.stopExecution);
   };
 
 })();
@@ -231,48 +373,16 @@ var app = app || {};
 
   // updatePage - Updates list of results and recent searches
   app.controllers.updatePage = function() {
-    return new Promise(function(resolve, reject) {
-      var paginationObj = app.models.places.paginationObj;
+    var places = app.models.places.get();
 
-      var places = app.models.places.get();
-      if (!places) {
-        reject({ type: 'info', text: 'Your request returned no results.' });
-        return;
-      }
+    app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
 
-      // Only set location attributes if it's the first request of the location
-      if (app.controllers.newSearch) {
-        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-      }
+    // Set placeholder attribute on textbox
+    app.views.form.setTboxPlaceholder();
 
-      // Handle > 20 matches (Google returns a max of 20 by default)
-      if (!app.config.settings.search.topResultsOnly && paginationObj.hasNextPage) {
-        // Prevent addition of locations to Recent Searches if more button is pressed
-        app.controllers.newSearch = false;
-        // Attaches click listener to moreResultsBtn for pagination.nextPage()
-        app.views.moreResultsBtn.addNextPageFn(paginationObj);
-        app.views.moreResultsBtn.show();
-      } else {
-        app.views.moreResultsBtn.hide();
-      }
-
-      // Set placeholder attribute on textbox
-      app.views.form.setTboxPlaceholder();
-
-      // Render views with updated results
-      app.views.recentSearches.render();
-      app.views.results.render();
-      resolve();
-    });
-  };
-
-  // updateModal - Updates model when a place is selected
-  app.controllers.updateModal = function() {
-    return new Promise(function(resolve) {
-      app.views.placeModal.populate();
-      app.views.placeModal.show();
-      resolve();
-    });
+    // Render views with updated results
+    app.views.recentSearches.render();
+    app.views.results.render();
   };
 
 })();
@@ -294,7 +404,6 @@ $(function() {
   app.views.results.init();
   app.views.recentSearches.init();
   app.views.placeModal.init();
-  app.views.moreResultsBtn.init();
 
 });
 
@@ -309,7 +418,6 @@ $(function() {
   app.models.places = {
     init: function() {
       sessionStorage.clear();
-      this.paginationObj = null;
     },
     // Adds an array of results of search to sessionStorage
     add: function(places) {
@@ -389,9 +497,6 @@ $(function() {
     },
     setFormattedAddress: function(address) {
       this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
-    },
-    setTotalItems: function(totalItems) {
-      this.totalItems = totalItems;
     }
   };
 
@@ -475,69 +580,83 @@ $(function() {
 
 })();
 
-// Code related to Google Maps Distance Matrix API
+/*************************************************
+  Code related to Google Maps Distance Matrix API
+**************************************************/
 
 (function() {
 
   app.controllers = app.controllers || {};
 
-  // reqMultiDistance - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
-  app.controllers.reqMultiDistance = function() {
+  /**************************************************************************************************************
+    reqMultiDistance() - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
+  ***************************************************************************************************************/
+  app.controllers.reqMultiDistance = function(lat, lng, destinations) {
     return new Promise(function(resolve, reject) {
-      // Set params for search (use userLoc if available)
-      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-      var params = {
-        origins: [new google.maps.LatLng(lat, lng)],
-        destinations: [],
-        travelMode: google.maps.TravelMode.DRIVING,
-        unitSystem: google.maps.UnitSystem.IMPERIAL
-      };
-      var service = new google.maps.DistanceMatrixService();
+      var maxDests = 25; // Google's limit of destinations for a single Distance Maxtrix request
+      var totalReqs = Math.ceil(destinations.length / maxDests);
+      var groupedResults = {};
 
-      var places = app.models.places.get();
-      if (!places) {
-        reject({ type: 'info', text: 'Your request returned no results.' });
-        return;
-      }
+      for (i=1; i <= totalReqs; i++) {
+        var reqGroup = [];
+        var latLngObjs = [];
 
-      // Flattens array if primary and secondary results have been determined previously
-      if (places.primary || places.secondary) {
-        places = places.primary.concat(places.secondary);
-      }
+        reqGroup = destinations.splice(0, maxDests);
 
-      places.forEach(function(place) {
-        params.destinations.push(new google.maps.LatLng(place.geometry.location.lat, place.geometry.location.lng));
-      });
-
-      service.getDistanceMatrix(params, callback);
-
-      function callback(results, status) {
-        if (status != google.maps.DistanceMatrixStatus.OK) {
-          reject({ type: 'error', text: 'An error occurred. Please try again.' });
-          return;
-        }
-
-        results.rows[0].elements.forEach(function(element, i) {
-          // Guard against no driving options to destination
-          if (element.distance) {
-            // Add distance info to each result (value is distance in meters which is needed for sorting)
-            places[i].drivingInfo = {
-              value: element.distance.value,
-              distance: element.distance.text,
-              duration: element.duration.text
-            };
-          }
+        reqGroup.forEach(function(destination) {
+          latLngObjs.push(new google.maps.LatLng(destination.lat, destination.lng));
         });
 
-        // Save distance and duration info
-        app.models.places.add(places);
-        resolve();
+        sendRequest(latLngObjs, i);
       }
+
+      function sendRequest(latLngObjs, reqNum) {
+        var service = new google.maps.DistanceMatrixService();
+        var params = {
+          origins: [new google.maps.LatLng(lat, lng)], // lat, lng from getDistanceMatrix args
+          destinations: latLngObjs,
+          travelMode: google.maps.TravelMode.DRIVING,
+          unitSystem: google.maps.UnitSystem.IMPERIAL
+        };
+
+        service.getDistanceMatrix(params, function(results, status) {
+          console.log('reqMultiDistance status: ' + status);
+          if (status != google.maps.DistanceMatrixStatus.OK) {
+            reject({ type: 'error', text: 'An error occurred. Please try again.' });
+            return;
+          }
+
+          groupedResults[reqNum] = results;
+
+          resolveResults(groupedResults);
+        });
+      }
+
+      function resolveResults(groupedResults) {
+        var flattenedResults = {
+          originAddresses: [],
+          destinationAddresses: [],
+          rows: [{ elements: [] }]
+        };
+
+        if (groupedResults[totalReqs]) {
+          flattenedResults.originAddresses = groupedResults[1].originAddresses;
+
+          for (i=1; i <= totalReqs; i++) {
+            flattenedResults.destinationAddresses = flattenedResults.destinationAddresses.concat(groupedResults[i].destinationAddresses);
+            flattenedResults.rows[0].elements = flattenedResults.rows[0].elements.concat(groupedResults[i].rows[0].elements);
+          }
+
+          resolve(flattenedResults);
+        }
+      }
+
     });
   };
 
-  // reqDrivingDistance - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
+  /************************************************************************************************************
+    reqDrivingDistance() - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
+  *************************************************************************************************************/
   app.controllers.reqDrivingDistance = function() {
     return new Promise(function(resolve, reject) {
       // Set params for search (use userLoc if available)
@@ -573,7 +692,9 @@ $(function() {
     });
   };
 
-  // reqTransitDistance - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
+  /***********************************************************************************************************
+    reqTransitDistance() - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
+  ************************************************************************************************************/
   app.controllers.reqTransitDistance = function() {
     return new Promise(function(resolve, reject) {
       // Set params for search (use userLoc if available)
@@ -612,58 +733,23 @@ $(function() {
 
 })();
 
-// Code related to HTML5 Geolocation
+/*************************************************************************************************
+  Code related to Google Geocoding API
+  This could be performed using a Google Maps object but I wanted to practice using AJAX requests
+**************************************************************************************************/
 
 (function() {
 
   app.controllers = app.controllers || {};
 
-  // getCurrentLocation - HTML5 geocoding request for lat/lng for 'My Location' button
-  app.controllers.getCurrentLocation = function() {
+  /******************************************************************************************
+    getGeocode() - Takes a city, state and converts it to lat/lng using Google Geocoding API
+  *******************************************************************************************/
+  app.controllers.getGeocode = function(location) {
     return new Promise(function(resolve, reject) {
-      if (!navigator.geolocation) {
-        reject({ type: 'error', text: 'Sorry, geolocation is not supported in your browser.' });
-        return;
-      }
-
-      var success = function(position) {
-        app.models.userLoc.lat = position.coords.latitude;
-        app.models.userLoc.lng = position.coords.longitude;
-        resolve();
-      };
-
-      var error = function() {
-        reject({ type: 'error', text: 'An error occurred. Please try again.' });
-        return;
-      };
-      
-      var options = { enableHighAccuracy: true };
-
-      navigator.geolocation.getCurrentPosition(success, error, options);
-    });
-  };
-
-})();
-
-// Code related to Google Geocoding API
-// This could be performed using a Google Maps object but I wanted to practice using AJAX requests
-
-(function() {
-
-  app.controllers = app.controllers || {};
-
-  // getGeocode - Takes a city, state and converts it to lat/lng using Google Geocoding API
-  app.controllers.getGeocode = function() {
-    return new Promise(function(resolve, reject) {
-      var tboxVal = app.views.form.cityStateTbox.value;
-      if (!tboxVal) {
-        reject({ type: 'error', text: 'Please enter a location.' });
-        return;
-      }
-
       // AJAX request for lat/lng for form submission
       var httpRequest = new XMLHttpRequest();
-      var params = 'key=' + app.config.google.apiKey + '&address=' + encodeURIComponent(tboxVal);
+      var params = 'key=' + app.config.google.apiKey + '&address=' + encodeURIComponent(location);
       httpRequest.open('GET', app.config.google.geocodingAPI.reqURL + params, true);
 
       httpRequest.onload = function() {
@@ -679,10 +765,7 @@ $(function() {
             return;
           }
 
-          app.models.searchLoc.lat = response.results[0].geometry.location.lat;
-          app.models.searchLoc.lng = response.results[0].geometry.location.lng;
-          app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
-          resolve();
+          resolve(response);
         }
       };
 
@@ -690,11 +773,13 @@ $(function() {
     });
   };
 
-  // reverseGeocode - Converts lat/lng to a city, state
-  app.controllers.reverseGeocode = function() {
+  /******************************************************
+    reverseGeocode() - Converts lat/lng to a city, state
+  *******************************************************/
+  app.controllers.reverseGeocode = function(lat, lng) {
     return new Promise(function(resolve, reject) {
       var httpRequest = new XMLHttpRequest();
-      var params = 'key=' + app.config.google.apiKey + '&latlng=' + app.models.userLoc.lat + ',' + app.models.userLoc.lng;
+      var params = 'key=' + app.config.google.apiKey + '&latlng=' + lat + ',' + lng;
 
       httpRequest.open('GET', app.config.google.geocodingAPI.reqURL + params, true);
       httpRequest.send();
@@ -707,10 +792,8 @@ $(function() {
           }
 
           var response = JSON.parse(httpRequest.responseText);
-          var formattedAddress = response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name;
-          // Sets .formattedAddress as city, state (i.e. New York, NY)
-          app.models.userLoc.setFormattedAddress(formattedAddress);
-          resolve();
+
+          resolve(response);
         }
       };
     });
@@ -718,26 +801,60 @@ $(function() {
 
 })();
 
-// Code related to Google Maps Places Library
+/***********************************
+  Code related to HTML5 Geolocation
+************************************/
 
 (function() {
 
   app.controllers = app.controllers || {};
 
-  // reqPlaces - Sends a lat/lng to Google Places Library and stores results
-  app.controllers.reqPlaces = function() {
+  /*************************************************************************************
+    getCurrentLocation() - HTML5 geocoding request for lat/lng for 'My Location' button
+  **************************************************************************************/
+  app.controllers.getCurrentLocation = function() {
     return new Promise(function(resolve, reject) {
-      // Reset so that search location is added to Recent Searches
-      app.controllers.newSearch = true;
-      // Set params for search (use userLoc if available)
-      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-      var location = new google.maps.LatLng(lat, lng);
+      if (!navigator.geolocation) {
+        reject({ type: 'error', text: 'Sorry, geolocation is not supported in your browser.' });
+        return;
+      }
+
+      var success = function(position) {
+        resolve(position);
+      };
+
+      var error = function() {
+        reject({ type: 'error', text: 'An error occurred. Please try again.' });
+        return;
+      };
+
+      var options = { enableHighAccuracy: true };
+
+      navigator.geolocation.getCurrentPosition(success, error, options);
+    });
+  };
+
+})();
+
+/*********************************************
+  Code related to Google Maps Places Library
+**********************************************/
+
+(function() {
+
+  app.controllers = app.controllers || {};
+
+  /***************************************************************************
+    reqPlaces() - Sends a lat/lng to Google Places Library and stores results
+  ****************************************************************************/
+  app.controllers.reqPlaces = function(lat, lng) {
+    return new Promise(function(resolve, reject) {
       var params = {
-        location: location,
+        location: new google.maps.LatLng(lat, lng),
         rankBy: app.config.settings.search.rankBy,
         keyword: app.config.settings.search.itemType
       };
+      var places = [];
 
       // Radius is required on request if ranked by PROMINENCE
       if (params.rankBy === google.maps.places.RankBy.PROMINENCE) {
@@ -749,6 +866,7 @@ $(function() {
       service.nearbySearch(params, callback);
 
       function callback(results, status, pagination) {
+        console.log('reqPlaces status: ' + status);
         if (status == google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
           reject({ type: 'info', text: 'Your request returned no results.' });
           return;
@@ -759,16 +877,21 @@ $(function() {
           return;
         }
 
-        // Add results to sessionStorage
-        app.models.places.add(results);
-        // Store pagination object for more results
-        app.models.places.paginationObj = pagination;
-        resolve();
+        places = places.concat(results);
+
+        if (pagination.hasNextPage) {
+          pagination.nextPage();
+        } else {
+          resolve(places);
+        }
+
       }
     });
   };
 
-  // reqPlaceDetails - This requests details of the selectedPlace from Google
+  /****************************************************************************
+    reqPlaceDetails() - This requests details of the selectedPlace from Google
+  *****************************************************************************/
   app.controllers.reqPlaceDetails = function() {
     return new Promise(function(resolve, reject) {
       var params = { placeId: app.models.selectedPlace.placeId };
@@ -798,13 +921,17 @@ $(function() {
 
 })();
 
-// Code related to sorting results
+/*********************************
+  Code related to sorting results
+**********************************/
 
 (function() {
 
   app.controllers = app.controllers || {};
 
-  // insertionSort - Sorts place results by distance
+  /***************************************************
+    insertionSort() - Sorts place results by distance
+  ****************************************************/
   app.controllers.insertionSort = function(unsorted) {
     var length = unsorted.length;
 
@@ -819,82 +946,71 @@ $(function() {
     }
   };
 
-  // sortPlaces -Handles processing of places returned from Google.
-  app.controllers.sortPlaces = function() {
-    return new Promise(function(resolve, reject) {
-      var primaryTypes = app.config.settings.search.primaryTypes;
-      var secondaryTypes = app.config.settings.search.secondaryTypes;
-      var excludedTypes = app.config.settings.search.excludedTypes;
-      var primaryResults = [];
-      var secondaryResults = [];
-      var sortedResults = { primary: null, secondary: null };
-      var totalResults;
+  /******************************************************************
+    sortPlaces() - Handles processing of places returned from Google
+  *******************************************************************/
+  app.controllers.sortPlaces = function(places) {
+    var primaryTypes = app.config.settings.search.primaryTypes;
+    var secondaryTypes = app.config.settings.search.secondaryTypes;
+    var excludedTypes = app.config.settings.search.excludedTypes;
+    var primaryResults = [];
+    var secondaryResults = [];
+    var sortedResults = { primary: null, secondary: null };
 
-      var places = app.models.places.get();
-      if (!places) {
-        reject({ type: 'error', text: 'An error occurred. Please try again.' });
-        return;
+    // Sorts results based on relevent/exlcuded categories in app.config.settings.search
+    for (var i=0; i < places.length; i++) {
+      var hasPrimaryType = false;
+      var hasSecondaryType = false;
+      var hasExcludedType = false;
+
+      // Check for primary types and push onto array for primary results
+      primaryTypes.forEach(function(primaryType) {
+        if (places[i].types.includes(primaryType)) {
+          hasPrimaryType = true;
+        }
+      });
+      // Push onto the array
+      if (hasPrimaryType) {
+        primaryResults.push(places[i]);
       }
 
-      // Sorts results based on relevent/exlcuded categories in app.config.settings.search
-      for (var i=0; i < places.length; i++) {
-        var hasPrimaryType = false;
-        var hasSecondaryType = false;
-        var hasExcludedType = false;
+      // If the primary array doesn't contain the result, check for secondary types...
+      // ...but make sure that it doesn't have a type on the excluded list
+      if (!primaryResults.includes(places[i])) {
+        secondaryTypes.forEach(function(secondaryType) {
+          if (places[i].types.includes(secondaryType)) {
+            hasSecondaryType = true;
 
-        // Check for primary types and push onto array for primary results
-        primaryTypes.forEach(function(primaryType) {
-          if (places[i].types.includes(primaryType)) {
-            hasPrimaryType = true;
+            excludedTypes.forEach(function(excludedType) {
+              if(places[i].types.includes(excludedType)) {
+                hasExcludedType = true;
+              }
+            });
           }
         });
-        // Push onto the array
-        if (hasPrimaryType) {
-          primaryResults.push(places[i]);
-        }
 
-        // If the primary array doesn't contain the result, check for secondary types...
-        // ...but make sure that it doesn't have a type on the excluded list
-        if (!primaryResults.includes(places[i])) {
-          secondaryTypes.forEach(function(secondaryType) {
-            if (places[i].types.includes(secondaryType)) {
-              hasSecondaryType = true;
-
-              excludedTypes.forEach(function(excludedType) {
-                if(places[i].types.includes(excludedType)) {
-                  hasExcludedType = true;
-                }
-              });
-            }
-          });
-
-          // Push onto array for secondary results if it has a secondary (without excluded) type
-          if (hasSecondaryType && !hasExcludedType) {
-            secondaryResults.push(places[i]);
-          }
+        // Push onto array for secondary results if it has a secondary (without excluded) type
+        if (hasSecondaryType && !hasExcludedType) {
+          secondaryResults.push(places[i]);
         }
       }
+    }
 
-      // Re-sort option because Google doesn't always return places by distance accurately
-      if (app.config.settings.search.orderByDistance) {
-        app.controllers.insertionSort(primaryResults);
-        app.controllers.insertionSort(secondaryResults);
-      }
+    // Re-sort option because Google doesn't always return places by distance accurately
+    if (app.config.settings.search.orderByDistance) {
+      app.controllers.insertionSort(primaryResults);
+      app.controllers.insertionSort(secondaryResults);
+    }
 
-      if (primaryResults.length === 0 && secondaryResults.length === 0) {
-        reject({ type: 'info', text: 'Your request returned no results.' });
-        return;
-      }
+    if (primaryResults.length === 0 && secondaryResults.length === 0) {
+      reject({ type: 'info', text: 'Your request returned no results.' });
+      return;
+    }
 
-      sortedResults.primary = primaryResults;
-      sortedResults.secondary = secondaryResults;
-      totalResults = sortedResults.primary.length + sortedResults.secondary.length;
+    sortedResults.primary = primaryResults;
+    sortedResults.secondary = secondaryResults;
 
-      app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
-      // Adds search results to sessionStorage
-      app.models.places.add(sortedResults);
-      resolve();
-    });
+    return sortedResults;
   };
 
 })();
@@ -1005,40 +1121,6 @@ $(function() {
     },
     enable: function() {
       this.locationBtn.removeAttribute('disabled');
-    }
-  };
-
-  // More results button if > 20 results are returned from the search
-  app.views.moreResultsBtn = {
-    init: function() {
-      // Collect DOM elements
-      this.moreResultsBtn = document.getElementById('moreResultsBtn');
-      // Set default values on DOM elements
-      this.moreResultsBtn.classList.add('hidden');
-      // Add click handlers
-      this.moreResultsBtn.addEventListener('click', function() {
-        app.views.page.disableButtons();
-        app.views.page.clear();
-        window.scroll(0, 0);
-      });
-    },
-    addNextPageFn: function() {
-      this.moreResultsBtn.onclick = function() {
-        app.controllers.requestMoreResults();
-      };
-    },
-    show: function() {
-      this.moreResultsBtn.classList.remove('hidden');
-      // Google Places search requires 2 seconds between searches
-      window.setTimeout(function() {
-        moreResultsBtn.removeAttribute('disabled');
-      }, 2000);
-    },
-    disable: function() {
-      this.moreResultsBtn.setAttribute('disabled', true);
-    },
-    hide: function() {
-      this.moreResultsBtn.classList.add('hidden');
     }
   };
 
@@ -1315,8 +1397,6 @@ $(function() {
       this.secondaryResults.classList.add('hidden');
       this.primaryResultsList.textContent = null;
       this.secondaryResultsList.textContent = null;
-      app.views.moreResultsBtn.hide();
-      app.views.moreResultsBtn.disable();
     },
     render: function() {
       this.primaryResults.classList.add('hidden');

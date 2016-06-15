@@ -1,10 +1,14 @@
-// Code related to sorting results
+/*********************************
+  Code related to sorting results
+**********************************/
 
 (function() {
 
   app.controllers = app.controllers || {};
 
-  // insertionSort - Sorts place results by distance
+  /***************************************************
+    insertionSort() - Sorts place results by distance
+  ****************************************************/
   app.controllers.insertionSort = function(unsorted) {
     var length = unsorted.length;
 
@@ -19,82 +23,71 @@
     }
   };
 
-  // sortPlaces -Handles processing of places returned from Google.
-  app.controllers.sortPlaces = function() {
-    return new Promise(function(resolve, reject) {
-      var primaryTypes = app.config.settings.search.primaryTypes;
-      var secondaryTypes = app.config.settings.search.secondaryTypes;
-      var excludedTypes = app.config.settings.search.excludedTypes;
-      var primaryResults = [];
-      var secondaryResults = [];
-      var sortedResults = { primary: null, secondary: null };
-      var totalResults;
+  /******************************************************************
+    sortPlaces() - Handles processing of places returned from Google
+  *******************************************************************/
+  app.controllers.sortPlaces = function(places) {
+    var primaryTypes = app.config.settings.search.primaryTypes;
+    var secondaryTypes = app.config.settings.search.secondaryTypes;
+    var excludedTypes = app.config.settings.search.excludedTypes;
+    var primaryResults = [];
+    var secondaryResults = [];
+    var sortedResults = { primary: null, secondary: null };
 
-      var places = app.models.places.get();
-      if (!places) {
-        reject({ type: 'error', text: 'An error occurred. Please try again.' });
-        return;
+    // Sorts results based on relevent/exlcuded categories in app.config.settings.search
+    for (var i=0; i < places.length; i++) {
+      var hasPrimaryType = false;
+      var hasSecondaryType = false;
+      var hasExcludedType = false;
+
+      // Check for primary types and push onto array for primary results
+      primaryTypes.forEach(function(primaryType) {
+        if (places[i].types.includes(primaryType)) {
+          hasPrimaryType = true;
+        }
+      });
+      // Push onto the array
+      if (hasPrimaryType) {
+        primaryResults.push(places[i]);
       }
 
-      // Sorts results based on relevent/exlcuded categories in app.config.settings.search
-      for (var i=0; i < places.length; i++) {
-        var hasPrimaryType = false;
-        var hasSecondaryType = false;
-        var hasExcludedType = false;
+      // If the primary array doesn't contain the result, check for secondary types...
+      // ...but make sure that it doesn't have a type on the excluded list
+      if (!primaryResults.includes(places[i])) {
+        secondaryTypes.forEach(function(secondaryType) {
+          if (places[i].types.includes(secondaryType)) {
+            hasSecondaryType = true;
 
-        // Check for primary types and push onto array for primary results
-        primaryTypes.forEach(function(primaryType) {
-          if (places[i].types.includes(primaryType)) {
-            hasPrimaryType = true;
+            excludedTypes.forEach(function(excludedType) {
+              if(places[i].types.includes(excludedType)) {
+                hasExcludedType = true;
+              }
+            });
           }
         });
-        // Push onto the array
-        if (hasPrimaryType) {
-          primaryResults.push(places[i]);
-        }
 
-        // If the primary array doesn't contain the result, check for secondary types...
-        // ...but make sure that it doesn't have a type on the excluded list
-        if (!primaryResults.includes(places[i])) {
-          secondaryTypes.forEach(function(secondaryType) {
-            if (places[i].types.includes(secondaryType)) {
-              hasSecondaryType = true;
-
-              excludedTypes.forEach(function(excludedType) {
-                if(places[i].types.includes(excludedType)) {
-                  hasExcludedType = true;
-                }
-              });
-            }
-          });
-
-          // Push onto array for secondary results if it has a secondary (without excluded) type
-          if (hasSecondaryType && !hasExcludedType) {
-            secondaryResults.push(places[i]);
-          }
+        // Push onto array for secondary results if it has a secondary (without excluded) type
+        if (hasSecondaryType && !hasExcludedType) {
+          secondaryResults.push(places[i]);
         }
       }
+    }
 
-      // Re-sort option because Google doesn't always return places by distance accurately
-      if (app.config.settings.search.orderByDistance) {
-        app.controllers.insertionSort(primaryResults);
-        app.controllers.insertionSort(secondaryResults);
-      }
+    // Re-sort option because Google doesn't always return places by distance accurately
+    if (app.config.settings.search.orderByDistance) {
+      app.controllers.insertionSort(primaryResults);
+      app.controllers.insertionSort(secondaryResults);
+    }
 
-      if (primaryResults.length === 0 && secondaryResults.length === 0) {
-        reject({ type: 'info', text: 'Your request returned no results.' });
-        return;
-      }
+    if (primaryResults.length === 0 && secondaryResults.length === 0) {
+      reject({ type: 'info', text: 'Your request returned no results.' });
+      return;
+    }
 
-      sortedResults.primary = primaryResults;
-      sortedResults.secondary = secondaryResults;
-      totalResults = sortedResults.primary.length + sortedResults.secondary.length;
+    sortedResults.primary = primaryResults;
+    sortedResults.secondary = secondaryResults;
 
-      app.models.searchLoc.setTotalItems(app.models.places.paginationObj.hasNextPage ? totalResults + '+' : totalResults);
-      // Adds search results to sessionStorage
-      app.models.places.add(sortedResults);
-      resolve();
-    });
+    return sortedResults;
   };
 
 })();
