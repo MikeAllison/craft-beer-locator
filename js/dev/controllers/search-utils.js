@@ -18,7 +18,6 @@
     var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
     var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
     var requestedPlace = app.models.places.find(place);
-    console.dir(requestedPlace);
 
     app.controllers.setSelectedPlaceDetails(requestedPlace)
       .then(app.controllers.reqPlaceDetails)

@@ -38,7 +38,6 @@
         };
 
         service.getDistanceMatrix(params, function(results, status) {
-          console.log('reqMultiDistance status: ' + status);
           if (status != google.maps.DistanceMatrixStatus.OK) {
             reject({ type: 'error', text: 'An error occurred. Please try again.' });
             return;
