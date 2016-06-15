@@ -4,12 +4,12 @@
 
 (function() {
 
-  app.controllers = app.controllers || {};
+  app.modules = app.modules || {};
 
   /***************************************************************************
     reqPlaces() - Sends a lat/lng to Google Places Library and stores results
   ****************************************************************************/
-  app.controllers.reqPlaces = function(lat, lng) {
+  app.modules.reqPlaces = function(lat, lng) {
     return new Promise(function(resolve, reject) {
       var params = {
         location: new google.maps.LatLng(lat, lng),
@@ -53,7 +53,7 @@
   /****************************************************************************
     reqPlaceDetails() - This requests details of the selectedPlace from Google
   *****************************************************************************/
-  app.controllers.reqPlaceDetails = function() {
+  app.modules.reqPlaceDetails = function() {
     return new Promise(function(resolve, reject) {
       var params = { placeId: app.models.selectedPlace.placeId };
 

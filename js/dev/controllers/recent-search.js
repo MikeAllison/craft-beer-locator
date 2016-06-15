@@ -11,7 +11,7 @@
 
     app.controllers.setSearchLocation(location);
 
-    app.controllers.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
+    app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
       .then(function(results) {
         app.models.places.add(results);
 
@@ -26,7 +26,7 @@
           placesCoords.push(latLng);
         });
 
-        return app.controllers.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
+        return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();
@@ -41,7 +41,7 @@
           }
         });
 
-        var sortedResults = app.controllers.sortPlaces(places);
+        var sortedResults = app.modules.sortPlaces(places);
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.controllers.updatePage();

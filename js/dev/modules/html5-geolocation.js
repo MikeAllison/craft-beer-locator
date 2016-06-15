@@ -4,12 +4,12 @@
 
 (function() {
 
-  app.controllers = app.controllers || {};
+  app.modules = app.modules || {};
 
   /*************************************************************************************
     getCurrentLocation() - HTML5 geocoding request for lat/lng for 'My Location' button
   **************************************************************************************/
-  app.controllers.getCurrentLocation = function() {
+  app.modules.getCurrentLocation = function() {
     return new Promise(function(resolve, reject) {
       if (!navigator.geolocation) {
         reject({ type: 'error', text: 'Sorry, geolocation is not supported in your browser.' });

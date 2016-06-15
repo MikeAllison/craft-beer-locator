@@ -9,19 +9,19 @@
   app.controllers.geolocationSearch = function() {
     app.models.searchLoc.init();
 
-    app.controllers.getCurrentLocation()
+    app.modules.getCurrentLocation()
       .then(function(position) {
         app.models.userLoc.lat = position.coords.latitude;
         app.models.userLoc.lng = position.coords.longitude;
 
-        return app.controllers.reverseGeocode(app.models.userLoc.lat, app.models.userLoc.lng);
+        return app.modules.reverseGeocode(app.models.userLoc.lat, app.models.userLoc.lng);
       })
       .then(function(response) {
         var formattedAddress = response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name;
         // Sets .formattedAddress as city, state (i.e. New York, NY)
         app.models.userLoc.setFormattedAddress(formattedAddress);
 
-        return app.controllers.reqPlaces(app.models.userLoc.lat, app.models.userLoc.lng);
+        return app.modules.reqPlaces(app.models.userLoc.lat, app.models.userLoc.lng);
       })
       .then(function(results) {
         app.models.places.add(results);
@@ -37,7 +37,7 @@
           placesCoords.push(latLng);
         });
 
-        return app.controllers.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
+        return app.modules.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();
@@ -52,7 +52,7 @@
           }
         });
 
-        var sortedResults = app.controllers.sortPlaces(places);
+        var sortedResults = app.modules.sortPlaces(places);
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.controllers.addRecentSearch();

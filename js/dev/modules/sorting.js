@@ -4,12 +4,12 @@
 
 (function() {
 
-  app.controllers = app.controllers || {};
+  app.modules = app.modules || {};
 
   /***************************************************
     insertionSort() - Sorts place results by distance
   ****************************************************/
-  app.controllers.insertionSort = function(unsorted) {
+  app.modules.insertionSort = function(unsorted) {
     var length = unsorted.length;
 
     for(var i=0; i < length; i++) {
@@ -26,7 +26,7 @@
   /******************************************************************
     sortPlaces() - Handles processing of places returned from Google
   *******************************************************************/
-  app.controllers.sortPlaces = function(places) {
+  app.modules.sortPlaces = function(places) {
     var primaryTypes = app.config.settings.search.primaryTypes;
     var secondaryTypes = app.config.settings.search.secondaryTypes;
     var excludedTypes = app.config.settings.search.excludedTypes;
@@ -75,8 +75,8 @@
 
     // Re-sort option because Google doesn't always return places by distance accurately
     if (app.config.settings.search.orderByDistance) {
-      app.controllers.insertionSort(primaryResults);
-      app.controllers.insertionSort(secondaryResults);
+      app.modules.insertionSort(primaryResults);
+      app.modules.insertionSort(secondaryResults);
     }
 
     if (primaryResults.length === 0 && secondaryResults.length === 0) {

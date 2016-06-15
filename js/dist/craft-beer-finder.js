@@ -71,13 +71,13 @@ var app = app || {};
       return;
     }
 
-    app.controllers.getGeocode(tboxVal)
+    app.modules.getGeocode(tboxVal)
       .then(function(response) {
         app.models.searchLoc.lat = response.results[0].geometry.location.lat;
         app.models.searchLoc.lng = response.results[0].geometry.location.lng;
         app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
 
-        return app.controllers.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
+        return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
         app.models.places.add(results);
@@ -93,7 +93,7 @@ var app = app || {};
           placesCoords.push(latLng);
         });
 
-        return app.controllers.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
+        return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();
@@ -108,7 +108,7 @@ var app = app || {};
           }
         });
 
-        var sortedResults = app.controllers.sortPlaces(places);
+        var sortedResults = app.modules.sortPlaces(places);
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.controllers.addRecentSearch();
@@ -131,19 +131,19 @@ var app = app || {};
   app.controllers.geolocationSearch = function() {
     app.models.searchLoc.init();
 
-    app.controllers.getCurrentLocation()
+    app.modules.getCurrentLocation()
       .then(function(position) {
         app.models.userLoc.lat = position.coords.latitude;
         app.models.userLoc.lng = position.coords.longitude;
 
-        return app.controllers.reverseGeocode(app.models.userLoc.lat, app.models.userLoc.lng);
+        return app.modules.reverseGeocode(app.models.userLoc.lat, app.models.userLoc.lng);
       })
       .then(function(response) {
         var formattedAddress = response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name;
         // Sets .formattedAddress as city, state (i.e. New York, NY)
         app.models.userLoc.setFormattedAddress(formattedAddress);
 
-        return app.controllers.reqPlaces(app.models.userLoc.lat, app.models.userLoc.lng);
+        return app.modules.reqPlaces(app.models.userLoc.lat, app.models.userLoc.lng);
       })
       .then(function(results) {
         app.models.places.add(results);
@@ -159,7 +159,7 @@ var app = app || {};
           placesCoords.push(latLng);
         });
 
-        return app.controllers.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
+        return app.modules.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();
@@ -174,7 +174,7 @@ var app = app || {};
           }
         });
 
-        var sortedResults = app.controllers.sortPlaces(places);
+        var sortedResults = app.modules.sortPlaces(places);
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.controllers.addRecentSearch();
@@ -233,7 +233,7 @@ var app = app || {};
 
     app.controllers.setSearchLocation(location);
 
-    app.controllers.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
+    app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
       .then(function(results) {
         app.models.places.add(results);
 
@@ -248,7 +248,7 @@ var app = app || {};
           placesCoords.push(latLng);
         });
 
-        return app.controllers.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
+        return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();
@@ -263,7 +263,7 @@ var app = app || {};
           }
         });
 
-        var sortedResults = app.controllers.sortPlaces(places);
+        var sortedResults = app.modules.sortPlaces(places);
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.controllers.updatePage();
@@ -296,8 +296,8 @@ var app = app || {};
     var requestedPlace = app.models.places.find(place);
 
     app.controllers.setSelectedPlaceDetails(requestedPlace)
-      .then(app.controllers.reqPlaceDetails)
-      .then(app.controllers.reqTransitDistance)
+      .then(app.modules.reqPlaceDetails)
+      .then(app.modules.reqTransitDistance)
       .then(function() {
         app.views.placeModal.populate();
         app.views.placeModal.show();
@@ -309,13 +309,13 @@ var app = app || {};
     switchToGeolocation() - Requests distance from your location to a place (triggered from placeModal)
   ******************************************************************************************************/
   app.controllers.switchToGeolocation = function() {
-    app.controllers.getCurrentLocation()
+    app.modules.getCurrentLocation()
       .then(function(position) {
         app.models.userLoc.lat = position.coords.latitude;
         app.models.userLoc.lng = position.coords.longitude;
       })
-      .then(app.controllers.reqDrivingDistance)
-      .then(app.controllers.reqTransitDistance)
+      .then(app.modules.reqDrivingDistance)
+      .then(app.modules.reqTransitDistance)
       .then(function() {
         app.views.placeModal.populate();
         app.views.placeModal.show();
@@ -334,7 +334,7 @@ var app = app || {};
           placesCoords.push(latLng);
         });
 
-        return app.controllers.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
+        return app.modules.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();
@@ -354,7 +354,7 @@ var app = app || {};
           }
         });
 
-        var sortedResults = app.controllers.sortPlaces(places);
+        var sortedResults = app.modules.sortPlaces(places);
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.controllers.updatePage();
@@ -585,12 +585,12 @@ $(function() {
 
 (function() {
 
-  app.controllers = app.controllers || {};
+  app.modules = app.modules || {};
 
   /**************************************************************************************************************
     reqMultiDistance() - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
   ***************************************************************************************************************/
-  app.controllers.reqMultiDistance = function(lat, lng, destinations) {
+  app.modules.reqMultiDistance = function(lat, lng, destinations) {
     return new Promise(function(resolve, reject) {
       var maxDests = 25; // Google's limit of destinations for a single Distance Maxtrix request
       var totalReqs = Math.ceil(destinations.length / maxDests);
@@ -655,7 +655,7 @@ $(function() {
   /************************************************************************************************************
     reqDrivingDistance() - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
   *************************************************************************************************************/
-  app.controllers.reqDrivingDistance = function() {
+  app.modules.reqDrivingDistance = function() {
     return new Promise(function(resolve, reject) {
       // Set params for search (use userLoc if available)
       var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
@@ -693,7 +693,7 @@ $(function() {
   /***********************************************************************************************************
     reqTransitDistance() - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
   ************************************************************************************************************/
-  app.controllers.reqTransitDistance = function() {
+  app.modules.reqTransitDistance = function() {
     return new Promise(function(resolve, reject) {
       // Set params for search (use userLoc if available)
       var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
@@ -738,12 +738,12 @@ $(function() {
 
 (function() {
 
-  app.controllers = app.controllers || {};
+  app.modules = app.modules || {};
 
   /******************************************************************************************
     getGeocode() - Takes a city, state and converts it to lat/lng using Google Geocoding API
   *******************************************************************************************/
-  app.controllers.getGeocode = function(location) {
+  app.modules.getGeocode = function(location) {
     return new Promise(function(resolve, reject) {
       // AJAX request for lat/lng for form submission
       var httpRequest = new XMLHttpRequest();
@@ -774,7 +774,7 @@ $(function() {
   /******************************************************
     reverseGeocode() - Converts lat/lng to a city, state
   *******************************************************/
-  app.controllers.reverseGeocode = function(lat, lng) {
+  app.modules.reverseGeocode = function(lat, lng) {
     return new Promise(function(resolve, reject) {
       var httpRequest = new XMLHttpRequest();
       var params = 'key=' + app.config.google.apiKey + '&latlng=' + lat + ',' + lng;
@@ -805,12 +805,12 @@ $(function() {
 
 (function() {
 
-  app.controllers = app.controllers || {};
+  app.modules = app.modules || {};
 
   /*************************************************************************************
     getCurrentLocation() - HTML5 geocoding request for lat/lng for 'My Location' button
   **************************************************************************************/
-  app.controllers.getCurrentLocation = function() {
+  app.modules.getCurrentLocation = function() {
     return new Promise(function(resolve, reject) {
       if (!navigator.geolocation) {
         reject({ type: 'error', text: 'Sorry, geolocation is not supported in your browser.' });
@@ -840,12 +840,12 @@ $(function() {
 
 (function() {
 
-  app.controllers = app.controllers || {};
+  app.modules = app.modules || {};
 
   /***************************************************************************
     reqPlaces() - Sends a lat/lng to Google Places Library and stores results
   ****************************************************************************/
-  app.controllers.reqPlaces = function(lat, lng) {
+  app.modules.reqPlaces = function(lat, lng) {
     return new Promise(function(resolve, reject) {
       var params = {
         location: new google.maps.LatLng(lat, lng),
@@ -889,7 +889,7 @@ $(function() {
   /****************************************************************************
     reqPlaceDetails() - This requests details of the selectedPlace from Google
   *****************************************************************************/
-  app.controllers.reqPlaceDetails = function() {
+  app.modules.reqPlaceDetails = function() {
     return new Promise(function(resolve, reject) {
       var params = { placeId: app.models.selectedPlace.placeId };
 
@@ -924,12 +924,12 @@ $(function() {
 
 (function() {
 
-  app.controllers = app.controllers || {};
+  app.modules = app.modules || {};
 
   /***************************************************
     insertionSort() - Sorts place results by distance
   ****************************************************/
-  app.controllers.insertionSort = function(unsorted) {
+  app.modules.insertionSort = function(unsorted) {
     var length = unsorted.length;
 
     for(var i=0; i < length; i++) {
@@ -946,7 +946,7 @@ $(function() {
   /******************************************************************
     sortPlaces() - Handles processing of places returned from Google
   *******************************************************************/
-  app.controllers.sortPlaces = function(places) {
+  app.modules.sortPlaces = function(places) {
     var primaryTypes = app.config.settings.search.primaryTypes;
     var secondaryTypes = app.config.settings.search.secondaryTypes;
     var excludedTypes = app.config.settings.search.excludedTypes;
@@ -995,8 +995,8 @@ $(function() {
 
     // Re-sort option because Google doesn't always return places by distance accurately
     if (app.config.settings.search.orderByDistance) {
-      app.controllers.insertionSort(primaryResults);
-      app.controllers.insertionSort(secondaryResults);
+      app.modules.insertionSort(primaryResults);
+      app.modules.insertionSort(secondaryResults);
     }
 
     if (primaryResults.length === 0 && secondaryResults.length === 0) {

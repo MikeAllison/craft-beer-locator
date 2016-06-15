@@ -4,12 +4,12 @@
 
 (function() {
 
-  app.controllers = app.controllers || {};
+  app.modules = app.modules || {};
 
   /**************************************************************************************************************
     reqMultiDistance() - Requests distance (driving) from Google Maps Distance Matrix for a collection of places
   ***************************************************************************************************************/
-  app.controllers.reqMultiDistance = function(lat, lng, destinations) {
+  app.modules.reqMultiDistance = function(lat, lng, destinations) {
     return new Promise(function(resolve, reject) {
       var maxDests = 25; // Google's limit of destinations for a single Distance Maxtrix request
       var totalReqs = Math.ceil(destinations.length / maxDests);
@@ -74,7 +74,7 @@
   /************************************************************************************************************
     reqDrivingDistance() - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
   *************************************************************************************************************/
-  app.controllers.reqDrivingDistance = function() {
+  app.modules.reqDrivingDistance = function() {
     return new Promise(function(resolve, reject) {
       // Set params for search (use userLoc if available)
       var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
@@ -112,7 +112,7 @@
   /***********************************************************************************************************
     reqTransitDistance() - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
   ************************************************************************************************************/
-  app.controllers.reqTransitDistance = function() {
+  app.modules.reqTransitDistance = function() {
     return new Promise(function(resolve, reject) {
       // Set params for search (use userLoc if available)
       var lat = app.models.userLoc.lat || app.models.searchLoc.lat;

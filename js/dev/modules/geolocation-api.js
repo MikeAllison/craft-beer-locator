@@ -5,12 +5,12 @@
 
 (function() {
 
-  app.controllers = app.controllers || {};
+  app.modules = app.modules || {};
 
   /******************************************************************************************
     getGeocode() - Takes a city, state and converts it to lat/lng using Google Geocoding API
   *******************************************************************************************/
-  app.controllers.getGeocode = function(location) {
+  app.modules.getGeocode = function(location) {
     return new Promise(function(resolve, reject) {
       // AJAX request for lat/lng for form submission
       var httpRequest = new XMLHttpRequest();
@@ -41,7 +41,7 @@
   /******************************************************
     reverseGeocode() - Converts lat/lng to a city, state
   *******************************************************/
-  app.controllers.reverseGeocode = function(lat, lng) {
+  app.modules.reverseGeocode = function(lat, lng) {
     return new Promise(function(resolve, reject) {
       var httpRequest = new XMLHttpRequest();
       var params = 'key=' + app.config.google.apiKey + '&latlng=' + lat + ',' + lng;
