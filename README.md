@@ -31,8 +31,6 @@ app.config = {
 
         // excludedTypes: Any result having these types will excluded from the results
         excludedTypes: [], // Array w/ empty string or multi-string (examples: [], ['type1'], ['type1, 'type2'], etc.)
-
-        topResultsOnly: false // Can change: Allows search to return more than 1 set of results (true/false)
       }
     };
     this.google = {

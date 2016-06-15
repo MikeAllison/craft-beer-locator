@@ -38,10 +38,7 @@ var app = app || {};
           secondaryTypes: ['restaurant'],
 
           // excludedTypes: Any result having these types will excluded from the results (examples: [], ['type1'], ['type1, 'type2'], etc.)
-          excludedTypes: [],
-
-          // topResultsOnly -  Can change: Allows search to return more than 1 set of results (true/false)
-          topResultsOnly: false
+          excludedTypes: []
         }
       };
       // Set your API key for Google Maps services
