@@ -6,9 +6,9 @@
 
   app.modules = app.modules || {};
 
-  /***************************************************************************
-    reqPlaces() - Sends a lat/lng to Google Places Library and stores results
-  ****************************************************************************/
+  /********************************************************
+    reqPlaces() - Sends a lat/lng to Google Places Library
+  *********************************************************/
   app.modules.reqPlaces = function(lat, lng) {
     return new Promise(function(resolve, reject) {
       var params = {
