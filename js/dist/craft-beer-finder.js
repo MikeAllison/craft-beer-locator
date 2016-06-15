@@ -16,6 +16,9 @@ var app = app || {};
           // rankBy -  Can change: Can be either google.maps.places.RankBy.DISTANCE or google.maps.places.RankBy.PROMINENCE (not a string)
           rankBy: google.maps.places.RankBy.DISTANCE,
 
+          // unitSystem - Can change: Can be either google.maps.UnitSystem.IMPERIAL or google.maps.UnitSystem.METRIC
+          unitSystem: google.maps.UnitSystem.IMPERIAL,
+
           // orderByDistance - Can change: Setting 'true' will force a reordering of results by distance (results from Google's RankBy.DISTANCE aren't always in order)
           // Set to 'false' if using 'rankBy: google.maps.places.RankBy.PROMINENCE' and don't want results ordered by distance
           // Sometimes using 'RankBy.PROMINENCE' and 'orderByDistance: true' returns the most accurate results by distance
@@ -615,7 +618,7 @@ $(function() {
           origins: [new google.maps.LatLng(lat, lng)], // lat, lng from getDistanceMatrix args
           destinations: latLngObjs,
           travelMode: google.maps.TravelMode.DRIVING,
-          unitSystem: google.maps.UnitSystem.IMPERIAL
+          unitSystem: app.config.settings.search.unitSystem
         };
 
         service.getDistanceMatrix(params, function(results, status) {
@@ -664,7 +667,7 @@ $(function() {
         origins: [new google.maps.LatLng(lat, lng)],
         destinations: [new google.maps.LatLng(app.models.selectedPlace.lat, app.models.selectedPlace.lng)],
         travelMode: google.maps.TravelMode.DRIVING,
-        unitSystem: google.maps.UnitSystem.IMPERIAL
+        unitSystem: app.config.settings.search.unitSystem
       };
 
       // Request the distance & pass to callback
@@ -703,7 +706,7 @@ $(function() {
         destinations: [new google.maps.LatLng(app.models.selectedPlace.lat, app.models.selectedPlace.lng)],
         travelMode: google.maps.TravelMode.TRANSIT,
         transitOptions: { modes: [google.maps.TransitMode.SUBWAY] },
-        unitSystem: google.maps.UnitSystem.IMPERIAL
+        unitSystem: app.config.settings.search.unitSystem
       };
 
       // Request the distance & pass to callback

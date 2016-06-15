@@ -34,7 +34,7 @@
           origins: [new google.maps.LatLng(lat, lng)], // lat, lng from getDistanceMatrix args
           destinations: latLngObjs,
           travelMode: google.maps.TravelMode.DRIVING,
-          unitSystem: google.maps.UnitSystem.IMPERIAL
+          unitSystem: app.config.settings.search.unitSystem
         };
 
         service.getDistanceMatrix(params, function(results, status) {
@@ -83,7 +83,7 @@
         origins: [new google.maps.LatLng(lat, lng)],
         destinations: [new google.maps.LatLng(app.models.selectedPlace.lat, app.models.selectedPlace.lng)],
         travelMode: google.maps.TravelMode.DRIVING,
-        unitSystem: google.maps.UnitSystem.IMPERIAL
+        unitSystem: app.config.settings.search.unitSystem
       };
 
       // Request the distance & pass to callback
@@ -122,7 +122,7 @@
         destinations: [new google.maps.LatLng(app.models.selectedPlace.lat, app.models.selectedPlace.lng)],
         travelMode: google.maps.TravelMode.TRANSIT,
         transitOptions: { modes: [google.maps.TransitMode.SUBWAY] },
-        unitSystem: google.maps.UnitSystem.IMPERIAL
+        unitSystem: app.config.settings.search.unitSystem
       };
 
       // Request the distance & pass to callback

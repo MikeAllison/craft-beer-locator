@@ -16,6 +16,9 @@ var app = app || {};
           // rankBy -  Can change: Can be either google.maps.places.RankBy.DISTANCE or google.maps.places.RankBy.PROMINENCE (not a string)
           rankBy: google.maps.places.RankBy.DISTANCE,
 
+          // unitSystem - Can change: Can be either google.maps.UnitSystem.IMPERIAL or google.maps.UnitSystem.METRIC
+          unitSystem: google.maps.UnitSystem.IMPERIAL,
+
           // orderByDistance - Can change: Setting 'true' will force a reordering of results by distance (results from Google's RankBy.DISTANCE aren't always in order)
           // Set to 'false' if using 'rankBy: google.maps.places.RankBy.PROMINENCE' and don't want results ordered by distance
           // Sometimes using 'RankBy.PROMINENCE' and 'orderByDistance: true' returns the most accurate results by distance
