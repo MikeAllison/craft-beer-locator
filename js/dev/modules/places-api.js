@@ -53,9 +53,9 @@
   /****************************************************************************
     reqPlaceDetails() - This requests details of the selectedPlace from Google
   *****************************************************************************/
-  app.modules.reqPlaceDetails = function() {
+  app.modules.reqPlaceDetails = function(placeId) {
     return new Promise(function(resolve, reject) {
-      var params = { placeId: app.models.selectedPlace.placeId };
+      var params = { placeId: placeId };
 
       service = new google.maps.places.PlacesService(app.views.map);
       service.getDetails(params, callback);
@@ -66,16 +66,7 @@
           return;
         }
 
-        app.models.selectedPlace.setWebsite(results.website);
-        app.models.selectedPlace.setAddress(results.formatted_address);
-        app.models.selectedPlace.setGoogleMapsUrl(results.url);
-        app.models.selectedPlace.setPhoneNum(results.formatted_phone_number);
-        // This is needed to guard against items without opening_hours
-        if (results.opening_hours) {
-          app.models.selectedPlace.setOpenNow(results.opening_hours.open_now);
-          app.models.selectedPlace.setHoursOpen(results.opening_hours.weekday_text);
-        }
-        resolve();
+        resolve(results);
       }
     });
   };

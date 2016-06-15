@@ -14,20 +14,32 @@
     getDetails() - Controls the flow for acquiring details when a specific place is selected
   *******************************************************************************************/
   app.controllers.getDetails = function(place) {
+    app.models.selectedPlace.init();
     // Set params for search (use userLoc if available)
     var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
     var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
     var selectedPlace = app.models.places.find(place);
 
-    app.models.selectedPlace.init();
     app.models.selectedPlace.placeId = selectedPlace.place_id;
     app.models.selectedPlace.lat = selectedPlace.geometry.location.lat;
     app.models.selectedPlace.lng = selectedPlace.geometry.location.lng;
     app.models.selectedPlace.name = selectedPlace.name;
     app.models.selectedPlace.setDrivingInfo(selectedPlace.drivingInfo.distance, selectedPlace.drivingInfo.duration);
 
-    app.modules.reqPlaceDetails()
-      .then(app.modules.reqTransitDistance)
+    app.modules.reqPlaceDetails(selectedPlace.place_id)
+      .then(function(results) {
+        app.models.selectedPlace.setWebsite(results.website);
+        app.models.selectedPlace.setAddress(results.formatted_address);
+        app.models.selectedPlace.setGoogleMapsUrl(results.url);
+        app.models.selectedPlace.setPhoneNum(results.formatted_phone_number);
+        // This is needed to guard against items without opening_hours
+        if (results.opening_hours) {
+          app.models.selectedPlace.setOpenNow(results.opening_hours.open_now);
+          app.models.selectedPlace.setHoursOpen(results.opening_hours.weekday_text);
+        }
+        
+        return app.modules.reqTransitDistance();
+      })
       .then(function() {
         app.views.placeModal.populate();
         app.views.placeModal.show();
