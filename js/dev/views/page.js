@@ -10,7 +10,7 @@
   app.views.map = {
     init: function() {
       // Collect DOM elements
-      this.map = document.getElementById('map');
+      app.views.map = document.getElementById('map');
     }
   };
 

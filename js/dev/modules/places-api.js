@@ -24,7 +24,7 @@
       }
 
       // Google map isn't shown on page but is required for PlacesService constructor
-      var service = new google.maps.places.PlacesService(app.views.map.map);
+      var service = new google.maps.places.PlacesService(app.views.map);
       service.nearbySearch(params, callback);
 
       function callback(results, status, pagination) {
@@ -57,7 +57,7 @@
     return new Promise(function(resolve, reject) {
       var params = { placeId: app.models.selectedPlace.placeId };
 
-      service = new google.maps.places.PlacesService(app.views.map.map);
+      service = new google.maps.places.PlacesService(app.views.map);
       service.getDetails(params, callback);
 
       function callback(results, status) {
