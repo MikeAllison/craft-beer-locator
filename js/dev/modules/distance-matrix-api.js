@@ -73,15 +73,14 @@
 
   /************************************************************************************************************
     reqDrivingDistance() - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
+    origin - a JS object with .lat and .lng keys
+    destination - a JS object with .lat and .lng keys
   *************************************************************************************************************/
-  app.modules.reqDrivingDistance = function() {
+  app.modules.reqDrivingDistance = function(origin, destination) {
     return new Promise(function(resolve, reject) {
-      // Set params for search (use userLoc if available)
-      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
       var params = {
-        origins: [new google.maps.LatLng(lat, lng)],
-        destinations: [new google.maps.LatLng(app.models.selectedPlace.lat, app.models.selectedPlace.lng)],
+        origins: [new google.maps.LatLng(origin.lat, origin.lng)],
+        destinations: [new google.maps.LatLng(destination.lat, destination.lng)],
         travelMode: google.maps.TravelMode.DRIVING,
         unitSystem: app.config.settings.search.unitSystem
       };
@@ -96,30 +95,21 @@
           return;
         }
 
-        var distance, duration;
-        // Guard against no transit option to destination
-        if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
-          distance = results.rows[0].elements[0].distance.text;
-          duration = results.rows[0].elements[0].duration.text;
-        }
-        // Save distance and duration info
-        app.models.selectedPlace.setDrivingInfo(distance, duration);
-        resolve();
+        resolve(results);
       }
     });
   };
 
   /***********************************************************************************************************
     reqTransitDistance() - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
+    origin - a JS object with .lat and .lng keys
+    destination - a JS object with .lat and .lng keys
   ************************************************************************************************************/
-  app.modules.reqTransitDistance = function() {
+  app.modules.reqTransitDistance = function(origin, destination) {
     return new Promise(function(resolve, reject) {
-      // Set params for search (use userLoc if available)
-      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
       var params = {
-        origins: [new google.maps.LatLng(lat, lng)],
-        destinations: [new google.maps.LatLng(app.models.selectedPlace.lat, app.models.selectedPlace.lng)],
+        origins: [new google.maps.LatLng(origin.lat, origin.lng)],
+        destinations: [new google.maps.LatLng(destination.lat, destination.lng)],
         travelMode: google.maps.TravelMode.TRANSIT,
         transitOptions: { modes: [google.maps.TransitMode.SUBWAY] },
         unitSystem: app.config.settings.search.unitSystem
@@ -135,15 +125,7 @@
           return;
         }
 
-        var distance, duration;
-        // Guard against no transit option to destination
-        if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
-          distance = results.rows[0].elements[0].distance.text;
-          duration = results.rows[0].elements[0].duration.text;
-        }
-        // Save distance and duration info
-        app.models.selectedPlace.setTransitInfo(distance, duration);
-        resolve();
+        resolve(results);
       }
     });
   };

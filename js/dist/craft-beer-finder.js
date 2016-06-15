@@ -276,15 +276,19 @@ var app = app || {};
     // Set params for search (use userLoc if available)
     var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
     var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-    var selectedPlace = app.models.places.find(place);
+    var reqPlace = app.models.places.find(place);
 
-    app.models.selectedPlace.placeId = selectedPlace.place_id;
-    app.models.selectedPlace.lat = selectedPlace.geometry.location.lat;
-    app.models.selectedPlace.lng = selectedPlace.geometry.location.lng;
-    app.models.selectedPlace.name = selectedPlace.name;
-    app.models.selectedPlace.setDrivingInfo(selectedPlace.drivingInfo.distance, selectedPlace.drivingInfo.duration);
+    // TO-DO: Move into model
+    // Set details acquired from app.modules.reqPlaces()
+    app.models.selectedPlace.placeId = reqPlace.place_id;
+    app.models.selectedPlace.lat = reqPlace.geometry.location.lat;
+    app.models.selectedPlace.lng = reqPlace.geometry.location.lng;
+    app.models.selectedPlace.name = reqPlace.name;
+    app.models.selectedPlace.setDrivingInfo(reqPlace.drivingInfo.distance, reqPlace.drivingInfo.duration);
 
-    app.modules.reqPlaceDetails(selectedPlace.place_id)
+    // TO-DO: Move into model
+    // Acquire more details
+    app.modules.reqPlaceDetails(reqPlace.place_id)
       .then(function(results) {
         app.models.selectedPlace.setWebsite(results.website);
         app.models.selectedPlace.setAddress(results.formatted_address);
@@ -295,10 +299,29 @@ var app = app || {};
           app.models.selectedPlace.setOpenNow(results.opening_hours.open_now);
           app.models.selectedPlace.setHoursOpen(results.opening_hours.weekday_text);
         }
-        
-        return app.modules.reqTransitDistance();
+
+        var origin = {
+          lat: app.models.userLoc.lat || app.models.searchLoc.lat,
+          lng: app.models.userLoc.lng || app.models.searchLoc.lng
+        };
+
+        var destination = {
+          lat: app.models.selectedPlace.lat,
+          lng: app.models.selectedPlace.lng
+        };
+
+        return app.modules.reqTransitDistance(origin, destination);
       })
-      .then(function() {
+      .then(function(results) {
+        var distance, duration;
+        // Guard against no transit option to destination
+        if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
+          distance = results.rows[0].elements[0].distance.text;
+          duration = results.rows[0].elements[0].duration.text;
+        }
+        // Save distance and duration info
+        app.models.selectedPlace.setTransitInfo(distance, duration);
+
         app.views.placeModal.populate();
         app.views.placeModal.show();
       })
@@ -313,10 +336,51 @@ var app = app || {};
       .then(function(position) {
         app.models.userLoc.lat = position.coords.latitude;
         app.models.userLoc.lng = position.coords.longitude;
+
+        var origin = {
+          lat: app.models.userLoc.lat,
+          lng: app.models.userLoc.lng
+        };
+
+        var destination = {
+          lat: app.models.selectedPlace.lat,
+          lng: app.models.selectedPlace.lng
+        };
+
+        return app.modules.reqDrivingDistance(origin, destination);
       })
-      .then(app.modules.reqDrivingDistance)
-      .then(app.modules.reqTransitDistance)
-      .then(function() {
+      .then(function(results) {
+        var distance, duration;
+        // Guard against no transit option to destination
+        if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
+          distance = results.rows[0].elements[0].distance.text;
+          duration = results.rows[0].elements[0].duration.text;
+        }
+        // Save distance and duration info
+        app.models.selectedPlace.setDrivingInfo(distance, duration);
+
+        var origin = {
+          lat: app.models.userLoc.lat,
+          lng: app.models.userLoc.lng
+        };
+
+        var destination = {
+          lat: app.models.selectedPlace.lat,
+          lng: app.models.selectedPlace.lng
+        };
+
+        return app.modules.reqTransitDistance(origin, destination);
+      })
+      .then(function(results) {
+        var distance, duration;
+        // Guard against no transit option to destination
+        if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
+          distance = results.rows[0].elements[0].distance.text;
+          duration = results.rows[0].elements[0].duration.text;
+        }
+        // Save distance and duration info
+        app.models.selectedPlace.setTransitInfo(distance, duration);
+        
         app.views.placeModal.populate();
         app.views.placeModal.show();
 
@@ -654,15 +718,14 @@ $(function() {
 
   /************************************************************************************************************
     reqDrivingDistance() - Requests driving distance from Google Maps Distance Matrix for models.selectedPlace
+    origin - a JS object with .lat and .lng keys
+    destination - a JS object with .lat and .lng keys
   *************************************************************************************************************/
-  app.modules.reqDrivingDistance = function() {
+  app.modules.reqDrivingDistance = function(origin, destination) {
     return new Promise(function(resolve, reject) {
-      // Set params for search (use userLoc if available)
-      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
       var params = {
-        origins: [new google.maps.LatLng(lat, lng)],
-        destinations: [new google.maps.LatLng(app.models.selectedPlace.lat, app.models.selectedPlace.lng)],
+        origins: [new google.maps.LatLng(origin.lat, origin.lng)],
+        destinations: [new google.maps.LatLng(destination.lat, destination.lng)],
         travelMode: google.maps.TravelMode.DRIVING,
         unitSystem: app.config.settings.search.unitSystem
       };
@@ -677,30 +740,21 @@ $(function() {
           return;
         }
 
-        var distance, duration;
-        // Guard against no transit option to destination
-        if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
-          distance = results.rows[0].elements[0].distance.text;
-          duration = results.rows[0].elements[0].duration.text;
-        }
-        // Save distance and duration info
-        app.models.selectedPlace.setDrivingInfo(distance, duration);
-        resolve();
+        resolve(results);
       }
     });
   };
 
   /***********************************************************************************************************
     reqTransitDistance() - Requests subway distance from Google Maps Distance Matrix for models.selectedPlace
+    origin - a JS object with .lat and .lng keys
+    destination - a JS object with .lat and .lng keys
   ************************************************************************************************************/
-  app.modules.reqTransitDistance = function() {
+  app.modules.reqTransitDistance = function(origin, destination) {
     return new Promise(function(resolve, reject) {
-      // Set params for search (use userLoc if available)
-      var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-      var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
       var params = {
-        origins: [new google.maps.LatLng(lat, lng)],
-        destinations: [new google.maps.LatLng(app.models.selectedPlace.lat, app.models.selectedPlace.lng)],
+        origins: [new google.maps.LatLng(origin.lat, origin.lng)],
+        destinations: [new google.maps.LatLng(destination.lat, destination.lng)],
         travelMode: google.maps.TravelMode.TRANSIT,
         transitOptions: { modes: [google.maps.TransitMode.SUBWAY] },
         unitSystem: app.config.settings.search.unitSystem
@@ -716,15 +770,7 @@ $(function() {
           return;
         }
 
-        var distance, duration;
-        // Guard against no transit option to destination
-        if (results.rows[0].elements[0].distance && results.rows[0].elements[0].duration) {
-          distance = results.rows[0].elements[0].distance.text;
-          duration = results.rows[0].elements[0].duration.text;
-        }
-        // Save distance and duration info
-        app.models.selectedPlace.setTransitInfo(distance, duration);
-        resolve();
+        resolve(results);
       }
     });
   };
