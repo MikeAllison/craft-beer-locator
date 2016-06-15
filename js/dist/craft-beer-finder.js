@@ -290,12 +290,19 @@ var app = app || {};
     getDetails() - Controls the flow for acquiring details when a specific place is selected
   *******************************************************************************************/
   app.controllers.getDetails = function(place) {
+    // Set params for search (use userLoc if available)
+    var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
+    var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
     var requestedPlace = app.models.places.find(place);
+    console.dir(requestedPlace);
 
     app.controllers.setSelectedPlaceDetails(requestedPlace)
       .then(app.controllers.reqPlaceDetails)
       .then(app.controllers.reqTransitDistance)
-      .then(app.controllers.updateModal)
+      .then(function() {
+        app.views.placeModal.populate();
+        app.views.placeModal.show();
+      })
       .catch(app.controllers.stopExecution);
   };
 
@@ -310,8 +317,10 @@ var app = app || {};
       })
       .then(app.controllers.reqDrivingDistance)
       .then(app.controllers.reqTransitDistance)
-      .then(app.controllers.updateModal)
       .then(function() {
+        app.views.placeModal.populate();
+        app.views.placeModal.show();
+
         var places = app.models.places.get();
         // Flatten to a one-dimensional array
         if (places.primary || places.secondary) {
@@ -374,15 +383,6 @@ var app = app || {};
     // Render views with updated results
     app.views.recentSearches.render();
     app.views.results.render();
-  };
-
-  // updateModal - Updates model when a place is selected
-  app.controllers.updateModal = function() {
-    return new Promise(function(resolve) {
-      app.views.placeModal.populate();
-      app.views.placeModal.show();
-      resolve();
-    });
   };
 
 })();
@@ -627,7 +627,7 @@ $(function() {
           }
 
           groupedResults[reqNum] = results;
-          
+
           resolveResults(groupedResults);
         });
       }

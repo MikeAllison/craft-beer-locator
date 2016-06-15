@@ -18,13 +18,4 @@
     app.views.results.render();
   };
 
-  // updateModal - Updates model when a place is selected
-  app.controllers.updateModal = function() {
-    return new Promise(function(resolve) {
-      app.views.placeModal.populate();
-      app.views.placeModal.show();
-      resolve();
-    });
-  };
-
 })();

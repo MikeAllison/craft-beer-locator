@@ -45,7 +45,7 @@
           }
 
           groupedResults[reqNum] = results;
-          
+
           resolveResults(groupedResults);
         });
       }
