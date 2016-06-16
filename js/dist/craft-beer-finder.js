@@ -75,7 +75,11 @@ var app = app || {};
       .then(function(response) {
         app.models.searchLoc.lat = response.results[0].geometry.location.lat;
         app.models.searchLoc.lng = response.results[0].geometry.location.lng;
-        app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
+
+        var address = response.results[0].formatted_address.replace(/((\s\d+)?,\sUSA)/i, '');
+        address = address.split(/,\s/);
+        app.models.searchLoc.city = address.shift();
+        app.models.searchLoc.state = address.pop();
 
         return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
@@ -144,9 +148,8 @@ var app = app || {};
         return app.modules.reverseGeocode(app.models.userLoc.lat, app.models.userLoc.lng);
       })
       .then(function(response) {
-        var formattedAddress = response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name;
-        // Sets .formattedAddress as city, state (i.e. New York, NY)
-        app.models.userLoc.setFormattedAddress(formattedAddress);
+        app.models.userLoc.city = response.results[0].address_components[2].long_name;
+        app.models.userLoc.state = response.results[0].address_components[4].short_name;
 
         return app.modules.reqPlaces(app.models.userLoc.lat, app.models.userLoc.lng);
       })
@@ -188,7 +191,7 @@ var app = app || {};
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
         app.views.form.setTboxPlaceholder();
         app.views.results.render();
-        app.views.recentSearches.render();        
+        app.views.recentSearches.render();
         app.views.page.enableButtons();
       })
       .catch(app.controllers.stopExecution);
@@ -499,7 +502,8 @@ $(function() {
       var newLocation = {};
       newLocation.lat = app.models.userLoc.lat || app.models.searchLoc.lat;
       newLocation.lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-      newLocation.formattedAddress = app.models.userLoc.formattedAddress || app.models.searchLoc.formattedAddress;
+      newLocation.city = app.models.userLoc.city || app.models.searchLoc.city;
+      newLocation.state = app.models.userLoc.state || app.models.searchLoc.state;
       newLocation.totalItems = app.models.userLoc.totalItems || app.models.searchLoc.totalItems;
       cachedSearches.unshift(newLocation);
 
@@ -524,17 +528,22 @@ $(function() {
     init: function() {
       this.lat = null;
       this.lng = null;
-      this.formattedAddress = null;
+      this.city = null;
+      this.state = null;
       this.totalItems = null;
     },
-    setFormattedAddress: function(address) {
-      this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
-    },
     setBasicDetails: function(location) {
-      app.models.searchLoc.lat = location.lat;
-      app.models.searchLoc.lng = location.lng;
-      app.models.searchLoc.totalItems = location.totalItems;
-      this.setFormattedAddress(location.formattedAddress);
+      this.lat = location.lat;
+      this.lng = location.lng;
+      this.city = location.city;
+      this.state = location.state;
+      this.totalItems = location.totalItems;
+    },
+    cityState: function() {
+      if (this.city === null || this.state === null) {
+        return undefined;
+      }
+      return this.city + ', ' + this.state;
     }
   };
 
@@ -622,14 +631,18 @@ $(function() {
     init: function() {
       this.lat = null;
       this.lng = null;
-      this.formattedAddress = null;
+      this.city = null;
+      this.state = null;
       this.totalItems = null;
-    },
-    setFormattedAddress: function(address) {
-      this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
     },
     setTotalItems: function(totalItems) {
       this.totalItems = totalItems;
+    },
+    cityState: function() {
+      if (this.city === null || this.state === null) {
+        return undefined;
+      }
+      return this.city + ', ' + this.state;
     }
   };
 
@@ -1120,7 +1133,7 @@ $(function() {
     },
     setTboxPlaceholder: function() {
       this.cityStateTbox.value = null;
-      this.cityStateTbox.setAttribute('placeholder', app.models.userLoc.formattedAddress || app.models.searchLoc.formattedAddress);
+      this.cityStateTbox.setAttribute('placeholder', app.models.userLoc.cityState() || app.models.searchLoc.cityState());
     },
     disableSearchBtn: function() {
       this.searchBtn.setAttribute('disabled', true);
@@ -1356,7 +1369,7 @@ $(function() {
       for (var i=0; i < recentSearches.length; i++) {
         var li = document.createElement('li');
         li.classList.add('list-group-item');
-        li.textContent = recentSearches[i].formattedAddress;
+        li.textContent = recentSearches[i].city + ', ' + recentSearches[i].state;
 
         var span = document.createElement('span');
         span.classList.add('badge');

@@ -34,7 +34,7 @@
     },
     setTboxPlaceholder: function() {
       this.cityStateTbox.value = null;
-      this.cityStateTbox.setAttribute('placeholder', app.models.userLoc.formattedAddress || app.models.searchLoc.formattedAddress);
+      this.cityStateTbox.setAttribute('placeholder', app.models.userLoc.cityState() || app.models.searchLoc.cityState());
     },
     disableSearchBtn: function() {
       this.searchBtn.setAttribute('disabled', true);

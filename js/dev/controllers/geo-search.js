@@ -17,9 +17,8 @@
         return app.modules.reverseGeocode(app.models.userLoc.lat, app.models.userLoc.lng);
       })
       .then(function(response) {
-        var formattedAddress = response.results[0].address_components[2].long_name + ', ' + response.results[0].address_components[4].short_name;
-        // Sets .formattedAddress as city, state (i.e. New York, NY)
-        app.models.userLoc.setFormattedAddress(formattedAddress);
+        app.models.userLoc.city = response.results[0].address_components[2].long_name;
+        app.models.userLoc.state = response.results[0].address_components[4].short_name;
 
         return app.modules.reqPlaces(app.models.userLoc.lat, app.models.userLoc.lng);
       })
@@ -61,7 +60,7 @@
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
         app.views.form.setTboxPlaceholder();
         app.views.results.render();
-        app.views.recentSearches.render();        
+        app.views.recentSearches.render();
         app.views.page.enableButtons();
       })
       .catch(app.controllers.stopExecution);

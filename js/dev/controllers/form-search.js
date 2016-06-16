@@ -20,7 +20,11 @@
       .then(function(response) {
         app.models.searchLoc.lat = response.results[0].geometry.location.lat;
         app.models.searchLoc.lng = response.results[0].geometry.location.lng;
-        app.models.searchLoc.setFormattedAddress(response.results[0].formatted_address);
+
+        var address = response.results[0].formatted_address.replace(/((\s\d+)?,\sUSA)/i, '');
+        address = address.split(/,\s/);
+        app.models.searchLoc.city = address.shift();
+        app.models.searchLoc.state = address.pop();
 
         return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })

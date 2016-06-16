@@ -29,7 +29,7 @@
       for (var i=0; i < recentSearches.length; i++) {
         var li = document.createElement('li');
         li.classList.add('list-group-item');
-        li.textContent = recentSearches[i].formattedAddress;
+        li.textContent = recentSearches[i].city + ', ' + recentSearches[i].state;
 
         var span = document.createElement('span');
         span.classList.add('badge');

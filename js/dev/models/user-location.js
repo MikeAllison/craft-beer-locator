@@ -10,14 +10,18 @@
     init: function() {
       this.lat = null;
       this.lng = null;
-      this.formattedAddress = null;
+      this.city = null;
+      this.state = null;
       this.totalItems = null;
-    },
-    setFormattedAddress: function(address) {
-      this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
     },
     setTotalItems: function(totalItems) {
       this.totalItems = totalItems;
+    },
+    cityState: function() {
+      if (this.city === null || this.state === null) {
+        return undefined;
+      }
+      return this.city + ', ' + this.state;
     }
   };
 
