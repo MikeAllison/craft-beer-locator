@@ -54,10 +54,15 @@
         });
 
         var sortedResults = app.modules.sortPlaces(places);
+
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
-        app.controllers.updatePage();
+
+        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
+        app.views.form.setTboxPlaceholder();
+        app.views.results.render();
+        app.views.recentSearches.render();
         app.views.page.enableButtons();
       })
       .catch(app.controllers.stopExecution);

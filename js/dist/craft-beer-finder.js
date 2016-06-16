@@ -109,10 +109,15 @@ var app = app || {};
         });
 
         var sortedResults = app.modules.sortPlaces(places);
+
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
-        app.controllers.updatePage();
+
+        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
+        app.views.form.setTboxPlaceholder();
+        app.views.results.render();
+        app.views.recentSearches.render();
         app.views.page.enableButtons();
       })
       .catch(app.controllers.stopExecution);
@@ -175,10 +180,15 @@ var app = app || {};
         });
 
         var sortedResults = app.modules.sortPlaces(places);
+
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
-        app.controllers.updatePage();
+
+        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
+        app.views.form.setTboxPlaceholder();
+        app.views.results.render();
+        app.views.recentSearches.render();        
         app.views.page.enableButtons();
       })
       .catch(app.controllers.stopExecution);
@@ -230,9 +240,14 @@ var app = app || {};
         });
 
         var sortedResults = app.modules.sortPlaces(places);
+
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
-        app.controllers.updatePage();
+
+        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
+        app.views.form.setTboxPlaceholder();
+        app.views.results.render();
+        app.views.recentSearches.render();
         app.views.page.enableButtons();
       })
       .catch(app.controllers.stopExecution);
@@ -388,33 +403,16 @@ var app = app || {};
         });
 
         var sortedResults = app.modules.sortPlaces(places);
+
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
-        app.controllers.updatePage();
+
+        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
+        app.views.form.setTboxPlaceholder();
+        app.views.results.render();
+        app.views.recentSearches.render();
       })
       .catch(app.controllers.stopExecution);
-  };
-
-})();
-
-// Code related to updating views
-
-(function() {
-
-  app.controllers = app.controllers || {};
-
-  // updatePage - Updates list of results and recent searches
-  app.controllers.updatePage = function() {
-    var places = app.models.places.get();
-
-    app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-
-    // Set placeholder attribute on textbox
-    app.views.form.setTboxPlaceholder();
-
-    // Render views with updated results
-    app.views.recentSearches.render();
-    app.views.results.render();
   };
 
 })();
@@ -426,8 +424,10 @@ var app = app || {};
 $(function() {
 
   app.config.init();
+
   app.models.searchLoc.init();
   app.models.places.init();
+  
   app.views.page.init();
   app.views.map.init();
   app.views.form.init();
