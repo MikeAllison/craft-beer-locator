@@ -18,29 +18,14 @@
     // Set params for search (use userLoc if available)
     var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
     var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-    var reqPlace = app.models.places.find(place);
+    var requestedPlace = app.models.places.find(place);
 
-    // TO-DO: Move into model
-    // Set details acquired from app.modules.reqPlaces()
-    app.models.selectedPlace.placeId = reqPlace.place_id;
-    app.models.selectedPlace.lat = reqPlace.geometry.location.lat;
-    app.models.selectedPlace.lng = reqPlace.geometry.location.lng;
-    app.models.selectedPlace.name = reqPlace.name;
-    app.models.selectedPlace.setDrivingInfo(reqPlace.drivingInfo.distance, reqPlace.drivingInfo.duration);
+    app.models.selectedPlace.setBasicDetails(requestedPlace);
+    app.models.selectedPlace.setDrivingInfo(requestedPlace.drivingInfo.distance, requestedPlace.drivingInfo.duration);
 
-    // TO-DO: Move into model
-    // Acquire more details
-    app.modules.reqPlaceDetails(reqPlace.place_id)
+    app.modules.reqPlaceDetails(requestedPlace.place_id)
       .then(function(results) {
-        app.models.selectedPlace.setWebsite(results.website);
-        app.models.selectedPlace.setAddress(results.formatted_address);
-        app.models.selectedPlace.setGoogleMapsUrl(results.url);
-        app.models.selectedPlace.setPhoneNum(results.formatted_phone_number);
-        // This is needed to guard against items without opening_hours
-        if (results.opening_hours) {
-          app.models.selectedPlace.setOpenNow(results.opening_hours.open_now);
-          app.models.selectedPlace.setHoursOpen(results.opening_hours.weekday_text);
-        }
+        app.models.selectedPlace.setSpecificDetails(results);
 
         var origin = {
           lat: app.models.userLoc.lat || app.models.searchLoc.lat,
@@ -122,7 +107,7 @@
         }
         // Save distance and duration info
         app.models.selectedPlace.setTransitInfo(distance, duration);
-        
+
         app.views.placeModal.populate();
         app.views.placeModal.show();
 

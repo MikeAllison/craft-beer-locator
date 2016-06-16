@@ -46,6 +46,23 @@
     },
     setHoursOpen: function(hoursOpen) {
       this.hoursOpen = hoursOpen ? hoursOpen : '';
+    },
+    setBasicDetails: function(place) {
+      this.placeId = place.place_id;
+      this.lat = place.geometry.location.lat;
+      this.lng = place.geometry.location.lng;
+      this.name = place.name;
+    },
+    setSpecificDetails: function(place) {
+      this.setWebsite(place.website);
+      this.setAddress(place.formatted_address);
+      this.setGoogleMapsUrl(place.url);
+      this.setPhoneNum(place.formatted_phone_number);
+      // This is needed to guard against items without opening_hours
+      if (place.opening_hours) {
+        this.setOpenNow(place.opening_hours.open_now);
+        this.setHoursOpen(place.opening_hours.weekday_text);
+      }
     }
   };
 
