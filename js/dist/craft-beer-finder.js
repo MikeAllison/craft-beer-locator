@@ -186,22 +186,6 @@ var app = app || {};
 
 })();
 
-// Code related to passing data to models
-
-(function() {
-
-  app.controllers = app.controllers || {};
-
-  // setSearchLocation - Sets the location to be used by Google Places Search when a location is selected from Recent Places
-  app.controllers.setSearchLocation = function(location) {
-    app.models.searchLoc.lat = location.lat;
-    app.models.searchLoc.lng = location.lng;
-    app.models.searchLoc.setFormattedAddress(location.formattedAddress);
-    app.models.searchLoc.totalItems = location.totalItems;
-  };
-
-})();
-
 /****************************************************************************************************
   recentSearch() - Controls the flow of a search initiated by clicking a location in Recent Searches
 *****************************************************************************************************/
@@ -213,7 +197,7 @@ var app = app || {};
   app.controllers.recentSearch = function(location) {
     app.models.userLoc.init();
 
-    app.controllers.setSearchLocation(location);
+    app.models.searchLoc.setBasicDetails(location);
 
     app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
       .then(function(results) {
@@ -545,6 +529,12 @@ $(function() {
     },
     setFormattedAddress: function(address) {
       this.formattedAddress = address.replace(/((\s\d+)?,\sUSA)/i, '');
+    },
+    setBasicDetails: function(location) {
+      app.models.searchLoc.lat = location.lat;
+      app.models.searchLoc.lng = location.lng;
+      app.models.searchLoc.totalItems = location.totalItems;
+      this.setFormattedAddress(location.formattedAddress);
     }
   };
 

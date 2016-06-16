@@ -9,7 +9,7 @@
   app.controllers.recentSearch = function(location) {
     app.models.userLoc.init();
 
-    app.controllers.setSearchLocation(location);
+    app.models.searchLoc.setBasicDetails(location);
 
     app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
       .then(function(results) {
