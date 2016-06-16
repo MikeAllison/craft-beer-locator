@@ -62,14 +62,14 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.formSearch = function() {
-    app.models.userLoc.init();
-
     var tboxVal = app.views.form.cityStateTbox.value;
     if (!tboxVal) {
       app.views.alerts.show('error', 'Please enter a location.');
       app.views.page.enableButtons();
       return;
     }
+
+    app.models.searchLoc.isGeoSearch = false;
 
     app.modules.getGeocode(tboxVal)
       .then(function(response) {
@@ -138,20 +138,20 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.geolocationSearch = function() {
-    app.models.searchLoc.init();
+    app.models.searchLoc.isGeoSearch = true;
 
     app.modules.getCurrentLocation()
       .then(function(position) {
-        app.models.userLoc.lat = position.coords.latitude;
-        app.models.userLoc.lng = position.coords.longitude;
+        app.models.searchLoc.lat = position.coords.latitude;
+        app.models.searchLoc.lng = position.coords.longitude;
 
-        return app.modules.reverseGeocode(app.models.userLoc.lat, app.models.userLoc.lng);
+        return app.modules.reverseGeocode(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(response) {
-        app.models.userLoc.city = response.results[0].address_components[2].long_name;
-        app.models.userLoc.state = response.results[0].address_components[4].short_name;
+        app.models.searchLoc.city = response.results[0].address_components[2].long_name;
+        app.models.searchLoc.state = response.results[0].address_components[4].short_name;
 
-        return app.modules.reqPlaces(app.models.userLoc.lat, app.models.userLoc.lng);
+        return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
         app.models.places.add(results);
@@ -167,7 +167,7 @@ var app = app || {};
           placesCoords.push(latLng);
         });
 
-        return app.modules.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
+        return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();
@@ -208,8 +208,7 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.recentSearch = function(location) {
-    app.models.userLoc.init();
-
+    app.models.searchLoc.isGeoSearch = false;
     app.models.searchLoc.setBasicDetails(location);
 
     app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
@@ -275,9 +274,9 @@ var app = app || {};
   *******************************************************************************************/
   app.controllers.getDetails = function(place) {
     app.models.selectedPlace.init();
-    // Set params for search (use userLoc if available)
-    var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-    var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
+
+    var lat = app.models.searchLoc.lat;
+    var lng = app.models.searchLoc.lng;
     var requestedPlace = app.models.places.find(place);
 
     app.models.selectedPlace.setBasicDetails(requestedPlace);
@@ -287,15 +286,8 @@ var app = app || {};
       .then(function(results) {
         app.models.selectedPlace.setSpecificDetails(results);
 
-        var origin = {
-          lat: app.models.userLoc.lat || app.models.searchLoc.lat,
-          lng: app.models.userLoc.lng || app.models.searchLoc.lng
-        };
-
-        var destination = {
-          lat: app.models.selectedPlace.lat,
-          lng: app.models.selectedPlace.lng
-        };
+        var origin = { lat: app.models.searchLoc.lat, lng: app.models.searchLoc.lng };
+        var destination = { lat: app.models.selectedPlace.lat, lng: app.models.selectedPlace.lng };
 
         return app.modules.reqTransitDistance(origin, destination);
       })
@@ -319,14 +311,16 @@ var app = app || {};
     switchToGeolocation() - Requests distance from your location to a place (triggered from placeModal)
   ******************************************************************************************************/
   app.controllers.switchToGeolocation = function() {
+    app.models.searchLoc.isGeoSearch = true;
+
     app.modules.getCurrentLocation()
       .then(function(position) {
-        app.models.userLoc.lat = position.coords.latitude;
-        app.models.userLoc.lng = position.coords.longitude;
+        app.models.searchLoc.lat = position.coords.latitude;
+        app.models.searchLoc.lng = position.coords.longitude;
 
         var origin = {
-          lat: app.models.userLoc.lat,
-          lng: app.models.userLoc.lng
+          lat: app.models.searchLoc.lat,
+          lng: app.models.searchLoc.lng
         };
 
         var destination = {
@@ -347,8 +341,8 @@ var app = app || {};
         app.models.selectedPlace.setDrivingInfo(distance, duration);
 
         var origin = {
-          lat: app.models.userLoc.lat,
-          lng: app.models.userLoc.lng
+          lat: app.models.searchLoc.lat,
+          lng: app.models.searchLoc.lng
         };
 
         var destination = {
@@ -385,7 +379,7 @@ var app = app || {};
           placesCoords.push(latLng);
         });
 
-        return app.modules.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
+        return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();
@@ -500,11 +494,11 @@ $(function() {
       }
 
       var newLocation = {};
-      newLocation.lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-      newLocation.lng = app.models.userLoc.lng || app.models.searchLoc.lng;
-      newLocation.city = app.models.userLoc.city || app.models.searchLoc.city;
-      newLocation.state = app.models.userLoc.state || app.models.searchLoc.state;
-      newLocation.totalItems = app.models.userLoc.totalItems || app.models.searchLoc.totalItems;
+      newLocation.lat = app.models.searchLoc.lat;
+      newLocation.lng = app.models.searchLoc.lng;
+      newLocation.city = app.models.searchLoc.city;
+      newLocation.state = app.models.searchLoc.state;
+      newLocation.totalItems = app.models.searchLoc.totalItems;
       cachedSearches.unshift(newLocation);
 
       localStorage.setItem('recentSearches', JSON.stringify(cachedSearches));
@@ -531,6 +525,7 @@ $(function() {
       this.city = null;
       this.state = null;
       this.totalItems = null;
+      this.isGeoSearch = null;
     },
     setBasicDetails: function(location) {
       this.lat = location.lat;
@@ -614,35 +609,6 @@ $(function() {
         this.setOpenNow(place.opening_hours.open_now);
         this.setHoursOpen(place.opening_hours.weekday_text);
       }
-    }
-  };
-
-})();
-
-/*********************
-  User Location Model
-**********************/
-
-(function() {
-
-  app.models = app.models || {};
-
-  app.models.userLoc = {
-    init: function() {
-      this.lat = null;
-      this.lng = null;
-      this.city = null;
-      this.state = null;
-      this.totalItems = null;
-    },
-    setTotalItems: function(totalItems) {
-      this.totalItems = totalItems;
-    },
-    cityState: function() {
-      if (this.city === null || this.state === null) {
-        return undefined;
-      }
-      return this.city + ', ' + this.state;
     }
   };
 
@@ -1133,7 +1099,7 @@ $(function() {
     },
     setTboxPlaceholder: function() {
       this.cityStateTbox.value = null;
-      this.cityStateTbox.setAttribute('placeholder', app.models.userLoc.cityState() || app.models.searchLoc.cityState());
+      this.cityStateTbox.setAttribute('placeholder', app.models.searchLoc.cityState());
     },
     disableSearchBtn: function() {
       this.searchBtn.setAttribute('disabled', true);
@@ -1278,7 +1244,7 @@ $(function() {
       }
 
       // Only show message if geolocation search isn't being used
-      if (app.models.userLoc.lat && app.models.userLoc.lng) {
+      if (app.models.searchLoc.isGeoSearch) {
         this.placeModalDistanceWarning.classList.add('hidden');
       }
 

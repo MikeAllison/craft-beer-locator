@@ -64,7 +64,7 @@
       }
 
       // Only show message if geolocation search isn't being used
-      if (app.models.userLoc.lat && app.models.userLoc.lng) {
+      if (app.models.searchLoc.isGeoSearch) {
         this.placeModalDistanceWarning.classList.add('hidden');
       }
 

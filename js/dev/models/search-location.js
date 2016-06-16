@@ -13,6 +13,7 @@
       this.city = null;
       this.state = null;
       this.totalItems = null;
+      this.isGeoSearch = null;
     },
     setBasicDetails: function(location) {
       this.lat = location.lat;

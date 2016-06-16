@@ -15,9 +15,9 @@
   *******************************************************************************************/
   app.controllers.getDetails = function(place) {
     app.models.selectedPlace.init();
-    // Set params for search (use userLoc if available)
-    var lat = app.models.userLoc.lat || app.models.searchLoc.lat;
-    var lng = app.models.userLoc.lng || app.models.searchLoc.lng;
+
+    var lat = app.models.searchLoc.lat;
+    var lng = app.models.searchLoc.lng;
     var requestedPlace = app.models.places.find(place);
 
     app.models.selectedPlace.setBasicDetails(requestedPlace);
@@ -27,15 +27,8 @@
       .then(function(results) {
         app.models.selectedPlace.setSpecificDetails(results);
 
-        var origin = {
-          lat: app.models.userLoc.lat || app.models.searchLoc.lat,
-          lng: app.models.userLoc.lng || app.models.searchLoc.lng
-        };
-
-        var destination = {
-          lat: app.models.selectedPlace.lat,
-          lng: app.models.selectedPlace.lng
-        };
+        var origin = { lat: app.models.searchLoc.lat, lng: app.models.searchLoc.lng };
+        var destination = { lat: app.models.selectedPlace.lat, lng: app.models.selectedPlace.lng };
 
         return app.modules.reqTransitDistance(origin, destination);
       })
@@ -59,14 +52,16 @@
     switchToGeolocation() - Requests distance from your location to a place (triggered from placeModal)
   ******************************************************************************************************/
   app.controllers.switchToGeolocation = function() {
+    app.models.searchLoc.isGeoSearch = true;
+
     app.modules.getCurrentLocation()
       .then(function(position) {
-        app.models.userLoc.lat = position.coords.latitude;
-        app.models.userLoc.lng = position.coords.longitude;
+        app.models.searchLoc.lat = position.coords.latitude;
+        app.models.searchLoc.lng = position.coords.longitude;
 
         var origin = {
-          lat: app.models.userLoc.lat,
-          lng: app.models.userLoc.lng
+          lat: app.models.searchLoc.lat,
+          lng: app.models.searchLoc.lng
         };
 
         var destination = {
@@ -87,8 +82,8 @@
         app.models.selectedPlace.setDrivingInfo(distance, duration);
 
         var origin = {
-          lat: app.models.userLoc.lat,
-          lng: app.models.userLoc.lng
+          lat: app.models.searchLoc.lat,
+          lng: app.models.searchLoc.lng
         };
 
         var destination = {
@@ -125,7 +120,7 @@
           placesCoords.push(latLng);
         });
 
-        return app.modules.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
+        return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();

@@ -7,14 +7,14 @@
   app.controllers = app.controllers || {};
 
   app.controllers.formSearch = function() {
-    app.models.userLoc.init();
-
     var tboxVal = app.views.form.cityStateTbox.value;
     if (!tboxVal) {
       app.views.alerts.show('error', 'Please enter a location.');
       app.views.page.enableButtons();
       return;
     }
+
+    app.models.searchLoc.isGeoSearch = false;
 
     app.modules.getGeocode(tboxVal)
       .then(function(response) {

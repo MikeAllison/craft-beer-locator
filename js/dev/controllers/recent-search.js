@@ -7,8 +7,7 @@
   app.controllers = app.controllers || {};
 
   app.controllers.recentSearch = function(location) {
-    app.models.userLoc.init();
-
+    app.models.searchLoc.isGeoSearch = false;
     app.models.searchLoc.setBasicDetails(location);
 
     app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)

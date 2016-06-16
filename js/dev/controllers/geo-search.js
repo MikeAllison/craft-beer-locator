@@ -7,20 +7,20 @@
   app.controllers = app.controllers || {};
 
   app.controllers.geolocationSearch = function() {
-    app.models.searchLoc.init();
+    app.models.searchLoc.isGeoSearch = true;
 
     app.modules.getCurrentLocation()
       .then(function(position) {
-        app.models.userLoc.lat = position.coords.latitude;
-        app.models.userLoc.lng = position.coords.longitude;
+        app.models.searchLoc.lat = position.coords.latitude;
+        app.models.searchLoc.lng = position.coords.longitude;
 
-        return app.modules.reverseGeocode(app.models.userLoc.lat, app.models.userLoc.lng);
+        return app.modules.reverseGeocode(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(response) {
-        app.models.userLoc.city = response.results[0].address_components[2].long_name;
-        app.models.userLoc.state = response.results[0].address_components[4].short_name;
+        app.models.searchLoc.city = response.results[0].address_components[2].long_name;
+        app.models.searchLoc.state = response.results[0].address_components[4].short_name;
 
-        return app.modules.reqPlaces(app.models.userLoc.lat, app.models.userLoc.lng);
+        return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
         app.models.places.add(results);
@@ -36,7 +36,7 @@
           placesCoords.push(latLng);
         });
 
-        return app.modules.reqMultiDistance(app.models.userLoc.lat, app.models.userLoc.lng, placesCoords);
+        return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
         var places = app.models.places.get();
