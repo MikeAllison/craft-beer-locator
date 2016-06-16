@@ -65,6 +65,20 @@
   color: #fff;
 }
 
+#resultsProgressBar {
+  margin-top: 40px;
+}
+
+.progress {
+  height: 30px;
+  border-radius: 4px;
+}
+
+.progress-bar {
+  background: #16a085;
+  line-height: 30px;
+}
+
 .list-group-item {
   overflow-x: auto;
 }

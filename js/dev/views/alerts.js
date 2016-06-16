@@ -10,7 +10,7 @@
     init: function() {
       // Collect DOM elements
       this.alert = document.getElementById('alert');
-      // Set default values on DOM elements
+      // Set default values
       this.alert.classList.add('hidden');
     },
     clear: function() {

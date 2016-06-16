@@ -14,7 +14,7 @@
       this.primaryResultsList = document.getElementById('primaryResultsList');
       this.secondaryResults = document.getElementById('secondaryResults');
       this.secondaryResultsList = document.getElementById('secondaryResultsList');
-      // Set default values on DOM elements
+      // Set default values
       this.primaryResults.classList.add('hidden');
       this.secondaryResults.classList.add('hidden');
     },

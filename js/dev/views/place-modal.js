@@ -19,7 +19,7 @@
       this.placeModalDistanceWarning = document.getElementById('placeModalDistanceWarning');
       this.placeModalTransitInfo = document.getElementById('placeModalTransitInfo');
       this.placeModalHoursOpen = document.getElementById('placeModalHoursOpen');
-      // Set defaults
+      // Set default values
       this.placeModalDistanceWarning.classList.add('hidden');
     },
     populate: function() {

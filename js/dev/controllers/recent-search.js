@@ -7,11 +7,16 @@
   app.controllers = app.controllers || {};
 
   app.controllers.recentSearch = function(location) {
+    app.views.resultsProgressBar.show();
+    app.views.resultsProgressBar.update(20);
+
     app.models.searchLoc.isGeoSearch = false;
     app.models.searchLoc.setBasicDetails(location);
 
     app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
       .then(function(results) {
+        app.views.resultsProgressBar.update(90);
+
         app.models.places.add(results);
 
         var places = app.models.places.get();
@@ -28,6 +33,8 @@
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
+        app.views.resultsProgressBar.update(100);
+
         var places = app.models.places.get();
 
         results.rows[0].elements.forEach(function(element, i) {
@@ -45,6 +52,7 @@
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
 
+        app.views.resultsProgressBar.hide();
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
         app.views.form.setTboxPlaceholder();
         app.views.results.render();

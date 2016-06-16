@@ -14,10 +14,14 @@
       return;
     }
 
+    app.views.resultsProgressBar.show();
+
     app.models.searchLoc.isGeoSearch = false;
 
     app.modules.getGeocode(tboxVal)
       .then(function(response) {
+        app.views.resultsProgressBar.update(33);
+
         app.models.searchLoc.lat = response.results[0].geometry.location.lat;
         app.models.searchLoc.lng = response.results[0].geometry.location.lng;
 
@@ -29,6 +33,8 @@
         return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
+        app.views.resultsProgressBar.update(66);
+
         app.models.places.add(results);
 
         var places = app.models.places.get();
@@ -45,6 +51,8 @@
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
+        app.views.resultsProgressBar.update(100);
+
         var places = app.models.places.get();
 
         results.rows[0].elements.forEach(function(element, i) {
@@ -63,6 +71,7 @@
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
 
+        app.views.resultsProgressBar.hide();
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
         app.views.form.setTboxPlaceholder();
         app.views.results.render();

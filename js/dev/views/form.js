@@ -6,13 +6,13 @@
 
   app.views = app.views || {};
 
-  // City/state form
+  // City/State Form
   app.views.form = {
     init: function() {
       // Collect DOM elements
       this.cityStateTbox = document.getElementById('cityStateTbox');
       this.searchBtn = document.getElementById('searchBtn');
-      // Set default values on DOM elements
+      // Set default values
       this.cityStateTbox.setAttribute('autofocus', true);
       this.cityStateTbox.setAttribute('placeholder', 'New York, NY');
       // Add click handlers
@@ -44,7 +44,7 @@
     }
   };
 
-  // Location button
+  // Location Button
   app.views.locationBtn = {
     init: function() {
       // Collect DOM elements
@@ -61,6 +61,33 @@
     },
     enable: function() {
       this.locationBtn.removeAttribute('disabled');
+    }
+  };
+
+  // Progress Bar
+  app.views.resultsProgressBar = {
+    init: function() {
+      // Collect DOM elements
+      this.resultsProgressBar = document.getElementById('resultsProgressBar');
+      // Set default values
+      this.resultsProgressBar.classList.add('hidden');
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuenow', '0');
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuemin', '0');
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuemax', '100');
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('style', 'min-width: 2em; width: 0');
+    },
+    show: function() {
+      this.resultsProgressBar.classList.remove('hidden');
+    },
+    update: function(percent) {
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuenow', percent);
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('style', 'min-width: 2em; width: ' + percent + '%');
+      this.resultsProgressBar.children[1].lastElementChild.textContent = percent + '%';
+    },
+    hide: function() {
+      this.resultsProgressBar.classList.add('hidden');
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuenow', '0');
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('style', 'min-width: 2em; width: 0');
     }
   };
 

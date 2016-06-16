@@ -69,10 +69,14 @@ var app = app || {};
       return;
     }
 
+    app.views.resultsProgressBar.show();
+
     app.models.searchLoc.isGeoSearch = false;
 
     app.modules.getGeocode(tboxVal)
       .then(function(response) {
+        app.views.resultsProgressBar.update(33);
+
         app.models.searchLoc.lat = response.results[0].geometry.location.lat;
         app.models.searchLoc.lng = response.results[0].geometry.location.lng;
 
@@ -84,6 +88,8 @@ var app = app || {};
         return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
+        app.views.resultsProgressBar.update(66);
+
         app.models.places.add(results);
 
         var places = app.models.places.get();
@@ -100,6 +106,8 @@ var app = app || {};
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
+        app.views.resultsProgressBar.update(100);
+
         var places = app.models.places.get();
 
         results.rows[0].elements.forEach(function(element, i) {
@@ -118,6 +126,7 @@ var app = app || {};
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
 
+        app.views.resultsProgressBar.hide();
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
         app.views.form.setTboxPlaceholder();
         app.views.results.render();
@@ -138,22 +147,30 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.geolocationSearch = function() {
+    app.views.resultsProgressBar.show();
+
     app.models.searchLoc.isGeoSearch = true;
 
     app.modules.getCurrentLocation()
       .then(function(position) {
+        app.views.resultsProgressBar.update(25);
+
         app.models.searchLoc.lat = position.coords.latitude;
         app.models.searchLoc.lng = position.coords.longitude;
 
         return app.modules.reverseGeocode(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(response) {
+        app.views.resultsProgressBar.update(50);
+
         app.models.searchLoc.city = response.results[0].address_components[2].long_name;
         app.models.searchLoc.state = response.results[0].address_components[4].short_name;
 
         return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
+        app.views.resultsProgressBar.update(75);
+
         app.models.places.add(results);
 
         var places = app.models.places.get();
@@ -170,6 +187,8 @@ var app = app || {};
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
+        app.views.resultsProgressBar.update(100);
+
         var places = app.models.places.get();
 
         results.rows[0].elements.forEach(function(element, i) {
@@ -188,6 +207,7 @@ var app = app || {};
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
 
+        app.views.resultsProgressBar.hide();
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
         app.views.form.setTboxPlaceholder();
         app.views.results.render();
@@ -208,11 +228,16 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.recentSearch = function(location) {
+    app.views.resultsProgressBar.show();
+    app.views.resultsProgressBar.update(20);
+
     app.models.searchLoc.isGeoSearch = false;
     app.models.searchLoc.setBasicDetails(location);
 
     app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
       .then(function(results) {
+        app.views.resultsProgressBar.update(90);
+
         app.models.places.add(results);
 
         var places = app.models.places.get();
@@ -229,6 +254,8 @@ var app = app || {};
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
+        app.views.resultsProgressBar.update(100);
+
         var places = app.models.places.get();
 
         results.rows[0].elements.forEach(function(element, i) {
@@ -246,6 +273,7 @@ var app = app || {};
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
 
+        app.views.resultsProgressBar.hide();
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
         app.views.form.setTboxPlaceholder();
         app.views.results.render();
@@ -424,12 +452,13 @@ $(function() {
 
   app.models.searchLoc.init();
   app.models.places.init();
-  
+
   app.views.page.init();
   app.views.map.init();
   app.views.form.init();
   app.views.locationBtn.init();
   app.views.alerts.init();
+  app.views.resultsProgressBar.init();
   app.views.results.init();
   app.views.recentSearches.init();
   app.views.placeModal.init();
@@ -1032,7 +1061,7 @@ $(function() {
     init: function() {
       // Collect DOM elements
       this.alert = document.getElementById('alert');
-      // Set default values on DOM elements
+      // Set default values
       this.alert.classList.add('hidden');
     },
     clear: function() {
@@ -1071,13 +1100,13 @@ $(function() {
 
   app.views = app.views || {};
 
-  // City/state form
+  // City/State Form
   app.views.form = {
     init: function() {
       // Collect DOM elements
       this.cityStateTbox = document.getElementById('cityStateTbox');
       this.searchBtn = document.getElementById('searchBtn');
-      // Set default values on DOM elements
+      // Set default values
       this.cityStateTbox.setAttribute('autofocus', true);
       this.cityStateTbox.setAttribute('placeholder', 'New York, NY');
       // Add click handlers
@@ -1109,7 +1138,7 @@ $(function() {
     }
   };
 
-  // Location button
+  // Location Button
   app.views.locationBtn = {
     init: function() {
       // Collect DOM elements
@@ -1126,6 +1155,33 @@ $(function() {
     },
     enable: function() {
       this.locationBtn.removeAttribute('disabled');
+    }
+  };
+
+  // Progress Bar
+  app.views.resultsProgressBar = {
+    init: function() {
+      // Collect DOM elements
+      this.resultsProgressBar = document.getElementById('resultsProgressBar');
+      // Set default values
+      this.resultsProgressBar.classList.add('hidden');
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuenow', '0');
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuemin', '0');
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuemax', '100');
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('style', 'min-width: 2em; width: 0');
+    },
+    show: function() {
+      this.resultsProgressBar.classList.remove('hidden');
+    },
+    update: function(percent) {
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuenow', percent);
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('style', 'min-width: 2em; width: ' + percent + '%');
+      this.resultsProgressBar.children[1].lastElementChild.textContent = percent + '%';
+    },
+    hide: function() {
+      this.resultsProgressBar.classList.add('hidden');
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuenow', '0');
+      this.resultsProgressBar.children[1].lastElementChild.setAttribute('style', 'min-width: 2em; width: 0');
     }
   };
 
@@ -1199,7 +1255,7 @@ $(function() {
       this.placeModalDistanceWarning = document.getElementById('placeModalDistanceWarning');
       this.placeModalTransitInfo = document.getElementById('placeModalTransitInfo');
       this.placeModalHoursOpen = document.getElementById('placeModalHoursOpen');
-      // Set defaults
+      // Set default values
       this.placeModalDistanceWarning.classList.add('hidden');
     },
     populate: function() {
@@ -1393,7 +1449,7 @@ $(function() {
       this.primaryResultsList = document.getElementById('primaryResultsList');
       this.secondaryResults = document.getElementById('secondaryResults');
       this.secondaryResultsList = document.getElementById('secondaryResultsList');
-      // Set default values on DOM elements
+      // Set default values
       this.primaryResults.classList.add('hidden');
       this.secondaryResults.classList.add('hidden');
     },
