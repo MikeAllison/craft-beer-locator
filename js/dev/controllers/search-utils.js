@@ -150,6 +150,7 @@
         app.views.form.setTboxPlaceholder();
         app.views.results.render();
         app.views.recentSearches.render();
+        app.views.placeModal.init();
       })
       .catch(app.controllers.stopExecution);
   };

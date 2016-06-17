@@ -21,6 +21,9 @@
       this.placeModalHoursOpen = document.getElementById('placeModalHoursOpen');
       // Set default values
       this.placeModalDistanceWarning.classList.add('hidden');
+      this.placeModalDistanceWarning.innerHTML = 'These transit times reflect ' +
+        'the distance from the city in your search.<br>Click this message to ' +
+        'update the search results to show transit times from your current location.';
     },
     populate: function() {
       // Reset hidden fields on each render
