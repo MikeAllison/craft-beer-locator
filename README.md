@@ -19,9 +19,11 @@ app.config = {
 
         radius: '25000', // Can change: Radius is required if rankBy is set to google.maps.places.RankBy.PROMINENCE (max: 50000)
 
-        // SEARCH SORTING/FILTERING:
-        // These settings will help narrow down to relevant results
-        // Types (primaryTypes/secondaryTypes/excludedTypes) can be any Google Place Type: https://developers.google.com/places/supported_types
+        /**************************************************************************************************************************************
+          SEARCH SORTING/FILTERING:
+          These settings will help narrow down to relevant results
+          Types (primaryTypes/secondaryTypes/excludedTypes) can be any Google Place Type: https://developers.google.com/places/supported_types
+        ***************************************************************************************************************************************/
 
         // primaryTypes: Any result having these types will be sorted and listed first
         primaryTypes: ['bar', 'store'], // Array w/ empty string or multi-string (examples: [], ['type1'], ['type1, 'type2'], etc.)
