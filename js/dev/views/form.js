@@ -91,7 +91,6 @@
       this.resultsProgressSection.classList.remove('hidden');
 
       var updateProgress = window.setInterval(function() {
-        console.log(app.views.resultsProgressSection.progressValue);
         if (app.views.resultsProgressSection.progressValue >= 100 || app.views.resultsProgressSection.progressValue === 0) {
           app.views.resultsProgressSection.init();
           window.clearInterval(updateProgress);
