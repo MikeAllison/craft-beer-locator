@@ -39,6 +39,7 @@
 
         li.addEventListener('click', (function(location) {
           return function() {
+            $('#resultsTab').tab('show');
             app.views.page.disableButtons();
             app.views.page.clear();
             app.controllers.recentSearch(location);

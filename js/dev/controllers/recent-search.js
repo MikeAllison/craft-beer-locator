@@ -7,15 +7,14 @@
   app.controllers = app.controllers || {};
 
   app.controllers.recentSearch = function(location) {
-    app.views.resultsProgressBar.show();
-    app.views.resultsProgressBar.update(20);
+    app.views.resultsProgressSection.show(0, 'Requesting Places');
 
     app.models.searchLoc.isGeoSearch = false;
     app.models.searchLoc.setBasicDetails(location);
 
     app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
       .then(function(results) {
-        app.views.resultsProgressBar.update(90);
+        app.views.resultsProgressSection.show(33, 'Requesting Distances');
 
         app.models.places.add(results);
 
@@ -33,7 +32,7 @@
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        app.views.resultsProgressBar.update(100);
+        app.views.resultsProgressSection.show(66, 'Sorting Places');
 
         var places = app.models.places.get();
 
@@ -52,11 +51,11 @@
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
 
-        app.views.resultsProgressBar.hide();
+        app.views.resultsProgressSection.show(100, 'Complete');
+        app.views.resultsProgressSection.hide();
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
         app.views.form.setTboxPlaceholder();
         app.views.results.render();
-        app.views.recentSearches.render();
         app.views.page.enableButtons();
       })
       .catch(app.controllers.stopExecution);

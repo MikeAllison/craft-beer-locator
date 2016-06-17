@@ -69,13 +69,13 @@ var app = app || {};
       return;
     }
 
-    app.views.resultsProgressBar.show();
+    app.views.resultsProgressSection.show(0, 'Getting Location');
 
     app.models.searchLoc.isGeoSearch = false;
 
     app.modules.getGeocode(tboxVal)
       .then(function(response) {
-        app.views.resultsProgressBar.update(33);
+        app.views.resultsProgressSection.show(25, 'Requesting Places');
 
         app.models.searchLoc.lat = response.results[0].geometry.location.lat;
         app.models.searchLoc.lng = response.results[0].geometry.location.lng;
@@ -88,7 +88,7 @@ var app = app || {};
         return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
-        app.views.resultsProgressBar.update(66);
+        app.views.resultsProgressSection.show(50, 'Requesting Distances');
 
         app.models.places.add(results);
 
@@ -106,7 +106,7 @@ var app = app || {};
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        app.views.resultsProgressBar.update(100);
+        app.views.resultsProgressSection.show(75, 'Sorting Places');
 
         var places = app.models.places.get();
 
@@ -126,7 +126,8 @@ var app = app || {};
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
 
-        app.views.resultsProgressBar.hide();
+        app.views.resultsProgressSection.show(100, 'Complete');
+        app.views.resultsProgressSection.hide();
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
         app.views.form.setTboxPlaceholder();
         app.views.results.render();
@@ -147,13 +148,13 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.geolocationSearch = function() {
-    app.views.resultsProgressBar.show();
+    app.views.resultsProgressSection.show(0, 'Getting Location');
 
     app.models.searchLoc.isGeoSearch = true;
 
     app.modules.getCurrentLocation()
       .then(function(position) {
-        app.views.resultsProgressBar.update(25);
+        app.views.resultsProgressSection.show(20, 'Getting Location');
 
         app.models.searchLoc.lat = position.coords.latitude;
         app.models.searchLoc.lng = position.coords.longitude;
@@ -161,7 +162,7 @@ var app = app || {};
         return app.modules.reverseGeocode(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(response) {
-        app.views.resultsProgressBar.update(50);
+        app.views.resultsProgressSection.show(40, 'Requesting Places');
 
         app.models.searchLoc.city = response.results[0].address_components[2].long_name;
         app.models.searchLoc.state = response.results[0].address_components[4].short_name;
@@ -169,8 +170,7 @@ var app = app || {};
         return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
-        app.views.resultsProgressBar.update(75);
-
+        app.views.resultsProgressSection.show(60, 'Requesting Distances');
         app.models.places.add(results);
 
         var places = app.models.places.get();
@@ -187,8 +187,7 @@ var app = app || {};
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        app.views.resultsProgressBar.update(100);
-
+        app.views.resultsProgressSection.show(80, 'Sorting Places');
         var places = app.models.places.get();
 
         results.rows[0].elements.forEach(function(element, i) {
@@ -207,7 +206,8 @@ var app = app || {};
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
 
-        app.views.resultsProgressBar.hide();
+        app.views.resultsProgressSection.show(100, 'Complete');
+        app.views.resultsProgressSection.hide();
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
         app.views.form.setTboxPlaceholder();
         app.views.results.render();
@@ -228,15 +228,14 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.recentSearch = function(location) {
-    app.views.resultsProgressBar.show();
-    app.views.resultsProgressBar.update(20);
+    app.views.resultsProgressSection.show(0, 'Requesting Places');
 
     app.models.searchLoc.isGeoSearch = false;
     app.models.searchLoc.setBasicDetails(location);
 
     app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
       .then(function(results) {
-        app.views.resultsProgressBar.update(90);
+        app.views.resultsProgressSection.show(33, 'Requesting Distances');
 
         app.models.places.add(results);
 
@@ -254,7 +253,7 @@ var app = app || {};
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        app.views.resultsProgressBar.update(100);
+        app.views.resultsProgressSection.show(66, 'Sorting Places');
 
         var places = app.models.places.get();
 
@@ -273,11 +272,11 @@ var app = app || {};
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
 
-        app.views.resultsProgressBar.hide();
+        app.views.resultsProgressSection.show(100, 'Complete');
+        app.views.resultsProgressSection.hide();
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
         app.views.form.setTboxPlaceholder();
         app.views.results.render();
-        app.views.recentSearches.render();
         app.views.page.enableButtons();
       })
       .catch(app.controllers.stopExecution);
@@ -290,7 +289,7 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.stopExecution = function(msg) {
-    app.views.resultsProgressBar.hide();
+    app.views.resultsProgressSection.hide();
     app.views.alerts.show(msg.type, msg.text);
     app.views.results.clear();
     app.views.placeModal.hide();
@@ -459,7 +458,7 @@ $(function() {
   app.views.form.init();
   app.views.locationBtn.init();
   app.views.alerts.init();
-  app.views.resultsProgressBar.init();
+  app.views.resultsProgressSection.init();
   app.views.results.init();
   app.views.recentSearches.init();
   app.views.placeModal.init();
@@ -1160,29 +1159,31 @@ $(function() {
   };
 
   // Progress Bar
-  app.views.resultsProgressBar = {
+  app.views.resultsProgressSection = {
     init: function() {
       // Collect DOM elements
+      this.resultsProgressSection = document.getElementById('resultsProgressSection');
+      this.resultsProgressStatus = document.getElementById('resultsProgressStatus');
       this.resultsProgressBar = document.getElementById('resultsProgressBar');
       // Set default values
-      this.resultsProgressBar.classList.add('hidden');
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuenow', '0');
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuemin', '0');
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuemax', '100');
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('style', 'min-width: 2em; width: 0');
+      this.resultsProgressSection.classList.add('hidden');
+      this.resultsProgressBar.setAttribute('aria-valuenow', '0');
+      this.resultsProgressBar.setAttribute('aria-valuemin', '0');
+      this.resultsProgressBar.setAttribute('aria-valuemax', '100');
+      this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: 0');
+      this.totalSteps = 0;
     },
-    show: function() {
-      this.resultsProgressBar.classList.remove('hidden');
-    },
-    update: function(percent) {
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuenow', percent);
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('style', 'min-width: 2em; width: ' + percent + '%');
-      this.resultsProgressBar.children[1].lastElementChild.textContent = percent + '%';
+    show: function(percent, message) {
+      this.resultsProgressSection.classList.remove('hidden');
+      this.resultsProgressStatus.textContent = message;
+      this.resultsProgressBar.setAttribute('aria-valuenow', percent);
+      this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: ' + percent + '%');
+      this.resultsProgressBar.children[0].textContent = percent + '%';
     },
     hide: function() {
-      this.resultsProgressBar.classList.add('hidden');
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuenow', '0');
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('style', 'min-width: 2em; width: 0');
+      this.resultsProgressSection.classList.add('hidden');
+      this.resultsProgressBar.setAttribute('aria-valuenow', '0');
+      this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: 0');
     }
   };
 
@@ -1402,6 +1403,7 @@ $(function() {
 
         li.addEventListener('click', (function(location) {
           return function() {
+            $('#resultsTab').tab('show');
             app.views.page.disableButtons();
             app.views.page.clear();
             app.controllers.recentSearch(location);

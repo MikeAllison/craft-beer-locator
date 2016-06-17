@@ -14,7 +14,7 @@ $(function() {
   app.views.form.init();
   app.views.locationBtn.init();
   app.views.alerts.init();
-  app.views.resultsProgressBar.init();
+  app.views.resultsProgressSection.init();
   app.views.results.init();
   app.views.recentSearches.init();
   app.views.placeModal.init();

@@ -67,10 +67,12 @@
             <div id="results" role="tabpanel" class="tab-pane active">
               <div class="row">
                 <div class="col-xs-12">
-                  <div id="resultsProgressBar">
-                    <p class=text-center>Searching...</p>
+                  <div id="resultsProgressSection">
+                    <p id="resultsProgressStatus" class=text-center></p>
                     <div class="progress">
-                      <div class="progress-bar" role="progressbar">0%</div>
+                      <div id="resultsProgressBar" class="progress-bar" role="progressbar">
+                        <span class="sr-only"></span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -134,6 +136,6 @@
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo&libraries=places"></script>
     <script type="text/javascript" src="js/libraries/jquery-1.12.3.min.js"></script>
     <script type="text/javascript" src="js/libraries/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/dist/craft-beer-finder.min.js"></script>
+    <script type="text/javascript" src="js/dist/craft-beer-finder.js"></script>
   </body>
 </html>

@@ -65,29 +65,31 @@
   };
 
   // Progress Bar
-  app.views.resultsProgressBar = {
+  app.views.resultsProgressSection = {
     init: function() {
       // Collect DOM elements
+      this.resultsProgressSection = document.getElementById('resultsProgressSection');
+      this.resultsProgressStatus = document.getElementById('resultsProgressStatus');
       this.resultsProgressBar = document.getElementById('resultsProgressBar');
       // Set default values
-      this.resultsProgressBar.classList.add('hidden');
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuenow', '0');
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuemin', '0');
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuemax', '100');
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('style', 'min-width: 2em; width: 0');
+      this.resultsProgressSection.classList.add('hidden');
+      this.resultsProgressBar.setAttribute('aria-valuenow', '0');
+      this.resultsProgressBar.setAttribute('aria-valuemin', '0');
+      this.resultsProgressBar.setAttribute('aria-valuemax', '100');
+      this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: 0');
+      this.totalSteps = 0;
     },
-    show: function() {
-      this.resultsProgressBar.classList.remove('hidden');
-    },
-    update: function(percent) {
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuenow', percent);
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('style', 'min-width: 2em; width: ' + percent + '%');
-      this.resultsProgressBar.children[1].lastElementChild.textContent = percent + '%';
+    show: function(percent, message) {
+      this.resultsProgressSection.classList.remove('hidden');
+      this.resultsProgressStatus.textContent = message;
+      this.resultsProgressBar.setAttribute('aria-valuenow', percent);
+      this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: ' + percent + '%');
+      this.resultsProgressBar.children[0].textContent = percent + '%';
     },
     hide: function() {
-      this.resultsProgressBar.classList.add('hidden');
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('aria-valuenow', '0');
-      this.resultsProgressBar.children[1].lastElementChild.setAttribute('style', 'min-width: 2em; width: 0');
+      this.resultsProgressSection.classList.add('hidden');
+      this.resultsProgressBar.setAttribute('aria-valuenow', '0');
+      this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: 0');
     }
   };
 
