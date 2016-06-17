@@ -39,9 +39,9 @@
 
         li.addEventListener('click', (function(location) {
           return function() {
-            $('#resultsTab').tab('show');
             app.views.page.disableButtons();
             app.views.page.clear();
+            $('#resultsTab').tab('show');
             app.controllers.recentSearch(location);
           };
         })(recentSearches[i]));

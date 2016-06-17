@@ -23,12 +23,14 @@
         if (e.keyCode === 13) {
           app.views.page.disableButtons();
           app.views.page.clear();
+          $('#resultsTab').tab('show');
           app.controllers.formSearch();
         }
       });
       this.searchBtn.addEventListener('click', function() {
         app.views.page.disableButtons();
         app.views.page.clear();
+        $('#resultsTab').tab('show');
         app.controllers.formSearch();
       });
     },
@@ -53,6 +55,7 @@
       this.locationBtn.addEventListener('click', function() {
         app.views.page.disableButtons();
         app.views.page.clear();
+        $('#resultsTab').tab('show');
         app.controllers.geolocationSearch();
       });
     },

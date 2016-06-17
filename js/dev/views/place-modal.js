@@ -79,6 +79,7 @@
 
       this.placeModalDistanceWarning.addEventListener('click', function() {
         this.classList.add('clicked');
+        this.textContent = 'Updating...';
         // Hack to help prevent exceeding Google's query limits
         window.setTimeout(function() {
           app.controllers.switchToGeolocation();

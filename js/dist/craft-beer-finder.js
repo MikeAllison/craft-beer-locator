@@ -1117,12 +1117,14 @@ $(function() {
         if (e.keyCode === 13) {
           app.views.page.disableButtons();
           app.views.page.clear();
+          $('#resultsTab').tab('show');
           app.controllers.formSearch();
         }
       });
       this.searchBtn.addEventListener('click', function() {
         app.views.page.disableButtons();
         app.views.page.clear();
+        $('#resultsTab').tab('show');
         app.controllers.formSearch();
       });
     },
@@ -1147,6 +1149,7 @@ $(function() {
       this.locationBtn.addEventListener('click', function() {
         app.views.page.disableButtons();
         app.views.page.clear();
+        $('#resultsTab').tab('show');
         app.controllers.geolocationSearch();
       });
     },
@@ -1316,6 +1319,7 @@ $(function() {
 
       this.placeModalDistanceWarning.addEventListener('click', function() {
         this.classList.add('clicked');
+        this.textContent = 'Updating...';
         // Hack to help prevent exceeding Google's query limits
         window.setTimeout(function() {
           app.controllers.switchToGeolocation();
@@ -1402,9 +1406,9 @@ $(function() {
 
         li.addEventListener('click', (function(location) {
           return function() {
-            $('#resultsTab').tab('show');
             app.views.page.disableButtons();
             app.views.page.clear();
+            $('#resultsTab').tab('show');
             app.controllers.recentSearch(location);
           };
         })(recentSearches[i]));
