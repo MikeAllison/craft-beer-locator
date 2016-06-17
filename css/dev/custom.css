@@ -7,6 +7,9 @@
   .city-state-heading {
     font-size: 1em;
   }
+  .alert {
+    font-size: 0.8em;
+  }
   #cityStateTbox {
     text-align: center;
   }
