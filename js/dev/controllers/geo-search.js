@@ -75,7 +75,7 @@
           app.views.results.render();
           app.views.recentSearches.render();
           app.views.page.enableButtons();
-        }, 750);
+        }, 999);
       })
       .catch(app.controllers.stopExecution);
   };

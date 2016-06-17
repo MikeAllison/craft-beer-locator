@@ -101,9 +101,12 @@
         this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: ' + app.views.resultsProgressSection.progressValue + '%');
         this.resultsProgressBar.children[0].textContent = app.views.resultsProgressSection.progressValue + '%';
         app.views.resultsProgressSection.progressValue += 1;
-      }, 250);
+      }, 333);
     },
     update: function(progressValue, message) {
+      if (this.progressValue > progressValue) {
+        return;
+      }
       this.progressValue = progressValue;
       this.message = message;
     }

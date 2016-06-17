@@ -135,7 +135,7 @@ var app = app || {};
           app.views.results.render();
           app.views.recentSearches.render();
           app.views.page.enableButtons();
-        }, 750);
+        }, 999);
       })
       .catch(app.controllers.stopExecution);
   };
@@ -219,7 +219,7 @@ var app = app || {};
           app.views.results.render();
           app.views.recentSearches.render();
           app.views.page.enableButtons();
-        }, 750);
+        }, 999);
       })
       .catch(app.controllers.stopExecution);
   };
@@ -287,7 +287,7 @@ var app = app || {};
           app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
           app.views.results.render();
           app.views.page.enableButtons();
-        }, 750);
+        }, 999);
       })
       .catch(app.controllers.stopExecution);
   };
@@ -1205,9 +1205,12 @@ $(function() {
         this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: ' + app.views.resultsProgressSection.progressValue + '%');
         this.resultsProgressBar.children[0].textContent = app.views.resultsProgressSection.progressValue + '%';
         app.views.resultsProgressSection.progressValue += 1;
-      }, 250);
+      }, 333);
     },
     update: function(progressValue, message) {
+      if (this.progressValue > progressValue) {
+        return;
+      }
       this.progressValue = progressValue;
       this.message = message;
     }

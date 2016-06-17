@@ -59,7 +59,7 @@
           app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
           app.views.results.render();
           app.views.page.enableButtons();
-        }, 750);
+        }, 999);
       })
       .catch(app.controllers.stopExecution);
   };
