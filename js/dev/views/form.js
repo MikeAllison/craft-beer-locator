@@ -77,7 +77,6 @@
       this.resultsProgressBar.setAttribute('aria-valuemin', '0');
       this.resultsProgressBar.setAttribute('aria-valuemax', '100');
       this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: 0');
-      this.totalSteps = 0;
     },
     show: function(percent, message) {
       this.resultsProgressSection.classList.remove('hidden');
