@@ -27,11 +27,9 @@ var app = app || {};
           // radius - Can change: Radius is required if rankBy is set to google.maps.places.RankBy.PROMINENCE (max: 50000)
           radius: '25000',
 
-          /**************************************************************************************************************************************
-            SEARCH SORTING/FILTERING:
-            These settings will help narrow down to relevant results
-            Types (primaryTypes/secondaryTypes/excludedTypes) can be any Google Place Type: https://developers.google.com/places/supported_types
-          ***************************************************************************************************************************************/
+          // SEARCH SORTING/FILTERING:
+          // These settings will help narrow down to relevant results
+          // Types (primaryTypes/secondaryTypes/excludedTypes) can be any Google Place Type: https://developers.google.com/places/supported_types
 
           // primaryTypes - Any result having these types will be sorted and listed first (examples: [], ['type1'], ['type1, 'type2'], etc.)
           primaryTypes: ['bar', 'liquor_store'],
@@ -71,13 +69,13 @@ var app = app || {};
       return;
     }
 
-    app.views.resultsProgressSection.show(0, 'Getting Location');
+    app.views.resultsProgressSection.start('Getting Location');
 
     app.models.searchLoc.isGeoSearch = false;
 
     app.modules.getGeocode(tboxVal)
       .then(function(response) {
-        app.views.resultsProgressSection.show(25, 'Requesting Places');
+        app.views.resultsProgressSection.update(25, 'Requesting Places');
 
         app.models.searchLoc.lat = response.results[0].geometry.location.lat;
         app.models.searchLoc.lng = response.results[0].geometry.location.lng;
@@ -90,7 +88,7 @@ var app = app || {};
         return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.show(50, 'Requesting Distances');
+        app.views.resultsProgressSection.update(50, 'Requesting Distances');
 
         app.models.places.add(results);
 
@@ -108,7 +106,7 @@ var app = app || {};
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.show(75, 'Sorting Places');
+        app.views.resultsProgressSection.update(75, 'Sorting Places');
 
         var places = app.models.places.get();
 
@@ -128,13 +126,16 @@ var app = app || {};
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
 
-        app.views.resultsProgressSection.show(100, 'Complete');
-        app.views.resultsProgressSection.hide();
-        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-        app.views.form.setTboxPlaceholder();
-        app.views.results.render();
-        app.views.recentSearches.render();
-        app.views.page.enableButtons();
+        app.views.resultsProgressSection.update(98, 'Preparing Results');
+
+        // Smooth the display of results
+        window.setTimeout(function() {
+          app.views.form.setTboxPlaceholder();
+          app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
+          app.views.results.render();
+          app.views.recentSearches.render();
+          app.views.page.enableButtons();
+        }, 750);
       })
       .catch(app.controllers.stopExecution);
   };
@@ -150,13 +151,14 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.geolocationSearch = function() {
-    app.views.resultsProgressSection.show(0, 'Getting Location');
+    app.views.resultsProgressSection.start('Getting Location');
+    //app.views.resultsProgressSection.show(0, 'Getting Location');
 
     app.models.searchLoc.isGeoSearch = true;
 
     app.modules.getCurrentLocation()
       .then(function(position) {
-        app.views.resultsProgressSection.show(20, 'Getting Location');
+        app.views.resultsProgressSection.update(20, 'Getting Location');
 
         app.models.searchLoc.lat = position.coords.latitude;
         app.models.searchLoc.lng = position.coords.longitude;
@@ -164,7 +166,7 @@ var app = app || {};
         return app.modules.reverseGeocode(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(response) {
-        app.views.resultsProgressSection.show(40, 'Requesting Places');
+        app.views.resultsProgressSection.update(40, 'Requesting Places');
 
         app.models.searchLoc.city = response.results[0].address_components[2].long_name;
         app.models.searchLoc.state = response.results[0].address_components[4].short_name;
@@ -172,7 +174,7 @@ var app = app || {};
         return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.show(60, 'Requesting Distances');
+        app.views.resultsProgressSection.update(60, 'Requesting Distances');
         app.models.places.add(results);
 
         var places = app.models.places.get();
@@ -189,7 +191,7 @@ var app = app || {};
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.show(80, 'Sorting Places');
+        app.views.resultsProgressSection.update(80, 'Sorting Places');
         var places = app.models.places.get();
 
         results.rows[0].elements.forEach(function(element, i) {
@@ -208,13 +210,16 @@ var app = app || {};
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
 
-        app.views.resultsProgressSection.show(100, 'Complete');
-        app.views.resultsProgressSection.hide();
-        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-        app.views.form.setTboxPlaceholder();
-        app.views.results.render();
-        app.views.recentSearches.render();
-        app.views.page.enableButtons();
+        app.views.resultsProgressSection.update(99, 'Preparing Results');
+
+        // Smooth the display of results
+        window.setTimeout(function() {
+          app.views.form.setTboxPlaceholder();
+          app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
+          app.views.results.render();
+          app.views.recentSearches.render();
+          app.views.page.enableButtons();
+        }, 750);
       })
       .catch(app.controllers.stopExecution);
   };
@@ -230,14 +235,14 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.recentSearch = function(location) {
-    app.views.resultsProgressSection.show(0, 'Requesting Places');
+    app.views.resultsProgressSection.start('Requesting Places');
 
     app.models.searchLoc.isGeoSearch = false;
     app.models.searchLoc.setBasicDetails(location);
 
     app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
       .then(function(results) {
-        app.views.resultsProgressSection.show(33, 'Requesting Distances');
+        app.views.resultsProgressSection.update(33, 'Requesting Distances');
 
         app.models.places.add(results);
 
@@ -255,7 +260,7 @@ var app = app || {};
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.show(66, 'Sorting Places');
+        app.views.resultsProgressSection.update(66, 'Sorting Places');
 
         var places = app.models.places.get();
 
@@ -274,12 +279,15 @@ var app = app || {};
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
 
-        app.views.resultsProgressSection.show(100, 'Complete');
-        app.views.resultsProgressSection.hide();
-        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-        app.views.form.setTboxPlaceholder();
-        app.views.results.render();
-        app.views.page.enableButtons();
+        app.views.resultsProgressSection.update(99, 'Preparing Results');
+
+        // Smooth the display of results
+        window.setTimeout(function() {
+          app.views.form.setTboxPlaceholder();
+          app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
+          app.views.results.render();
+          app.views.page.enableButtons();
+        }, 750);
       })
       .catch(app.controllers.stopExecution);
   };
@@ -291,7 +299,7 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.stopExecution = function(msg) {
-    app.views.resultsProgressSection.hide();
+    app.views.resultsProgressSection.init();
     app.views.alerts.show(msg.type, msg.text);
     app.views.results.clear();
     app.views.placeModal.hide();
@@ -1171,23 +1179,38 @@ $(function() {
       this.resultsProgressStatus = document.getElementById('resultsProgressStatus');
       this.resultsProgressBar = document.getElementById('resultsProgressBar');
       // Set default values
+      this.progressValue = 0;
+      this.message = '';
       this.resultsProgressSection.classList.add('hidden');
       this.resultsProgressBar.setAttribute('aria-valuenow', '0');
       this.resultsProgressBar.setAttribute('aria-valuemin', '0');
       this.resultsProgressBar.setAttribute('aria-valuemax', '100');
       this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: 0');
     },
-    show: function(percent, message) {
+    start: function(message) {
+      this.progressValue = 1;
+      this.message = message;
+
+      this.resultsProgressStatus.textContent = app.views.resultsProgressSection.message;
       this.resultsProgressSection.classList.remove('hidden');
-      this.resultsProgressStatus.textContent = message;
-      this.resultsProgressBar.setAttribute('aria-valuenow', percent);
-      this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: ' + percent + '%');
-      this.resultsProgressBar.children[0].textContent = percent + '%';
+
+      var updateProgress = window.setInterval(function() {
+        console.log(app.views.resultsProgressSection.progressValue);
+        if (app.views.resultsProgressSection.progressValue >= 100 || app.views.resultsProgressSection.progressValue === 0) {
+          app.views.resultsProgressSection.init();
+          window.clearInterval(updateProgress);
+        }
+
+        this.resultsProgressStatus.textContent = app.views.resultsProgressSection.message;
+        this.resultsProgressBar.setAttribute('aria-valuenow', app.views.resultsProgressSection.progressValue);
+        this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: ' + app.views.resultsProgressSection.progressValue + '%');
+        this.resultsProgressBar.children[0].textContent = app.views.resultsProgressSection.progressValue + '%';
+        app.views.resultsProgressSection.progressValue += 1;
+      }, 250);
     },
-    hide: function() {
-      this.resultsProgressSection.classList.add('hidden');
-      this.resultsProgressBar.setAttribute('aria-valuenow', '0');
-      this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: 0');
+    update: function(progressValue, message) {
+      this.progressValue = progressValue;
+      this.message = message;
     }
   };
 

@@ -7,13 +7,14 @@
   app.controllers = app.controllers || {};
 
   app.controllers.geolocationSearch = function() {
-    app.views.resultsProgressSection.show(0, 'Getting Location');
+    app.views.resultsProgressSection.start('Getting Location');
+    //app.views.resultsProgressSection.show(0, 'Getting Location');
 
     app.models.searchLoc.isGeoSearch = true;
 
     app.modules.getCurrentLocation()
       .then(function(position) {
-        app.views.resultsProgressSection.show(20, 'Getting Location');
+        app.views.resultsProgressSection.update(20, 'Getting Location');
 
         app.models.searchLoc.lat = position.coords.latitude;
         app.models.searchLoc.lng = position.coords.longitude;
@@ -21,7 +22,7 @@
         return app.modules.reverseGeocode(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(response) {
-        app.views.resultsProgressSection.show(40, 'Requesting Places');
+        app.views.resultsProgressSection.update(40, 'Requesting Places');
 
         app.models.searchLoc.city = response.results[0].address_components[2].long_name;
         app.models.searchLoc.state = response.results[0].address_components[4].short_name;
@@ -29,7 +30,7 @@
         return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.show(60, 'Requesting Distances');
+        app.views.resultsProgressSection.update(60, 'Requesting Distances');
         app.models.places.add(results);
 
         var places = app.models.places.get();
@@ -46,7 +47,7 @@
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.show(80, 'Sorting Places');
+        app.views.resultsProgressSection.update(80, 'Sorting Places');
         var places = app.models.places.get();
 
         results.rows[0].elements.forEach(function(element, i) {
@@ -65,13 +66,16 @@
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
 
-        app.views.resultsProgressSection.show(100, 'Complete');
-        app.views.resultsProgressSection.hide();
-        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-        app.views.form.setTboxPlaceholder();
-        app.views.results.render();
-        app.views.recentSearches.render();
-        app.views.page.enableButtons();
+        app.views.resultsProgressSection.update(99, 'Preparing Results');
+
+        // Smooth the display of results
+        window.setTimeout(function() {
+          app.views.form.setTboxPlaceholder();
+          app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
+          app.views.results.render();
+          app.views.recentSearches.render();
+          app.views.page.enableButtons();
+        }, 750);
       })
       .catch(app.controllers.stopExecution);
   };

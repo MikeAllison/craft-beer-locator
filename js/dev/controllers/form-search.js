@@ -14,13 +14,13 @@
       return;
     }
 
-    app.views.resultsProgressSection.show(0, 'Getting Location');
+    app.views.resultsProgressSection.start('Getting Location');
 
     app.models.searchLoc.isGeoSearch = false;
 
     app.modules.getGeocode(tboxVal)
       .then(function(response) {
-        app.views.resultsProgressSection.show(25, 'Requesting Places');
+        app.views.resultsProgressSection.update(25, 'Requesting Places');
 
         app.models.searchLoc.lat = response.results[0].geometry.location.lat;
         app.models.searchLoc.lng = response.results[0].geometry.location.lng;
@@ -33,7 +33,7 @@
         return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.show(50, 'Requesting Distances');
+        app.views.resultsProgressSection.update(50, 'Requesting Distances');
 
         app.models.places.add(results);
 
@@ -51,7 +51,7 @@
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.show(75, 'Sorting Places');
+        app.views.resultsProgressSection.update(75, 'Sorting Places');
 
         var places = app.models.places.get();
 
@@ -71,13 +71,16 @@
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
 
-        app.views.resultsProgressSection.show(100, 'Complete');
-        app.views.resultsProgressSection.hide();
-        app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-        app.views.form.setTboxPlaceholder();
-        app.views.results.render();
-        app.views.recentSearches.render();
-        app.views.page.enableButtons();
+        app.views.resultsProgressSection.update(98, 'Preparing Results');
+
+        // Smooth the display of results
+        window.setTimeout(function() {
+          app.views.form.setTboxPlaceholder();
+          app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
+          app.views.results.render();
+          app.views.recentSearches.render();
+          app.views.page.enableButtons();
+        }, 750);
       })
       .catch(app.controllers.stopExecution);
   };
