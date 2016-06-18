@@ -8,7 +8,6 @@
 
   app.controllers.geolocationSearch = function() {
     app.views.resultsProgressSection.start('Getting Location');
-    //app.views.resultsProgressSection.show(0, 'Getting Location');
 
     app.models.searchLoc.isGeoSearch = true;
 
