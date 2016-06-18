@@ -1442,7 +1442,6 @@ $(function() {
       // Set default values
       this.progressValue = 0;
       this.message = '';
-      this.resultsProgressSection.classList.add('hidden');
       this.resultsProgressBar.setAttribute('aria-valuenow', '0');
       this.resultsProgressBar.setAttribute('aria-valuemin', '0');
       this.resultsProgressBar.setAttribute('aria-valuemax', '100');
@@ -1455,7 +1454,6 @@ $(function() {
       this.message = message;
 
       this.resultsProgressStatus.textContent = app.views.resultsProgressSection.message;
-      this.resultsProgressSection.classList.remove('hidden');
 
       var updateProgress = window.setInterval(function() {
         if (app.views.resultsProgressSection.progressValue >= 100 || app.views.resultsProgressSection.progressValue === 0) {
