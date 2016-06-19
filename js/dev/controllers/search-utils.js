@@ -5,7 +5,7 @@
   app.controllers.stopExecution = function(msg) {
     $('#progressModal').modal('hide');
     $('#progressModal').on('hidden.bs.modal', function() {
-      app.views.resultsProgressSection.init();
+      app.views.progressModal.init();
     });
     app.views.alerts.show(msg.type, msg.text);
     app.views.results.clear();

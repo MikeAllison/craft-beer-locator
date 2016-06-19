@@ -16,7 +16,7 @@ $(function() {
   app.views.alerts.init();
   app.views.results.init();
   app.views.recentSearches.init();
-  app.views.resultsProgressSection.init();
+  app.views.progressModal.init();
   app.views.placeModal.init();
 
 });

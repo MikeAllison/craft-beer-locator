@@ -7,14 +7,14 @@
   app.controllers = app.controllers || {};
 
   app.controllers.recentSearch = function(location) {
-    app.views.resultsProgressSection.start('Requesting Places');
+    app.views.progressModal.start('Requesting Places');
 
     app.models.searchLoc.isGeoSearch = false;
     app.models.searchLoc.setBasicDetails(location);
 
     app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
       .then(function(results) {
-        app.views.resultsProgressSection.update(33, 'Requesting Distances');
+        app.views.progressModal.update(33, 'Requesting Distances');
 
         app.models.places.add(results);
 
@@ -32,7 +32,7 @@
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.update(66, 'Sorting Places');
+        app.views.progressModal.update(66, 'Sorting Places');
 
         var places = app.models.places.get();
 
@@ -51,7 +51,7 @@
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
 
-        app.views.resultsProgressSection.update(99, 'Preparing Results');
+        app.views.progressModal.update(99, 'Preparing Results');
 
         // Smooth the display of results
         window.setTimeout(function() {

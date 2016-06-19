@@ -14,13 +14,13 @@
       return;
     }
 
-    app.views.resultsProgressSection.start('Getting Location');
+    app.views.progressModal.start('Getting Location');
 
     app.models.searchLoc.isGeoSearch = false;
 
     app.modules.getGeocode(tboxVal)
       .then(function(response) {
-        app.views.resultsProgressSection.update(25, 'Requesting Places');
+        app.views.progressModal.update(25, 'Requesting Places');
 
         app.models.searchLoc.lat = response.results[0].geometry.location.lat;
         app.models.searchLoc.lng = response.results[0].geometry.location.lng;
@@ -33,7 +33,7 @@
         return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.update(50, 'Requesting Distances');
+        app.views.progressModal.update(50, 'Requesting Distances');
 
         app.models.places.add(results);
 
@@ -51,7 +51,7 @@
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.update(75, 'Sorting Places');
+        app.views.progressModal.update(75, 'Sorting Places');
 
         var places = app.models.places.get();
 
@@ -71,7 +71,7 @@
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
 
-        app.views.resultsProgressSection.update(98, 'Preparing Results');
+        app.views.progressModal.update(99, 'Preparing Results');
 
         // Smooth the display of results
         window.setTimeout(function() {

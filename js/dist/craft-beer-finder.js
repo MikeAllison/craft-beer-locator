@@ -69,13 +69,13 @@ var app = app || {};
       return;
     }
 
-    app.views.resultsProgressSection.start('Getting Location');
+    app.views.progressModal.start('Getting Location');
 
     app.models.searchLoc.isGeoSearch = false;
 
     app.modules.getGeocode(tboxVal)
       .then(function(response) {
-        app.views.resultsProgressSection.update(25, 'Requesting Places');
+        app.views.progressModal.update(25, 'Requesting Places');
 
         app.models.searchLoc.lat = response.results[0].geometry.location.lat;
         app.models.searchLoc.lng = response.results[0].geometry.location.lng;
@@ -88,7 +88,7 @@ var app = app || {};
         return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.update(50, 'Requesting Distances');
+        app.views.progressModal.update(50, 'Requesting Distances');
 
         app.models.places.add(results);
 
@@ -106,7 +106,7 @@ var app = app || {};
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.update(75, 'Sorting Places');
+        app.views.progressModal.update(75, 'Sorting Places');
 
         var places = app.models.places.get();
 
@@ -126,7 +126,7 @@ var app = app || {};
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
 
-        app.views.resultsProgressSection.update(98, 'Preparing Results');
+        app.views.progressModal.update(99, 'Preparing Results');
 
         // Smooth the display of results
         window.setTimeout(function() {
@@ -151,13 +151,13 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.geolocationSearch = function() {
-    app.views.resultsProgressSection.start('Getting Location');
+    app.views.progressModal.start('Getting Location');
 
     app.models.searchLoc.isGeoSearch = true;
 
     app.modules.getCurrentLocation()
       .then(function(position) {
-        app.views.resultsProgressSection.update(20, 'Getting Location');
+        app.views.progressModal.update(20, 'Getting Location');
 
         app.models.searchLoc.lat = position.coords.latitude;
         app.models.searchLoc.lng = position.coords.longitude;
@@ -165,7 +165,7 @@ var app = app || {};
         return app.modules.reverseGeocode(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(response) {
-        app.views.resultsProgressSection.update(40, 'Requesting Places');
+        app.views.progressModal.update(40, 'Requesting Places');
 
         app.models.searchLoc.city = response.results[0].address_components[2].long_name;
         app.models.searchLoc.state = response.results[0].address_components[4].short_name;
@@ -173,7 +173,7 @@ var app = app || {};
         return app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.update(60, 'Requesting Distances');
+        app.views.progressModal.update(60, 'Requesting Distances');
         app.models.places.add(results);
 
         var places = app.models.places.get();
@@ -190,7 +190,7 @@ var app = app || {};
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.update(80, 'Sorting Places');
+        app.views.progressModal.update(80, 'Sorting Places');
         var places = app.models.places.get();
 
         results.rows[0].elements.forEach(function(element, i) {
@@ -209,7 +209,7 @@ var app = app || {};
         app.models.places.add(sortedResults);
         app.models.recentSearches.add();
 
-        app.views.resultsProgressSection.update(99, 'Preparing Results');
+        app.views.progressModal.update(99, 'Preparing Results');
 
         // Smooth the display of results
         window.setTimeout(function() {
@@ -234,14 +234,14 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.recentSearch = function(location) {
-    app.views.resultsProgressSection.start('Requesting Places');
+    app.views.progressModal.start('Requesting Places');
 
     app.models.searchLoc.isGeoSearch = false;
     app.models.searchLoc.setBasicDetails(location);
 
     app.modules.reqPlaces(app.models.searchLoc.lat, app.models.searchLoc.lng)
       .then(function(results) {
-        app.views.resultsProgressSection.update(33, 'Requesting Distances');
+        app.views.progressModal.update(33, 'Requesting Distances');
 
         app.models.places.add(results);
 
@@ -259,7 +259,7 @@ var app = app || {};
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
       })
       .then(function(results) {
-        app.views.resultsProgressSection.update(66, 'Sorting Places');
+        app.views.progressModal.update(66, 'Sorting Places');
 
         var places = app.models.places.get();
 
@@ -278,7 +278,7 @@ var app = app || {};
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
 
-        app.views.resultsProgressSection.update(99, 'Preparing Results');
+        app.views.progressModal.update(99, 'Preparing Results');
 
         // Smooth the display of results
         window.setTimeout(function() {
@@ -300,7 +300,7 @@ var app = app || {};
   app.controllers.stopExecution = function(msg) {
     $('#progressModal').modal('hide');
     $('#progressModal').on('hidden.bs.modal', function() {
-      app.views.resultsProgressSection.init();
+      app.views.progressModal.init();
     });
     app.views.alerts.show(msg.type, msg.text);
     app.views.results.clear();
@@ -473,7 +473,7 @@ $(function() {
   app.views.alerts.init();
   app.views.results.init();
   app.views.recentSearches.init();
-  app.views.resultsProgressSection.init();
+  app.views.progressModal.init();
   app.views.placeModal.init();
 
 });
@@ -1361,20 +1361,20 @@ $(function() {
 
   app.views = app.views || {};
 
-  // Progress Bar
-  app.views.resultsProgressSection = {
+  // Progress Modal
+  app.views.progressModal = {
     init: function() {
       // Collect DOM elements
-      this.resultsProgressSection = document.getElementById('resultsProgressSection');
-      this.resultsProgressStatus = document.getElementById('resultsProgressStatus');
-      this.resultsProgressBar = document.getElementById('resultsProgressBar');
+      this.progressStatus = document.getElementById('progressStatus');
+      this.progressBar = document.getElementById('progressBar');
       // Set default values
       this.progressValue = 0;
       this.message = '';
-      this.resultsProgressBar.setAttribute('aria-valuenow', '0');
-      this.resultsProgressBar.setAttribute('aria-valuemin', '0');
-      this.resultsProgressBar.setAttribute('aria-valuemax', '100');
-      this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: 0');
+      this.progressBar.children[0].textContent = "0%";
+      this.progressBar.setAttribute('aria-valuenow', '0');
+      this.progressBar.setAttribute('aria-valuemin', '0');
+      this.progressBar.setAttribute('aria-valuemax', '100');
+      this.progressBar.setAttribute('style', 'min-width: 2em; width: 0');
     },
     start: function(message) {
       $('#progressModal').modal('show');
@@ -1382,22 +1382,21 @@ $(function() {
       this.progressValue = 1;
       this.message = message;
 
-      this.resultsProgressStatus.textContent = app.views.resultsProgressSection.message;
+      this.progressStatus.textContent = app.views.progressModal.message;
 
       var updateProgress = window.setInterval(function() {
-        if (app.views.resultsProgressSection.progressValue >= 100 || app.views.resultsProgressSection.progressValue === 0) {
-          window.clearInterval(updateProgress);
+        if (app.views.progressModal.progressValue >= 100 || app.views.progressModal.progressValue === 0) {
           $('#progressModal').modal('hide');
           $('#progressModal').on('hidden.bs.modal', function() {
-            app.views.resultsProgressSection.init();
+            app.views.progressModal.init();
           });
+          window.clearInterval(updateProgress);
         }
-
-        this.resultsProgressStatus.textContent = app.views.resultsProgressSection.message;
-        this.resultsProgressBar.setAttribute('aria-valuenow', app.views.resultsProgressSection.progressValue);
-        this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: ' + app.views.resultsProgressSection.progressValue + '%');
-        this.resultsProgressBar.children[0].textContent = app.views.resultsProgressSection.progressValue + '%';
-        app.views.resultsProgressSection.progressValue += 1;
+        this.progressStatus.textContent = app.views.progressModal.message;
+        this.progressBar.setAttribute('aria-valuenow', app.views.progressModal.progressValue);
+        this.progressBar.setAttribute('style', 'min-width: 2em; width: ' + app.views.progressModal.progressValue + '%');
+        this.progressBar.children[0].textContent = app.views.progressModal.progressValue + '%';
+        app.views.progressModal.progressValue += 1;
       }, 333);
     },
     update: function(progressValue, message) {

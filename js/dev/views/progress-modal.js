@@ -6,20 +6,20 @@
 
   app.views = app.views || {};
 
-  // Progress Bar
-  app.views.resultsProgressSection = {
+  // Progress Modal
+  app.views.progressModal = {
     init: function() {
       // Collect DOM elements
-      this.resultsProgressSection = document.getElementById('resultsProgressSection');
-      this.resultsProgressStatus = document.getElementById('resultsProgressStatus');
-      this.resultsProgressBar = document.getElementById('resultsProgressBar');
+      this.progressStatus = document.getElementById('progressStatus');
+      this.progressBar = document.getElementById('progressBar');
       // Set default values
       this.progressValue = 0;
       this.message = '';
-      this.resultsProgressBar.setAttribute('aria-valuenow', '0');
-      this.resultsProgressBar.setAttribute('aria-valuemin', '0');
-      this.resultsProgressBar.setAttribute('aria-valuemax', '100');
-      this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: 0');
+      this.progressBar.children[0].textContent = "0%";
+      this.progressBar.setAttribute('aria-valuenow', '0');
+      this.progressBar.setAttribute('aria-valuemin', '0');
+      this.progressBar.setAttribute('aria-valuemax', '100');
+      this.progressBar.setAttribute('style', 'min-width: 2em; width: 0');
     },
     start: function(message) {
       $('#progressModal').modal('show');
@@ -27,22 +27,21 @@
       this.progressValue = 1;
       this.message = message;
 
-      this.resultsProgressStatus.textContent = app.views.resultsProgressSection.message;
+      this.progressStatus.textContent = app.views.progressModal.message;
 
       var updateProgress = window.setInterval(function() {
-        if (app.views.resultsProgressSection.progressValue >= 100 || app.views.resultsProgressSection.progressValue === 0) {
-          window.clearInterval(updateProgress);
+        if (app.views.progressModal.progressValue >= 100 || app.views.progressModal.progressValue === 0) {
           $('#progressModal').modal('hide');
           $('#progressModal').on('hidden.bs.modal', function() {
-            app.views.resultsProgressSection.init();
+            app.views.progressModal.init();
           });
+          window.clearInterval(updateProgress);
         }
-
-        this.resultsProgressStatus.textContent = app.views.resultsProgressSection.message;
-        this.resultsProgressBar.setAttribute('aria-valuenow', app.views.resultsProgressSection.progressValue);
-        this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: ' + app.views.resultsProgressSection.progressValue + '%');
-        this.resultsProgressBar.children[0].textContent = app.views.resultsProgressSection.progressValue + '%';
-        app.views.resultsProgressSection.progressValue += 1;
+        this.progressStatus.textContent = app.views.progressModal.message;
+        this.progressBar.setAttribute('aria-valuenow', app.views.progressModal.progressValue);
+        this.progressBar.setAttribute('style', 'min-width: 2em; width: ' + app.views.progressModal.progressValue + '%');
+        this.progressBar.children[0].textContent = app.views.progressModal.progressValue + '%';
+        app.views.progressModal.progressValue += 1;
       }, 333);
     },
     update: function(progressValue, message) {
