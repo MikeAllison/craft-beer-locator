@@ -298,7 +298,10 @@ var app = app || {};
   app.controllers = app.controllers || {};
 
   app.controllers.stopExecution = function(msg) {
-    app.views.resultsProgressSection.init();
+    $('#progressModal').modal('hide');
+    $('#progressModal').on('hidden.bs.modal', function() {
+      app.views.resultsProgressSection.init();
+    });
     app.views.alerts.show(msg.type, msg.text);
     app.views.results.clear();
     app.views.placeModal.hide();
@@ -1368,26 +1371,26 @@ $(function() {
       // Set default values
       this.progressValue = 0;
       this.message = '';
-      this.resultsProgressSection.classList.add('hidden');
       this.resultsProgressBar.setAttribute('aria-valuenow', '0');
       this.resultsProgressBar.setAttribute('aria-valuemin', '0');
       this.resultsProgressBar.setAttribute('aria-valuemax', '100');
       this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: 0');
     },
     start: function(message) {
-      $('#loadingModal').modal('show');
+      $('#progressModal').modal('show');
 
       this.progressValue = 1;
       this.message = message;
 
       this.resultsProgressStatus.textContent = app.views.resultsProgressSection.message;
-      this.resultsProgressSection.classList.remove('hidden');
 
       var updateProgress = window.setInterval(function() {
         if (app.views.resultsProgressSection.progressValue >= 100 || app.views.resultsProgressSection.progressValue === 0) {
-          $('#loadingModal').modal('hide');
-          app.views.resultsProgressSection.init();
           window.clearInterval(updateProgress);
+          $('#progressModal').modal('hide');
+          $('#progressModal').on('hidden.bs.modal', function() {
+            app.views.resultsProgressSection.init();
+          });
         }
 
         this.resultsProgressStatus.textContent = app.views.resultsProgressSection.message;
@@ -1398,11 +1401,11 @@ $(function() {
       }, 333);
     },
     update: function(progressValue, message) {
+      this.message = message;
       if (this.progressValue > progressValue) {
         return;
       }
       this.progressValue = progressValue;
-      this.message = message;
     }
   };
 

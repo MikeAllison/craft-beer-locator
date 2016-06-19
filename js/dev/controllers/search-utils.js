@@ -3,7 +3,10 @@
   app.controllers = app.controllers || {};
 
   app.controllers.stopExecution = function(msg) {
-    app.views.resultsProgressSection.init();
+    $('#progressModal').modal('hide');
+    $('#progressModal').on('hidden.bs.modal', function() {
+      app.views.resultsProgressSection.init();
+    });
     app.views.alerts.show(msg.type, msg.text);
     app.views.results.clear();
     app.views.placeModal.hide();

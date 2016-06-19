@@ -22,7 +22,7 @@
       this.resultsProgressBar.setAttribute('style', 'min-width: 2em; width: 0');
     },
     start: function(message) {
-      $('#loadingModal').modal('show');
+      $('#progressModal').modal('show');
 
       this.progressValue = 1;
       this.message = message;
@@ -31,9 +31,11 @@
 
       var updateProgress = window.setInterval(function() {
         if (app.views.resultsProgressSection.progressValue >= 100 || app.views.resultsProgressSection.progressValue === 0) {
-          $('#loadingModal').modal('hide');
-          app.views.resultsProgressSection.init();
           window.clearInterval(updateProgress);
+          $('#progressModal').modal('hide');
+          $('#progressModal').on('hidden.bs.modal', function() {
+            app.views.resultsProgressSection.init();
+          });
         }
 
         this.resultsProgressStatus.textContent = app.views.resultsProgressSection.message;
@@ -44,11 +46,11 @@
       }, 333);
     },
     update: function(progressValue, message) {
+      this.message = message;
       if (this.progressValue > progressValue) {
         return;
       }
       this.progressValue = progressValue;
-      this.message = message;
     }
   };
 
