@@ -714,7 +714,8 @@ $(function() {
           rows: [{ elements: [] }]
         };
 
-        if (groupedResults[totalReqs]) {
+        // Check to see if all async requests have finished before combining results
+        if (Object.keys(groupedResults).length === totalReqs) {
           flattenedResults.originAddresses = groupedResults[1].originAddresses;
 
           for (i=1; i <= totalReqs; i++) {
