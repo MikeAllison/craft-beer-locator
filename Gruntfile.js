@@ -21,14 +21,14 @@ module.exports = function(grunt) {
           'js/dev/**/*.js',
           'js/dev/init.js'
         ],
-        dest: 'js/dist/<%= pkg.name %>.js'
+        dest: 'js/dist/app.js'
       }
     },
 
     uglify: {
       my_target: {
         files: {
-          'js/dist/<%= pkg.name %>.min.js': ['js/dist/<%= pkg.name %>.js']
+          'js/dist/app.min.js': ['js/dist/app.js']
         }
       }
     },
