@@ -124,13 +124,15 @@ var app = app || {};
 
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
-        app.models.recentSearches.add();
+        app.models.recentSearches.add(app.models.searchLoc);
 
         app.views.progressModal.update(99, 'Preparing Results');
 
         // Smooth the display of results
         window.setTimeout(function() {
-          app.views.form.setTboxPlaceholder();
+          var cityState = app.models.searchLoc.cityState();
+          
+          app.views.form.setTboxPlaceholder(cityState);
           app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
           app.views.results.render();
           app.views.recentSearches.render();
@@ -207,13 +209,15 @@ var app = app || {};
 
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
-        app.models.recentSearches.add();
+        app.models.recentSearches.add(app.models.searchLoc);
 
         app.views.progressModal.update(99, 'Preparing Results');
 
         // Smooth the display of results
         window.setTimeout(function() {
-          app.views.form.setTboxPlaceholder();
+          var cityState = app.models.searchLoc.cityState();
+          
+          app.views.form.setTboxPlaceholder(cityState);
           app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
           app.views.results.render();
           app.views.recentSearches.render();
@@ -282,7 +286,9 @@ var app = app || {};
 
         // Smooth the display of results
         window.setTimeout(function() {
-          app.views.form.setTboxPlaceholder();
+          var cityState = app.models.searchLoc.cityState();
+
+          app.views.form.setTboxPlaceholder(cityState);
           app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
           app.views.results.render();
           app.views.page.enableButtons();
@@ -445,7 +451,6 @@ var app = app || {};
         app.models.places.add(sortedResults);
 
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-        app.views.form.setTboxPlaceholder();
         app.views.results.render();
         app.views.recentSearches.render();
         app.views.placeModal.init();
@@ -526,7 +531,7 @@ $(function() {
   app.models = app.models || {};
 
   app.models.recentSearches = {
-    add: function() {
+    add: function(searchLoc) {
       var cachedSearches = this.get();
 
       if (!cachedSearches) {
@@ -536,11 +541,11 @@ $(function() {
       }
 
       var newLocation = {};
-      newLocation.lat = app.models.searchLoc.lat;
-      newLocation.lng = app.models.searchLoc.lng;
-      newLocation.city = app.models.searchLoc.city;
-      newLocation.state = app.models.searchLoc.state;
-      newLocation.totalItems = app.models.searchLoc.totalItems;
+      newLocation.lat = searchLoc.lat;
+      newLocation.lng = searchLoc.lng;
+      newLocation.city = searchLoc.city;
+      newLocation.state = searchLoc.state;
+      newLocation.totalItems = searchLoc.totalItems;
       cachedSearches.unshift(newLocation);
 
       localStorage.setItem('recentSearches', JSON.stringify(cachedSearches));
@@ -1142,9 +1147,9 @@ $(function() {
         app.controllers.formSearch();
       });
     },
-    setTboxPlaceholder: function() {
+    setTboxPlaceholder: function(cityState) {
       this.cityStateTbox.value = null;
-      this.cityStateTbox.setAttribute('placeholder', app.models.searchLoc.cityState());
+      this.cityStateTbox.setAttribute('placeholder', cityState);
     },
     disableSearchBtn: function() {
       this.searchBtn.setAttribute('disabled', true);

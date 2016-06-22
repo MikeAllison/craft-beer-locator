@@ -34,9 +34,9 @@
         app.controllers.formSearch();
       });
     },
-    setTboxPlaceholder: function() {
+    setTboxPlaceholder: function(cityState) {
       this.cityStateTbox.value = null;
-      this.cityStateTbox.setAttribute('placeholder', app.models.searchLoc.cityState());
+      this.cityStateTbox.setAttribute('placeholder', cityState);
     },
     disableSearchBtn: function() {
       this.searchBtn.setAttribute('disabled', true);

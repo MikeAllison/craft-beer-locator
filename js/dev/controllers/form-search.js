@@ -69,13 +69,15 @@
 
         app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
         app.models.places.add(sortedResults);
-        app.models.recentSearches.add();
+        app.models.recentSearches.add(app.models.searchLoc);
 
         app.views.progressModal.update(99, 'Preparing Results');
 
         // Smooth the display of results
         window.setTimeout(function() {
-          app.views.form.setTboxPlaceholder();
+          var cityState = app.models.searchLoc.cityState();
+          
+          app.views.form.setTboxPlaceholder(cityState);
           app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
           app.views.results.render();
           app.views.recentSearches.render();

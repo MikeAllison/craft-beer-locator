@@ -7,7 +7,7 @@
   app.models = app.models || {};
 
   app.models.recentSearches = {
-    add: function() {
+    add: function(searchLoc) {
       var cachedSearches = this.get();
 
       if (!cachedSearches) {
@@ -17,11 +17,11 @@
       }
 
       var newLocation = {};
-      newLocation.lat = app.models.searchLoc.lat;
-      newLocation.lng = app.models.searchLoc.lng;
-      newLocation.city = app.models.searchLoc.city;
-      newLocation.state = app.models.searchLoc.state;
-      newLocation.totalItems = app.models.searchLoc.totalItems;
+      newLocation.lat = searchLoc.lat;
+      newLocation.lng = searchLoc.lng;
+      newLocation.city = searchLoc.city;
+      newLocation.state = searchLoc.state;
+      newLocation.totalItems = searchLoc.totalItems;
       cachedSearches.unshift(newLocation);
 
       localStorage.setItem('recentSearches', JSON.stringify(cachedSearches));

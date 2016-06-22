@@ -150,7 +150,6 @@
         app.models.places.add(sortedResults);
 
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-        app.views.form.setTboxPlaceholder();
         app.views.results.render();
         app.views.recentSearches.render();
         app.views.placeModal.init();

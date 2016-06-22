@@ -55,7 +55,9 @@
 
         // Smooth the display of results
         window.setTimeout(function() {
-          app.views.form.setTboxPlaceholder();
+          var cityState = app.models.searchLoc.cityState();
+
+          app.views.form.setTboxPlaceholder(cityState);
           app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
           app.views.results.render();
           app.views.page.enableButtons();
