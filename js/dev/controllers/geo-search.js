@@ -59,10 +59,10 @@
           }
         });
 
-        var sortedResults = app.modules.sortPlaces(places);
+        var sortedPlaces = app.modules.sortPlaces(places);
 
-        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
-        app.models.places.add(sortedResults);
+        app.models.places.add(sortedPlaces);
+        app.models.searchLoc.totalItems = sortedPlaces.primary.length + sortedPlaces.secondary.length;
         app.models.recentSearches.add(app.models.searchLoc);
 
         app.views.progressModal.update(99, 'Preparing Results');
@@ -70,11 +70,12 @@
         // Smooth the display of results
         window.setTimeout(function() {
           var cityState = app.models.searchLoc.cityState();
-          
+          var recentSearches = app.models.recentSearches.get();
+
           app.views.form.setTboxPlaceholder(cityState);
           app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-          app.views.results.render();
-          app.views.recentSearches.render();
+          app.views.results.render(sortedPlaces);
+          app.views.recentSearches.render(recentSearches);
           app.views.page.enableButtons();
         }, 999);
       })

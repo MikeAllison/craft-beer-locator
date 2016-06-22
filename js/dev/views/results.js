@@ -24,13 +24,12 @@
       this.primaryResultsList.textContent = null;
       this.secondaryResultsList.textContent = null;
     },
-    render: function() {
+    render: function(places) {
       this.primaryResults.classList.add('hidden');
       this.secondaryResults.classList.add('hidden');
       this.primaryResultsList.textContent = null;
       this.secondaryResultsList.textContent = null;
 
-      var places = app.models.places.get();
       if (!places) {
         app.views.alerts.show('info', 'Your request returned no results.');
         return;

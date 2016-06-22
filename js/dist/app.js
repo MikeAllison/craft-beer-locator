@@ -120,10 +120,10 @@ var app = app || {};
           }
         });
 
-        var sortedResults = app.modules.sortPlaces(places);
+        var sortedPlaces = app.modules.sortPlaces(places);
 
-        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
-        app.models.places.add(sortedResults);
+        app.models.places.add(sortedPlaces);
+        app.models.searchLoc.totalItems = sortedPlaces.primary.length + sortedPlaces.secondary.length;
         app.models.recentSearches.add(app.models.searchLoc);
 
         app.views.progressModal.update(99, 'Preparing Results');
@@ -131,11 +131,12 @@ var app = app || {};
         // Smooth the display of results
         window.setTimeout(function() {
           var cityState = app.models.searchLoc.cityState();
-          
+          var recentSearches = app.models.recentSearches.get();
+
           app.views.form.setTboxPlaceholder(cityState);
           app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-          app.views.results.render();
-          app.views.recentSearches.render();
+          app.views.results.render(sortedPlaces);
+          app.views.recentSearches.render(recentSearches);
           app.views.page.enableButtons();
         }, 999);
       })
@@ -205,10 +206,10 @@ var app = app || {};
           }
         });
 
-        var sortedResults = app.modules.sortPlaces(places);
+        var sortedPlaces = app.modules.sortPlaces(places);
 
-        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
-        app.models.places.add(sortedResults);
+        app.models.places.add(sortedPlaces);
+        app.models.searchLoc.totalItems = sortedPlaces.primary.length + sortedPlaces.secondary.length;
         app.models.recentSearches.add(app.models.searchLoc);
 
         app.views.progressModal.update(99, 'Preparing Results');
@@ -216,11 +217,12 @@ var app = app || {};
         // Smooth the display of results
         window.setTimeout(function() {
           var cityState = app.models.searchLoc.cityState();
-          
+          var recentSearches = app.models.recentSearches.get();
+
           app.views.form.setTboxPlaceholder(cityState);
           app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-          app.views.results.render();
-          app.views.recentSearches.render();
+          app.views.results.render(sortedPlaces);
+          app.views.recentSearches.render(recentSearches);
           app.views.page.enableButtons();
         }, 999);
       })
@@ -277,10 +279,10 @@ var app = app || {};
           }
         });
 
-        var sortedResults = app.modules.sortPlaces(places);
+        var sortedPlaces = app.modules.sortPlaces(places);
 
-        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
-        app.models.places.add(sortedResults);
+        app.models.places.add(sortedPlaces);
+        app.models.searchLoc.totalItems = sortedPlaces.primary.length + sortedPlaces.secondary.length;
 
         app.views.progressModal.update(99, 'Preparing Results');
 
@@ -290,7 +292,7 @@ var app = app || {};
 
           app.views.form.setTboxPlaceholder(cityState);
           app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-          app.views.results.render();
+          app.views.results.render(sortedPlaces);
           app.views.page.enableButtons();
         }, 999);
       })
@@ -445,14 +447,13 @@ var app = app || {};
           }
         });
 
-        var sortedResults = app.modules.sortPlaces(places);
+        var sortedPlaces = app.modules.sortPlaces(places);
 
-        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
-        app.models.places.add(sortedResults);
+        app.models.places.add(sortedPlaces);
+        app.models.searchLoc.totalItems = sortedPlaces.primary.length + sortedPlaces.secondary.length;
 
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-        app.views.results.render();
-        app.views.recentSearches.render();
+        app.views.results.render(sortedPlaces);
         app.views.placeModal.init();
       })
       .catch(app.controllers.stopExecution);
@@ -1429,9 +1430,8 @@ $(function() {
       this.recentSearchesList = document.getElementById('recentSearchesList');
       this.render();
     },
-    render: function() {
+    render: function(recentSearches) {
       this.recentSearchesList.textContent = null;
-      var recentSearches = app.models.recentSearches.get();
 
       if (!recentSearches) {
         var li = document.createElement('li');
@@ -1514,13 +1514,12 @@ $(function() {
       this.primaryResultsList.textContent = null;
       this.secondaryResultsList.textContent = null;
     },
-    render: function() {
+    render: function(places) {
       this.primaryResults.classList.add('hidden');
       this.secondaryResults.classList.add('hidden');
       this.primaryResultsList.textContent = null;
       this.secondaryResultsList.textContent = null;
 
-      var places = app.models.places.get();
       if (!places) {
         app.views.alerts.show('info', 'Your request returned no results.');
         return;

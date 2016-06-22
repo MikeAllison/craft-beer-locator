@@ -13,9 +13,8 @@
       this.recentSearchesList = document.getElementById('recentSearchesList');
       this.render();
     },
-    render: function() {
+    render: function(recentSearches) {
       this.recentSearchesList.textContent = null;
-      var recentSearches = app.models.recentSearches.get();
 
       if (!recentSearches) {
         var li = document.createElement('li');

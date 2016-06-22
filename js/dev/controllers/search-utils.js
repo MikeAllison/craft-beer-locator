@@ -144,14 +144,13 @@
           }
         });
 
-        var sortedResults = app.modules.sortPlaces(places);
+        var sortedPlaces = app.modules.sortPlaces(places);
 
-        app.models.searchLoc.totalItems = sortedResults.primary.length + sortedResults.secondary.length;
-        app.models.places.add(sortedResults);
+        app.models.places.add(sortedPlaces);
+        app.models.searchLoc.totalItems = sortedPlaces.primary.length + sortedPlaces.secondary.length;
 
         app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
-        app.views.results.render();
-        app.views.recentSearches.render();
+        app.views.results.render(sortedPlaces);
         app.views.placeModal.init();
       })
       .catch(app.controllers.stopExecution);
