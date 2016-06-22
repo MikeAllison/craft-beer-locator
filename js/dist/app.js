@@ -1215,10 +1215,8 @@ $(function() {
       app.views.locationBtn.disable();
     },
     enableButtons: function() {
-      window.setTimeout(function() {
-        app.views.form.enableSearchBtn();
-        app.views.locationBtn.enable();
-      }, 250);
+      app.views.form.enableSearchBtn();
+      app.views.locationBtn.enable();
     }
   };
 
