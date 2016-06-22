@@ -25,7 +25,7 @@
         'the distance from the city in your search.<br>Click this message to ' +
         'update the search results to show transit times from your current location.';
     },
-    populate: function() {
+    populate: function(selectedPlace) {
       // Reset hidden fields on each render
       var sections = document.getElementById('placeModalBody').children;
       for (var i=0; i < sections.length; i++) {
@@ -37,31 +37,31 @@
       currentDay -= 1;
       // Adjust for Sundays: JS uses a value of 0 and Google uses a value of 6
       currentDay = currentDay === -1 ? 6 : currentDay;
-      this.placeModalTitle.textContent = app.models.selectedPlace.name;
+      this.placeModalTitle.textContent = selectedPlace.name;
 
-      if (app.models.selectedPlace.openNow) {
-        this.placeModalOpenNow.textContent = app.models.selectedPlace.openNow;
+      if (selectedPlace.openNow) {
+        this.placeModalOpenNow.textContent = selectedPlace.openNow;
       } else {
         this.placeModalOpenNow.parentElement.classList.add('hidden');
       }
 
-      if (app.models.selectedPlace.website) {
-        this.placeModalWebsite.setAttribute('href', app.models.selectedPlace.website);
-        this.placeModalWebsite.textContent = app.models.selectedPlace.website;
+      if (selectedPlace.website) {
+        this.placeModalWebsite.setAttribute('href', selectedPlace.website);
+        this.placeModalWebsite.textContent = selectedPlace.website;
       } else {
         this.placeModalWebsite.parentElement.classList.add('hidden');
       }
 
-      if (app.models.selectedPlace.address) {
-        this.placeModalAddress.setAttribute('href', app.models.selectedPlace.googleMapsUrl);
-        this.placeModalAddress.textContent = app.models.selectedPlace.address;
+      if (selectedPlace.address) {
+        this.placeModalAddress.setAttribute('href', selectedPlace.googleMapsUrl);
+        this.placeModalAddress.textContent = selectedPlace.address;
       } else {
         this.placeModalAddress.parentElement.classList.add('hidden');
       }
 
-      if (app.models.selectedPlace.phoneNum) {
-        this.placeModalPhoneNum.setAttribute('href', 'tel:' + app.models.selectedPlace.phoneNum);
-        this.placeModalPhoneNum.textContent = app.models.selectedPlace.phoneNum;
+      if (selectedPlace.phoneNum) {
+        this.placeModalPhoneNum.setAttribute('href', 'tel:' + selectedPlace.phoneNum);
+        this.placeModalPhoneNum.textContent = selectedPlace.phoneNum;
       } else {
         this.placeModalPhoneNum.parentElement.classList.add('hidden');
       }
@@ -89,23 +89,23 @@
         }, 1500);
       });
 
-      if (app.models.selectedPlace.drivingInfo.duration || app.models.selectedPlace.drivingInfo.distance) {
-        this.placeModalDrivingInfo.textContent = app.models.selectedPlace.drivingInfo.duration + ' (' + app.models.selectedPlace.drivingInfo.distance + ')';
+      if (selectedPlace.drivingInfo.duration || selectedPlace.drivingInfo.distance) {
+        this.placeModalDrivingInfo.textContent = selectedPlace.drivingInfo.duration + ' (' + selectedPlace.drivingInfo.distance + ')';
       } else {
         this.placeModalDrivingInfo.textContent = 'No driving options';
       }
-      if (app.models.selectedPlace.transitInfo.duration || app.models.selectedPlace.transitInfo.distance) {
-        this.placeModalTransitInfo.textContent = app.models.selectedPlace.transitInfo.duration + ' (' + app.models.selectedPlace.transitInfo.distance + ')';
+      if (selectedPlace.transitInfo.duration || selectedPlace.transitInfo.distance) {
+        this.placeModalTransitInfo.textContent = selectedPlace.transitInfo.duration + ' (' + selectedPlace.transitInfo.distance + ')';
       } else {
         this.placeModalTransitInfo.textContent = 'No transit options';
       }
 
       this.placeModalHoursOpen.textContent = null;
-      if (app.models.selectedPlace.hoursOpen) {
-        for (var j=0; j < app.models.selectedPlace.hoursOpen.length; j++) {
+      if (selectedPlace.hoursOpen) {
+        for (var j=0; j < selectedPlace.hoursOpen.length; j++) {
           var li = document.createElement('li');
           // Split hoursOpen on ':'
-          var dayTime = app.models.selectedPlace.hoursOpen[j].split(/:\s/);
+          var dayTime = selectedPlace.hoursOpen[j].split(/:\s/);
           // <span> is needed to highlight hours for current day
           li.innerHTML = '<span><strong>' + dayTime[0] + ':</strong>' + dayTime[1] + '</span>';
           // Highlight current day of week
