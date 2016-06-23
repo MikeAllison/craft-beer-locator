@@ -410,7 +410,7 @@ var app = app || {};
         // Save distance and duration info
         app.models.selectedPlace.setTransitInfo(distance, duration);
 
-        app.views.placeModal.populate();
+        app.views.placeModal.populate(app.models.selectedPlace);
         app.views.placeModal.show();
 
         var places = app.models.places.get();
@@ -1314,10 +1314,8 @@ $(function() {
       this.placeModalDistanceWarning.addEventListener('click', function() {
         this.classList.add('clicked');
         this.textContent = 'Updating...';
-        // Hack to help prevent exceeding Google's query limits
-        window.setTimeout(function() {
-          app.controllers.switchToGeolocation();
-        }, 1500);
+
+        app.controllers.switchToGeolocation();
       });
 
       if (selectedPlace.drivingInfo.duration || selectedPlace.drivingInfo.distance) {
