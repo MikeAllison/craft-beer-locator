@@ -479,6 +479,7 @@ $(function() {
   app.views.alerts.init();
   app.views.results.init();
   app.views.recentSearches.init();
+  app.views.recentSearches.render(app.models.recentSearches.get());
   app.views.progressModal.init();
   app.views.placeModal.init();
 
@@ -1428,7 +1429,6 @@ $(function() {
     init: function() {
       // Collect DOM elements
       this.recentSearchesList = document.getElementById('recentSearchesList');
-      this.render();
     },
     render: function(recentSearches) {
       this.recentSearchesList.textContent = null;

@@ -11,7 +11,6 @@
     init: function() {
       // Collect DOM elements
       this.recentSearchesList = document.getElementById('recentSearchesList');
-      this.render();
     },
     render: function(recentSearches) {
       this.recentSearchesList.textContent = null;
