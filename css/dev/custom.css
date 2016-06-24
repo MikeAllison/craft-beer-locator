@@ -15,7 +15,6 @@
   }
   #searchBtn {
     width: 100%;
-    margin-top: 10px;
   }
   #locationBtn {
     width: 100%;
@@ -37,15 +36,75 @@
   }
 }
 
+#cityStateTbox, #searchBtn, #locationBtn {
+  margin-bottom: 10px;
+}
+
+#placeModalDistanceWarning {
+  background-color: #fefefe;
+  border: 1px solid #e5e5e5;
+  color: #D35400;
+}
+
+body {
+  font-family: "Lato", Helvetica, Arial, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: inherit;
+}
+
+.form-control {
+  font-size: 0.85em;
+}
+
+.btn {
+  font-size: 0.85em;
+  padding: 10px 15px;
+}
+
+.nav-tabs {
+  margin-bottom: 20px;
+}
+
+.badge {
+  margin-top: 3px;
+  font-size: 0.67em;
+}
+
+.city-state-heading {
+  color: #798d8f;
+}
+
+.modal-body {
+  overflow-x: auto;
+}
+
+.modal-field {
+  margin-right: 10px;
+}
+
+.modal-hours-open {
+  font-size: 0.9em;
+}
+
+.current-day span {
+  color: #fff;
+  background-color: #1ABC9C;
+  padding: 5px;
+}
+
+/*#primaryResultsList, #recentSearchesList {
+  margin-top: 20px;
+}*/
+
+/*
 @media (min-width: 992px) {
   #searchBtn {
     width: 100%;
   }
 }
 
-#primaryResultsList, #recentSearchesList {
-  margin-top: 20px;
-}
 
 #results > p {
   color: #34495e;
@@ -86,17 +145,7 @@
   background-color: #ECF0F1 !important;
 }
 
-.modal-body {
-  overflow-x: auto;
-}
 
-.modal-field {
-  margin-right: 10px;
-}
-
-.modal-hours-open {
-  font-size: 0.9em;
-}
 
 #placeModalDistanceWarning {
   font-size: 0.8em;
@@ -113,43 +162,19 @@
 
 .modal-distance-info li strong {
   margin-right: 10px;
-}
+}*/
 
 /* Current day in modal */
 
-.current-day span {
+/*.current-day span {
   color: #fff;
   background-color: #1ABC9C;
   padding: 5px;
-}
+}*/
 
 /* Bootstrap Overrides */
 
-.badge {
-  margin-top: 6px;
-  background-color: #415b76;
-}
 
-.alert-success {
-  background-color: #16A085;
-  color: #fff;
-}
-
-.alert-danger {
-  background-color: #C0392B;
-  color: #fff;
-}
-
-.alert-info {
-  background-color: #2980B9;
-  color: #fff;
-}
-
-.alert-warning {
-  background-color: #fefefe;
-  border: 1px solid #e5e5e5;
-  color: #D35400;
-}
 
 .nav > li > a:hover {
   background-color: #ECF0F1;

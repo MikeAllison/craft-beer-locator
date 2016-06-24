@@ -5,10 +5,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
     <link rel="icon" type="image/png" href="img/favicon.png">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/flat-ui.min.css">
-    <link rel="stylesheet" href="css/custom.min.css">
+    <link rel="stylesheet" href="css/dist/bootstrap.min.css">
+    <link rel="stylesheet" href="css/dist/icomoon.min.css">
+    <link rel="stylesheet" href="css/dist/custom.min.css">
   </head>
   <body>
     <div class="container">
@@ -34,13 +35,13 @@
           <input type="text" id="cityStateTbox" class="form-control">
         </div>
         <div class="col-sm-1">
-          <button type="button" id="searchBtn" class="btn btn-inverse fui-search center-block"></button>
+          <button type="button" id="searchBtn" class="btn btn-primary"><span class="icon-search"></span></button>
         </div>
       </div>
 
       <div class="row my-location-section">
         <div class="col-xs-12 text-center">
-          <button type="button" id="locationBtn" class="btn btn-location">Use My Location</button>
+          <button type="button" id="locationBtn" class="btn btn-default">Use My Location</button>
         </div>
       </div>
 
@@ -91,7 +92,7 @@
             <div id="progressModalBody" class="modal-body text-center">
               <p id="progressStatus" class=text-center></p>
               <div class="progress">
-                <div id="progressBar" class="progress-bar" role="progressbar">
+                <div id="progressBar" class="progress-bar progress-bar-success" role="progressbar">
                   <span class="sr-only"></span>
                 </div>
               </div>
@@ -113,7 +114,7 @@
               <p><strong class="modal-field">Address:</strong><a href="" id="placeModalAddress" target="_blank"></a></p>
               <p><strong class="modal-field">Phone Number:</strong><a href="" id="placeModalPhoneNum"></a></p>
               <p><strong>Distance:</strong></p>
-              <div id="placeModalDistanceWarning" class="alert alert-warning"></div>
+              <div id="placeModalDistanceWarning"></div>
               <div>
                 <ul class="list-unstyled modal-distance-info">
                   <li><strong>Driving:</strong><span id="placeModalDrivingInfo"></span></li>
@@ -134,8 +135,8 @@
 
     </div>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBCaX60okxecYLD05GC745IP1u6nzwKDSo&libraries=places"></script>
-    <script type="text/javascript" src="js/libraries/jquery-1.12.3.min.js"></script>
-    <script type="text/javascript" src="js/libraries/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/lib/jquery-1.12.3.min.js"></script>
+    <script type="text/javascript" src="js/lib/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/dist/app.min.js"></script>
   </body>
 </html>
