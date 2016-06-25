@@ -42,10 +42,11 @@
 
 #placeModalDistanceWarning {
   margin-bottom: 10px;
-  padding: 5px;
-  background-color: #fefefe;
+  padding: 10px;
+  line-height: 1.6;
+  background-color: #fff;
   border: 1px solid #e5e5e5;
-  color: #D35400;
+  color: #d35400;
   font-size: 0.8em;
 }
 
