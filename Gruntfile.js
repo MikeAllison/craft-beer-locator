@@ -15,21 +15,13 @@ module.exports = function(grunt) {
     },
 
     concat: {
-      js: {
+      dist: {
         src: [
           'js/dev/config.js',
           'js/dev/**/*.js',
           'js/dev/init.js'
         ],
         dest: 'js/dist/app.js'
-      },
-      css: {
-        src: [
-          'css/dev/bootstrap.css',
-          'css/dev/icomoon.css',
-          'css/dev/custom.css'
-        ],
-        dest: 'css/dist/app.css'
       }
     },
 
@@ -45,7 +37,7 @@ module.exports = function(grunt) {
       target: {
         files: [{
           expand: true,
-          cwd: 'css/dist',
+          cwd: 'css/dev',
           src: ['*.css', '!*.min.css'],
           dest: 'css/dist',
           ext: '.min.css'
