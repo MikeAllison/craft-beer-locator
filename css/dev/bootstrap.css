@@ -5,8 +5,8 @@
  */
 
 /*!
- * Generated using the Bootstrap Customizer (http://getbootstrap.com/customize/?id=cd86ef5dea04129a652a0a8abc9a7fc1)
- * Config saved to config.json and https://gist.github.com/cd86ef5dea04129a652a0a8abc9a7fc1
+ * Generated using the Bootstrap Customizer (http://getbootstrap.com/customize/?id=7c2b0910b87987dcca3a616eb5d5fb89)
+ * Config saved to config.json and https://gist.github.com/7c2b0910b87987dcca3a616eb5d5fb89
  */
 /*!
  * Bootstrap v3.3.6 (http://getbootstrap.com)
@@ -233,7 +233,7 @@ a {
 }
 a:hover,
 a:focus {
-  color: #19b698;
+  color: #138a72;
   text-decoration: none;
 }
 a:focus {
@@ -2256,7 +2256,7 @@ fieldset[disabled] .btn-link {
 }
 .btn-link:hover,
 .btn-link:focus {
-  color: #19b698;
+  color: #138a72;
   text-decoration: none;
   background-color: transparent;
 }

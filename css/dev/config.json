@@ -14,7 +14,7 @@
     "@body-bg": "#fff",
     "@text-color": "@brand-primary",
     "@link-color": "@brand-success",
-    "@link-hover-color": "lighten(@link-color, 5%)",
+    "@link-hover-color": "darken(@link-color, 5%)",
     "@link-hover-decoration": "none",
     "@font-family-sans-serif": "\"Helvetica Neue\", Helvetica, Arial, sans-serif",
     "@font-family-serif": "Georgia, \"Times New Roman\", Times, serif",
@@ -404,5 +404,5 @@
     "scrollspy.js",
     "transition.js"
   ],
-  "customizerUrl": "http://getbootstrap.com/customize/?id=cd86ef5dea04129a652a0a8abc9a7fc1"
+  "customizerUrl": "http://getbootstrap.com/customize/?id=7c2b0910b87987dcca3a616eb5d5fb89"
 }

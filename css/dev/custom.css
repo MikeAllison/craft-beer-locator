@@ -41,9 +41,12 @@
 }
 
 #placeModalDistanceWarning {
+  margin-bottom: 10px;
+  padding: 5px;
   background-color: #fefefe;
   border: 1px solid #e5e5e5;
   color: #D35400;
+  font-size: 0.8em;
 }
 
 body {
@@ -58,6 +61,10 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.85em;
 }
 
+.form-control:focus {
+  box-shadow: none;
+}
+
 .btn {
   font-size: 0.85em;
   padding: 10px 15px;
@@ -67,115 +74,48 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 20px;
 }
 
+.nav-tabs li a:hover {
+  background-color: #fff;
+}
+
 .badge {
   margin-top: 3px;
   font-size: 0.67em;
 }
 
 .city-state-heading {
-  color: #798d8f;
+  color: #555;
+}
+
+.hovered, .clicked {
+  background-color: #f9f9f9 !important;
 }
 
 .modal-body {
   overflow-x: auto;
-}
-
-.modal-field {
-  margin-right: 10px;
-}
-
-.modal-hours-open {
   font-size: 0.9em;
+}
+
+.modal-field,
+.modal-distance-info li strong,
+.modal-hours-open li span strong {
+  padding-right: 4px;
+}
+
+.modal-distance-info, .modal-hours-open {
+  font-size: 0.9em;
+}
+
+.modal-distance-info li, .modal-hours-open li {
+  padding-bottom: 5px;
+}
+
+.current-day {
+  margin: 5px;
 }
 
 .current-day span {
+  padding: 5px;
   color: #fff;
   background-color: #1ABC9C;
-  padding: 5px;
-}
-
-/*#primaryResultsList, #recentSearchesList {
-  margin-top: 20px;
-}*/
-
-/*
-@media (min-width: 992px) {
-  #searchBtn {
-    width: 100%;
-  }
-}
-
-
-#results > p {
-  color: #34495e;
-}
-
-.container {
-  margin-bottom: 20px;
-}
-
-.my-location-section, .alert-section, .results-section {
-  margin-top: 10px;
-}
-
-.city-state-heading {
-  color: #7F8C8D;
-}
-
-.btn-location {
-  background-color: #95A5A6;
-  color: #fff;
-}
-
-.progress {
-  height: 30px;
-  border-radius: 4px;
-}
-
-.progress-bar {
-  background: #16a085;
-  line-height: 30px;
-}
-
-.list-group-item {
-  overflow-x: auto;
-}
-
-.hovered, .clicked {
-  background-color: #ECF0F1 !important;
-}
-
-
-
-#placeModalDistanceWarning {
-  font-size: 0.8em;
-  line-height: 1.7;
-}
-
-.modal-hours-open li strong {
-  margin-right: 10px;
-}
-
-.modal-distance-info {
-  font-size: 0.9em;
-}
-
-.modal-distance-info li strong {
-  margin-right: 10px;
-}*/
-
-/* Current day in modal */
-
-/*.current-day span {
-  color: #fff;
-  background-color: #1ABC9C;
-  padding: 5px;
-}*/
-
-/* Bootstrap Overrides */
-
-
-
-.nav > li > a:hover {
-  background-color: #ECF0F1;
 }
