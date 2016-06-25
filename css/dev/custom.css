@@ -58,6 +58,14 @@ h1, h2, h3, h4, h5, h6 {
   font-family: inherit;
 }
 
+.hovered, .clicked {
+  background-color: #f9f9f9 !important;
+}
+
+.city-state-heading {
+  color: #555;
+}
+
 .form-control {
   font-size: 0.85em;
 }
@@ -79,17 +87,13 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #fff;
 }
 
+.list-group-item {
+  overflow-x: auto;
+}
+
 .badge {
   margin-top: 3px;
   font-size: 0.67em;
-}
-
-.city-state-heading {
-  color: #555;
-}
-
-.hovered, .clicked {
-  background-color: #f9f9f9 !important;
 }
 
 .modal-body {
