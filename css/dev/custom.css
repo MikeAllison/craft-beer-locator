@@ -15,7 +15,6 @@
   }
   #searchBtn {
     width: 100%;
-    margin-top: 10px;
   }
   #locationBtn {
     width: 100%;
@@ -37,120 +36,86 @@
   }
 }
 
-@media (min-width: 992px) {
-  #searchBtn {
-    width: 100%;
-  }
+#cityStateTbox, #searchBtn, #locationBtn {
+  margin-bottom: 10px;
 }
 
-#primaryResultsList, #recentSearchesList {
-  margin-top: 20px;
+#placeModalDistanceWarning {
+  margin-bottom: 10px;
+  padding: 5px;
+  background-color: #fefefe;
+  border: 1px solid #e5e5e5;
+  color: #D35400;
+  font-size: 0.8em;
 }
 
-#results > p {
-  color: #34495e;
+body {
+  font-family: "Lato", Helvetica, Arial, sans-serif;
 }
 
-.container {
+h1, h2, h3, h4, h5, h6 {
+  font-family: inherit;
+}
+
+.form-control {
+  font-size: 0.85em;
+}
+
+.form-control:focus {
+  box-shadow: none;
+}
+
+.btn {
+  font-size: 0.85em;
+  padding: 10px 15px;
+}
+
+.nav-tabs {
   margin-bottom: 20px;
 }
 
-.my-location-section, .alert-section, .results-section {
-  margin-top: 10px;
+.nav-tabs li a:hover {
+  background-color: #fff;
+}
+
+.badge {
+  margin-top: 3px;
+  font-size: 0.67em;
 }
 
 .city-state-heading {
-  color: #7F8C8D;
-}
-
-.btn-location {
-  background-color: #95A5A6;
-  color: #fff;
-}
-
-.progress {
-  height: 30px;
-  border-radius: 4px;
-}
-
-.progress-bar {
-  background: #16a085;
-  line-height: 30px;
-}
-
-.list-group-item {
-  overflow-x: auto;
+  color: #555;
 }
 
 .hovered, .clicked {
-  background-color: #ECF0F1 !important;
+  background-color: #f9f9f9 !important;
 }
 
 .modal-body {
   overflow-x: auto;
-}
-
-.modal-field {
-  margin-right: 10px;
-}
-
-.modal-hours-open {
   font-size: 0.9em;
 }
 
-#placeModalDistanceWarning {
-  font-size: 0.8em;
-  line-height: 1.7;
+.modal-field,
+.modal-distance-info li strong,
+.modal-hours-open li span strong {
+  padding-right: 4px;
 }
 
-.modal-hours-open li strong {
-  margin-right: 10px;
-}
-
-.modal-distance-info {
+.modal-distance-info, .modal-hours-open {
   font-size: 0.9em;
 }
 
-.modal-distance-info li strong {
-  margin-right: 10px;
+.modal-distance-info li, .modal-hours-open li {
+  padding-bottom: 5px;
 }
 
-/* Current day in modal */
+.current-day {
+  margin: 5px;
+}
 
 .current-day span {
+  padding: 5px;
   color: #fff;
   background-color: #1ABC9C;
-  padding: 5px;
-}
-
-/* Bootstrap Overrides */
-
-.badge {
-  margin-top: 6px;
-  background-color: #415b76;
-}
-
-.alert-success {
-  background-color: #16A085;
-  color: #fff;
-}
-
-.alert-danger {
-  background-color: #C0392B;
-  color: #fff;
-}
-
-.alert-info {
-  background-color: #2980B9;
-  color: #fff;
-}
-
-.alert-warning {
-  background-color: #fefefe;
-  border: 1px solid #e5e5e5;
-  color: #D35400;
-}
-
-.nav > li > a:hover {
-  background-color: #ECF0F1;
 }
