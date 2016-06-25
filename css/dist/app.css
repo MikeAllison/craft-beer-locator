@@ -3367,14 +3367,9 @@ button.close {
 /*csslint ids:false - silence CSSLint message "Don't use IDs in selectors" */
 
 @media (max-width: 767px) {
-  h3 {
-    font-size: 1.5em;
-  }
-  .city-state-heading {
-    font-size: 1em;
-  }
-  .alert {
-    font-size: 0.8em;
+  #heading {
+    margin: 10px 0 0 0;
+    font-size: 1.2em;
   }
   #cityStateTbox {
     text-align: center;
@@ -3387,6 +3382,12 @@ button.close {
   }
   #placeModalWebsite, #placeModalAddress, #placeModalPhoneNum {
     display: block;
+  }
+  .city-state-heading {
+    font-size: 0.8em;
+  }
+  .alert {
+    font-size: 0.8em;
   }
 }
 
@@ -3434,6 +3435,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .form-control {
   font-size: 0.85em;
+  box-shadow: none;
 }
 
 .form-control:focus {
@@ -3446,7 +3448,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .nav-tabs {
-  margin-bottom: 20px;
+  margin: 10px 0 20px 0;
 }
 
 .nav-tabs li a:hover {
