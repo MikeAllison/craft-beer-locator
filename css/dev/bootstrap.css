@@ -5,8 +5,8 @@
  */
 
 /*!
- * Generated using the Bootstrap Customizer (http://getbootstrap.com/customize/?id=7c2b0910b87987dcca3a616eb5d5fb89)
- * Config saved to config.json and https://gist.github.com/7c2b0910b87987dcca3a616eb5d5fb89
+ * Generated using the Bootstrap Customizer (http://getbootstrap.com/customize/?id=7fd297c1f6d9a7e550d07633a65423e5)
+ * Config saved to config.json and https://gist.github.com/7fd297c1f6d9a7e550d07633a65423e5
  */
 /*!
  * Bootstrap v3.3.6 (http://getbootstrap.com)
@@ -2296,6 +2296,41 @@ input[type="submit"].btn-block,
 input[type="reset"].btn-block,
 input[type="button"].btn-block {
   width: 100%;
+}
+.fade {
+  opacity: 0;
+  -webkit-transition: opacity 0.15s linear;
+  -o-transition: opacity 0.15s linear;
+  transition: opacity 0.15s linear;
+}
+.fade.in {
+  opacity: 1;
+}
+.collapse {
+  display: none;
+}
+.collapse.in {
+  display: block;
+}
+tr.collapse.in {
+  display: table-row;
+}
+tbody.collapse.in {
+  display: table-row-group;
+}
+.collapsing {
+  position: relative;
+  height: 0;
+  overflow: hidden;
+  -webkit-transition-property: height, visibility;
+  -o-transition-property: height, visibility;
+     transition-property: height, visibility;
+  -webkit-transition-duration: 0.35s;
+  -o-transition-duration: 0.35s;
+     transition-duration: 0.35s;
+  -webkit-transition-timing-function: ease;
+  -o-transition-timing-function: ease;
+     transition-timing-function: ease;
 }
 .nav {
   margin-bottom: 0;
