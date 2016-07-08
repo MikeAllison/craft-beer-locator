@@ -1,5 +1,6 @@
 describe('app.models.places', function() {
-  var places, initialPlaces;
+  var places = app.models.places;
+  var initialPlaces;
 
   beforeEach(function() {
     initialPlaces = {
@@ -7,15 +8,14 @@ describe('app.models.places', function() {
       secondary: [{ place_id: 2, name: "Place Two" }]
     };
     window.sessionStorage.setItem('places', JSON.stringify(initialPlaces));
-    places = app.models.places;
   });
 
-  it('clears sessionStorage.places when init() is called', function() {
+  it('clears sessionStorage.places with .init()', function() {
     places.init();
     expect(window.sessionStorage.places).toBeUndefined();
   });
 
-  it('can add a new value with add()', function() {
+  it('can add a new value with .add()', function() {
     var newPlace = {
       primary: [{ place_id: 3, name: 'Place Three' }]
     };
@@ -23,12 +23,12 @@ describe('app.models.places', function() {
     expect(window.sessionStorage.places).toEqual('{"primary":[{"place_id":3,"name":"Place Three"}]}');
   });
 
-  it('can return places as an object with get()', function() {
+  it('can return places as an object with .get()', function() {
     var allPlaces = places.get();
     expect(allPlaces).toEqual(initialPlaces);
   });
 
-  it('can find a requested place with find()', function() {
+  it('can find a requested place with .find()', function() {
     var requestedPlace = { place_id: 2, name: 'Place Two' };
     expect(places.find(requestedPlace)).toEqual({ place_id: 2, name: 'Place Two' });
   });
