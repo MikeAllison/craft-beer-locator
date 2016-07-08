@@ -8,7 +8,7 @@
 
   app.models.places = {
     init: function() {
-      sessionStorage.clear();
+      sessionStorage.removeItem('places');
     },
     // Adds an array of results of search to sessionStorage
     add: function(places) {
