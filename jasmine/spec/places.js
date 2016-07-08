@@ -1,4 +1,4 @@
-describe('places', function() {
+describe('app.models.places', function() {
   var places, initialPlaces;
 
   beforeEach(function() {
