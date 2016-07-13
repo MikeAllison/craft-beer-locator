@@ -12,10 +12,10 @@
   app.modules.insertionSort = function(unsorted) {
     var length = unsorted.length;
 
-    for (var i=0; i < length; i++) {
+    for (var i = 0; i < length; i++) {
       var temp = unsorted[i];
 
-      for (var j=i-1; j >= 0 && (parseFloat(unsorted[j].drivingInfo.value) > parseFloat(temp.drivingInfo.value)); j--) {
+      for (var j = i-1; j >= 0 && (parseFloat(unsorted[j].drivingInfo.value) > parseFloat(temp.drivingInfo.value)); j--) {
         unsorted[j+1] = unsorted[j];
       }
 
@@ -35,7 +35,7 @@
     var sortedResults = { primary: null, secondary: null };
 
     // Sorts results based on relevent/exlcuded categories in app.config.settings.search
-    for (var i=0; i < places.length; i++) {
+    for (var i = 0, length = places.length; i < length; i++) {
       var hasPrimaryType = false;
       var hasSecondaryType = false;
       var hasExcludedType = false;

@@ -21,15 +21,17 @@
     find: function(requestedPlace) {
       var places = this.get();
 
-      for (var i=0; i < places.primary.length; i++) {
-        if (places.primary[i].place_id === requestedPlace.place_id) {
-          return places.primary[i];
+      var primaryPlaces = places.primary;
+      for (var i = 0, priLength = primaryPlaces.length; i < priLength; i++) {
+        if (primaryPlaces[i].place_id === requestedPlace.place_id) {
+          return primaryPlaces[i];
         }
       }
 
-      for (var j=0; j < places.secondary.length; j++) {
-        if (places.secondary[j].place_id === requestedPlace.place_id) {
-          return places.secondary[j];
+      var secondaryPlaces = places.secondary;
+      for (var j = 0, secLength = secondaryPlaces.length; j < secLength; j++) {
+        if (secondaryPlaces[j].place_id === requestedPlace.place_id) {
+          return secondaryPlaces[j];
         }
       }
     }

@@ -28,7 +28,7 @@
     populate: function(selectedPlace) {
       // Reset hidden fields on each render
       var sections = document.getElementById('placeModalBody').children;
-      for (var i=0; i < sections.length; i++) {
+      for (var i = 0, length = sections.length; i < length; i++) {
         sections[i].classList.remove('hidden');
       }
 
@@ -100,7 +100,7 @@
 
       this.placeModalHoursOpen.textContent = null;
       if (selectedPlace.hoursOpen) {
-        for (var j=0; j < selectedPlace.hoursOpen.length; j++) {
+        for (var j = 0, hrsLength = selectedPlace.hoursOpen.length; j < hrsLength; j++) {
           var li = document.createElement('li');
           // Split hoursOpen on ':'
           var dayTime = selectedPlace.hoursOpen[j].split(/:\s/);

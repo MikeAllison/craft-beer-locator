@@ -508,15 +508,17 @@ $(function() {
     find: function(requestedPlace) {
       var places = this.get();
 
-      for (var i=0; i < places.primary.length; i++) {
-        if (places.primary[i].place_id === requestedPlace.place_id) {
-          return places.primary[i];
+      var primaryPlaces = places.primary;
+      for (var i = 0, priLength = primaryPlaces.length; i < priLength; i++) {
+        if (primaryPlaces[i].place_id === requestedPlace.place_id) {
+          return primaryPlaces[i];
         }
       }
 
-      for (var j=0; j < places.secondary.length; j++) {
-        if (places.secondary[j].place_id === requestedPlace.place_id) {
-          return places.secondary[j];
+      var secondaryPlaces = places.secondary;
+      for (var j = 0, secLength = secondaryPlaces.length; j < secLength; j++) {
+        if (secondaryPlaces[j].place_id === requestedPlace.place_id) {
+          return secondaryPlaces[j];
         }
       }
     }
@@ -680,7 +682,7 @@ $(function() {
       var totalReqs = Math.ceil(destinations.length / maxDests);
       var groupedResults = {};
 
-      for (i=1; i <= totalReqs; i++) {
+      for (i = 1; i <= totalReqs; i++) {
         var reqGroup = [];
         var latLngObjs = [];
 
@@ -725,7 +727,7 @@ $(function() {
         if (Object.keys(groupedResults).length === totalReqs) {
           flattenedResults.originAddresses = groupedResults[1].originAddresses;
 
-          for (i=1; i <= totalReqs; i++) {
+          for (i = 1; i <= totalReqs; i++) {
             flattenedResults.destinationAddresses = flattenedResults.destinationAddresses.concat(groupedResults[i].destinationAddresses);
             flattenedResults.rows[0].elements = flattenedResults.rows[0].elements.concat(groupedResults[i].rows[0].elements);
           }
@@ -990,10 +992,10 @@ $(function() {
   app.modules.insertionSort = function(unsorted) {
     var length = unsorted.length;
 
-    for (var i=0; i < length; i++) {
+    for (var i = 0; i < length; i++) {
       var temp = unsorted[i];
 
-      for (var j=i-1; j >= 0 && (parseFloat(unsorted[j].drivingInfo.value) > parseFloat(temp.drivingInfo.value)); j--) {
+      for (var j = i-1; j >= 0 && (parseFloat(unsorted[j].drivingInfo.value) > parseFloat(temp.drivingInfo.value)); j--) {
         unsorted[j+1] = unsorted[j];
       }
 
@@ -1013,7 +1015,7 @@ $(function() {
     var sortedResults = { primary: null, secondary: null };
 
     // Sorts results based on relevent/exlcuded categories in app.config.settings.search
-    for (var i=0; i < places.length; i++) {
+    for (var i = 0, length = places.length; i < length; i++) {
       var hasPrimaryType = false;
       var hasSecondaryType = false;
       var hasExcludedType = false;
@@ -1089,7 +1091,7 @@ $(function() {
       this.alert = document.getElementById('alert');
       this.alert.classList.add('hidden');
       var alertTypes = ['alert-danger', 'alert-info', 'alert-success'];
-      for (var i = 0; i < alertTypes.length; i++) {
+      for (var i = 0, length = alertTypes.length; i < length; i++) {
         this.alert.classList.remove(alertTypes[i]);
       }
       this.alert.textContent = null;
@@ -1259,7 +1261,7 @@ $(function() {
     populate: function(selectedPlace) {
       // Reset hidden fields on each render
       var sections = document.getElementById('placeModalBody').children;
-      for (var i=0; i < sections.length; i++) {
+      for (var i = 0, length = sections.length; i < length; i++) {
         sections[i].classList.remove('hidden');
       }
 
@@ -1331,7 +1333,7 @@ $(function() {
 
       this.placeModalHoursOpen.textContent = null;
       if (selectedPlace.hoursOpen) {
-        for (var j=0; j < selectedPlace.hoursOpen.length; j++) {
+        for (var j = 0, hrsLength = selectedPlace.hoursOpen.length; j < hrsLength; j++) {
           var li = document.createElement('li');
           // Split hoursOpen on ':'
           var dayTime = selectedPlace.hoursOpen[j].split(/:\s/);
@@ -1440,7 +1442,7 @@ $(function() {
         return;
       }
 
-      for (var i=0; i < recentSearches.length; i++) {
+      for (var i = 0, length = recentSearches.length; i < length; i++) {
         var li = document.createElement('li');
         li.classList.add('list-group-item');
         li.textContent = recentSearches[i].city + ', ' + recentSearches[i].state;
@@ -1524,14 +1526,15 @@ $(function() {
       }
 
       // Add primary results to DOM
-      for (var i=0; i < places.primary.length; i++) {
+      var primaryPlaces = places.primary;
+      for (var i = 0, priLength = primaryPlaces.length; i < priLength; i++) {
         var li = document.createElement('li');
         li.classList.add('list-group-item');
-        li.textContent = places.primary[i].name;
+        li.textContent = primaryPlaces[i].name;
 
         var span = document.createElement('span');
         span.classList.add('badge');
-        span.textContent = places.primary[i].drivingInfo.distance;
+        span.textContent = primaryPlaces[i].drivingInfo.distance;
 
         li.appendChild(span);
 
@@ -1539,7 +1542,7 @@ $(function() {
           return function() {
             app.controllers.getDetails(place);
           };
-        })(places.primary[i]));
+        })(primaryPlaces[i]));
 
         (function(li) {
           li.addEventListener('click', function() {
@@ -1564,14 +1567,15 @@ $(function() {
       }
 
       // Add secondary results to DOM
-      for (var j=0; j < places.secondary.length; j++) {
+      var secondaryPlaces = places.secondary;
+      for (var j = 0, secLength = secondaryPlaces.length; j < secLength; j++) {
         var li = document.createElement('li');
         li.classList.add('list-group-item');
-        li.textContent = places.secondary[j].name;
+        li.textContent = secondaryPlaces[j].name;
 
         var span = document.createElement('span');
         span.classList.add('badge');
-        span.textContent = places.secondary[j].drivingInfo.distance;
+        span.textContent = secondaryPlaces[j].drivingInfo.distance;
 
         li.appendChild(span);
 
@@ -1579,7 +1583,7 @@ $(function() {
           return function() {
             app.controllers.getDetails(place);
           };
-        })(places.secondary[j]));
+        })(secondaryPlaces[j]));
 
         (function(li) {
           li.addEventListener('click', function() {

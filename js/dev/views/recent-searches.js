@@ -24,7 +24,7 @@
         return;
       }
 
-      for (var i=0; i < recentSearches.length; i++) {
+      for (var i = 0, length = recentSearches.length; i < length; i++) {
         var li = document.createElement('li');
         li.classList.add('list-group-item');
         li.textContent = recentSearches[i].city + ', ' + recentSearches[i].state;

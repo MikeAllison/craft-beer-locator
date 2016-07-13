@@ -15,7 +15,7 @@
       var totalReqs = Math.ceil(destinations.length / maxDests);
       var groupedResults = {};
 
-      for (i=1; i <= totalReqs; i++) {
+      for (i = 1; i <= totalReqs; i++) {
         var reqGroup = [];
         var latLngObjs = [];
 
@@ -60,7 +60,7 @@
         if (Object.keys(groupedResults).length === totalReqs) {
           flattenedResults.originAddresses = groupedResults[1].originAddresses;
 
-          for (i=1; i <= totalReqs; i++) {
+          for (i = 1; i <= totalReqs; i++) {
             flattenedResults.destinationAddresses = flattenedResults.destinationAddresses.concat(groupedResults[i].destinationAddresses);
             flattenedResults.rows[0].elements = flattenedResults.rows[0].elements.concat(groupedResults[i].rows[0].elements);
           }

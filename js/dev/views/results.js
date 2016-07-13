@@ -36,14 +36,15 @@
       }
 
       // Add primary results to DOM
-      for (var i=0; i < places.primary.length; i++) {
+      var primaryPlaces = places.primary;
+      for (var i = 0, priLength = primaryPlaces.length; i < priLength; i++) {
         var li = document.createElement('li');
         li.classList.add('list-group-item');
-        li.textContent = places.primary[i].name;
+        li.textContent = primaryPlaces[i].name;
 
         var span = document.createElement('span');
         span.classList.add('badge');
-        span.textContent = places.primary[i].drivingInfo.distance;
+        span.textContent = primaryPlaces[i].drivingInfo.distance;
 
         li.appendChild(span);
 
@@ -51,7 +52,7 @@
           return function() {
             app.controllers.getDetails(place);
           };
-        })(places.primary[i]));
+        })(primaryPlaces[i]));
 
         (function(li) {
           li.addEventListener('click', function() {
@@ -76,14 +77,15 @@
       }
 
       // Add secondary results to DOM
-      for (var j=0; j < places.secondary.length; j++) {
+      var secondaryPlaces = places.secondary;
+      for (var j = 0, secLength = secondaryPlaces.length; j < secLength; j++) {
         var li = document.createElement('li');
         li.classList.add('list-group-item');
-        li.textContent = places.secondary[j].name;
+        li.textContent = secondaryPlaces[j].name;
 
         var span = document.createElement('span');
         span.classList.add('badge');
-        span.textContent = places.secondary[j].drivingInfo.distance;
+        span.textContent = secondaryPlaces[j].drivingInfo.distance;
 
         li.appendChild(span);
 
@@ -91,7 +93,7 @@
           return function() {
             app.controllers.getDetails(place);
           };
-        })(places.secondary[j]));
+        })(secondaryPlaces[j]));
 
         (function(li) {
           li.addEventListener('click', function() {
