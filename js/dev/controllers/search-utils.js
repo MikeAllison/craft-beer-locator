@@ -20,9 +20,9 @@
   app.controllers.getDetails = function(place) {
     app.models.selectedPlace.init();
 
-    var lat = app.models.searchLoc.lat;
-    var lng = app.models.searchLoc.lng;
-    var requestedPlace = app.models.places.find(place);
+    var lat = app.models.searchLoc.lat,
+        lng = app.models.searchLoc.lng,
+        requestedPlace = app.models.places.find(place);
 
     app.models.selectedPlace.setBasicDetails(requestedPlace);
     app.models.selectedPlace.setDrivingInfo(requestedPlace.drivingInfo.distance, requestedPlace.drivingInfo.duration);
@@ -31,8 +31,8 @@
       .then(function(results) {
         app.models.selectedPlace.setSpecificDetails(results);
 
-        var origin = { lat: app.models.searchLoc.lat, lng: app.models.searchLoc.lng };
-        var destination = { lat: app.models.selectedPlace.lat, lng: app.models.selectedPlace.lng };
+        var origin = { lat: app.models.searchLoc.lat, lng: app.models.searchLoc.lng },
+            destination = { lat: app.models.selectedPlace.lat, lng: app.models.selectedPlace.lng };
 
         return app.modules.reqTransitDistance(origin, destination);
       })
@@ -64,14 +64,13 @@
         app.models.searchLoc.lng = position.coords.longitude;
 
         var origin = {
-          lat: app.models.searchLoc.lat,
-          lng: app.models.searchLoc.lng
-        };
-
-        var destination = {
-          lat: app.models.selectedPlace.lat,
-          lng: app.models.selectedPlace.lng
-        };
+              lat: app.models.searchLoc.lat,
+              lng: app.models.searchLoc.lng
+            },
+            destination = {
+              lat: app.models.selectedPlace.lat,
+              lng: app.models.selectedPlace.lng
+            };
 
         return app.modules.reqDrivingDistance(origin, destination);
       })
@@ -86,14 +85,13 @@
         app.models.selectedPlace.setDrivingInfo(distance, duration);
 
         var origin = {
-          lat: app.models.searchLoc.lat,
-          lng: app.models.searchLoc.lng
-        };
-
-        var destination = {
-          lat: app.models.selectedPlace.lat,
-          lng: app.models.selectedPlace.lng
-        };
+              lat: app.models.searchLoc.lat,
+              lng: app.models.searchLoc.lng
+            },
+            destination = {
+              lat: app.models.selectedPlace.lat,
+              lng: app.models.selectedPlace.lng
+            };
 
         return app.modules.reqTransitDistance(origin, destination);
       })
@@ -110,15 +108,17 @@
         app.views.placeModal.populate(app.models.selectedPlace);
         app.views.placeModal.show();
 
-        var places = app.models.places.get();
+        var places = app.models.places.get(),
+            placesCoords = [],
+            latLng = { lat: null, lng: null };
+            
         // Flatten to a one-dimensional array
         if (places.primary || places.secondary) {
           places = places.primary.concat(places.secondary);
         }
+
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
-        var placesCoords = [];
         places.forEach(function(place) {
-          var latLng = { lat: null, lng: null };
           latLng.lat = place.geometry.location.lat;
           latLng.lng = place.geometry.location.lng;
           placesCoords.push(latLng);

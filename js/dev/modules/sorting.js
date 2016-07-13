@@ -27,18 +27,18 @@
     sortPlaces() - Handles processing of places returned from Google
   *******************************************************************/
   app.modules.sortPlaces = function(places) {
-    var primaryTypes = app.config.settings.search.primaryTypes;
-    var secondaryTypes = app.config.settings.search.secondaryTypes;
-    var excludedTypes = app.config.settings.search.excludedTypes;
-    var primaryResults = [];
-    var secondaryResults = [];
-    var sortedResults = { primary: null, secondary: null };
+    var primaryTypes = app.config.settings.search.primaryTypes,
+        secondaryTypes = app.config.settings.search.secondaryTypes,
+        excludedTypes = app.config.settings.search.excludedTypes,
+        primaryResults = [],
+        secondaryResults = [],
+        sortedResults = { primary: null, secondary: null };
 
     // Sorts results based on relevent/exlcuded categories in app.config.settings.search
     for (var i = 0, length = places.length; i < length; i++) {
-      var hasPrimaryType = false;
-      var hasSecondaryType = false;
-      var hasExcludedType = false;
+      var hasPrimaryType = false,
+          hasSecondaryType = false,
+          hasExcludedType = false;
 
       // Check for primary types and push onto array for primary results
       primaryTypes.forEach(function(primaryType) {

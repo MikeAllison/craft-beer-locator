@@ -12,9 +12,9 @@
   *******************************************************************************************/
   app.modules.getGeocode = function(location) {
     return new Promise(function(resolve, reject) {
-      // AJAX request for lat/lng for form submission
-      var httpRequest = new XMLHttpRequest();
-      var params = 'key=' + app.config.google.apiKey + '&address=' + encodeURIComponent(location);
+      var httpRequest = new XMLHttpRequest(),
+          params = 'key=' + app.config.google.apiKey + '&address=' + encodeURIComponent(location);
+
       httpRequest.open('GET', app.config.google.geocodingAPI.reqURL + params, true);
 
       httpRequest.onload = function() {
@@ -43,8 +43,8 @@
   *******************************************************/
   app.modules.reverseGeocode = function(lat, lng) {
     return new Promise(function(resolve, reject) {
-      var httpRequest = new XMLHttpRequest();
-      var params = 'key=' + app.config.google.apiKey + '&latlng=' + lat + ',' + lng;
+      var httpRequest = new XMLHttpRequest(),
+          params = 'key=' + app.config.google.apiKey + '&latlng=' + lat + ',' + lng;
 
       httpRequest.open('GET', app.config.google.geocodingAPI.reqURL + params, true);
       httpRequest.send();

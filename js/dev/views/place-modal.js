@@ -99,10 +99,11 @@
       }
 
       this.placeModalHoursOpen.textContent = null;
-      var hoursOpenFragment = document.createDocumentFragment();
+      var hoursOpenFragment = document.createDocumentFragment(),
+          li = document.createElement('li');
+
       if (selectedPlace.hoursOpen) {
         for (var j = 0, hrsLength = selectedPlace.hoursOpen.length; j < hrsLength; j++) {
-          var li = document.createElement('li');
           // Split hoursOpen on ':'
           var dayTime = selectedPlace.hoursOpen[j].split(/:\s/);
           // <span> is needed to highlight hours for current day

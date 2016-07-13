@@ -15,8 +15,11 @@
     render: function(recentSearches) {
       this.recentSearchesList.textContent = null;
 
+      var recentSearchesFragment = document.createDocumentFragment(),
+          li = document.createElement('li'),
+          span = document.createElement('span');
+
       if (!recentSearches) {
-        var li = document.createElement('li');
         li.classList.add('list-group-item');
         li.classList.add('text-center');
         li.textContent = 'You have no recent searches.';
@@ -24,12 +27,7 @@
         return;
       }
 
-      var recentSearchesFragment = document.createDocumentFragment();
-
       for (var i = 0, length = recentSearches.length; i < length; i++) {
-        var li = document.createElement('li'),
-            span = document.createElement('span');
-
         li.classList.add('list-group-item');
         li.textContent = recentSearches[i].city + ', ' + recentSearches[i].state;
 

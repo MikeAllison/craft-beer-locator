@@ -18,12 +18,14 @@
   app.views.page = {
     init: function() {
       // Initialize page settings
-      var searchItemTypeCaps = '';
-      var searchItemTypes = app.config.settings.search.itemType.split(/\s+/);
+      var searchItemTypeCaps = '',
+          searchItemTypes = app.config.settings.search.itemType.split(/\s+/),
+          pageTitle = searchItemTypeCaps + ' Finder';
+
       searchItemTypes.forEach(function(searchItemType, i) {
         searchItemTypeCaps += ' ' + searchItemType.charAt(0).toUpperCase() + searchItemType.slice(1);
       });
-      var pageTitle = searchItemTypeCaps + ' Finder';
+
       document.title = pageTitle;
       document.getElementById('heading').textContent = pageTitle;
     },

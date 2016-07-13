@@ -18,12 +18,12 @@
 
         app.models.places.add(results);
 
-        var places = app.models.places.get();
+        var places = app.models.places.get(),
+            placesCoords = [],
+            latLng = { lat: null, lng: null };
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
-        var placesCoords = [];
-        places.forEach(function(place){
-          var latLng = { lat: null, lng: null };
+        places.forEach(function(place) {
           latLng.lat = place.geometry.location.lat;
           latLng.lng = place.geometry.location.lng;
           placesCoords.push(latLng);

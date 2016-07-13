@@ -8,7 +8,8 @@
 
   app.models.recentSearches = {
     add: function(searchLoc) {
-      var cachedSearches = this.get();
+      var cachedSearches = this.get(),
+          newLocation = {};
 
       if (!cachedSearches) {
         cachedSearches = [];
@@ -16,7 +17,6 @@
         cachedSearches.pop();
       }
 
-      var newLocation = {};
       newLocation.lat = searchLoc.lat;
       newLocation.lng = searchLoc.lng;
       newLocation.city = searchLoc.city;

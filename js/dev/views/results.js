@@ -35,14 +35,14 @@
         return;
       }
 
+      var li = document.createElement('li'),
+          span = document.createElement('span');
+
       // Add primary results to DOM
       var primaryResultsFragment = document.createDocumentFragment(),
           primaryPlaces = places.primary;
 
       for (var i = 0, priLength = primaryPlaces.length; i < priLength; i++) {
-        var li = document.createElement('li'),
-            span = document.createElement('span');
-
         li.classList.add('list-group-item');
         li.textContent = primaryPlaces[i].name;
 
@@ -82,11 +82,8 @@
       // Add secondary results to DOM
       var secondaryResultsFragment = document.createDocumentFragment(),
           secondaryPlaces = places.secondary;
-          
-      for (var j = 0, secLength = secondaryPlaces.length; j < secLength; j++) {
-        var li = document.createElement('li'),
-            span = document.createElement('span');
 
+      for (var j = 0, secLength = secondaryPlaces.length; j < secLength; j++) {
         li.classList.add('list-group-item');
         li.textContent = secondaryPlaces[j].name;
 
