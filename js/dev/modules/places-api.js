@@ -11,20 +11,20 @@
   *********************************************************/
   app.modules.reqPlaces = function(lat, lng) {
     return new Promise(function(resolve, reject) {
-      var params = {
-        location: new google.maps.LatLng(lat, lng),
-        rankBy: app.config.settings.search.rankBy,
-        keyword: app.config.settings.search.itemType
-      };
-      var places = [];
+      // Google map isn't shown on page but is required for PlacesService constructor
+      var service = new google.maps.places.PlacesService(app.views.map),
+          params = {
+            location: new google.maps.LatLng(lat, lng),
+            rankBy: app.config.settings.search.rankBy,
+            keyword: app.config.settings.search.itemType
+          },
+          places = [];
 
       // Radius is required on request if ranked by PROMINENCE
       if (params.rankBy === google.maps.places.RankBy.PROMINENCE) {
         params.radius = app.config.settings.search.radius;
       }
 
-      // Google map isn't shown on page but is required for PlacesService constructor
-      var service = new google.maps.places.PlacesService(app.views.map);
       service.nearbySearch(params, callback);
 
       function callback(results, status, pagination) {
@@ -55,9 +55,10 @@
   *****************************************************************************/
   app.modules.reqPlaceDetails = function(placeId) {
     return new Promise(function(resolve, reject) {
-      var params = { placeId: placeId };
+      // Google map isn't shown on page but is required for PlacesService constructor
+      var service = new google.maps.places.PlacesService(app.views.map),
+          params = { placeId: placeId };
 
-      service = new google.maps.places.PlacesService(app.views.map);
       service.getDetails(params, callback);
 
       function callback(results, status) {

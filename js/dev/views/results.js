@@ -82,7 +82,7 @@
       // Add secondary results to DOM
       var secondaryResultsFragment = document.createDocumentFragment(),
           secondaryPlaces = places.secondary;
-          
+
       for (var j = 0, secLength = secondaryPlaces.length; j < secLength; j++) {
         var li = document.createElement('li'),
             span = document.createElement('span');

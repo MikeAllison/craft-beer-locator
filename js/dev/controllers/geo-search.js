@@ -32,15 +32,12 @@
         app.views.progressModal.update(60, 'Requesting Distances');
         app.models.places.add(results);
 
-        var places = app.models.places.get();
+        var places = app.models.places.get(),
+            placesCoords = [];
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
-        var placesCoords = [];
         places.forEach(function(place) {
-          var latLng = { lat: null, lng: null };
-          latLng.lat = place.geometry.location.lat;
-          latLng.lng = place.geometry.location.lng;
-          placesCoords.push(latLng);
+          placesCoords.push({ lat: place.geometry.location.lat, lng: place.geometry.location.lng });
         });
 
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
@@ -69,8 +66,8 @@
 
         // Smooth the display of results
         window.setTimeout(function() {
-          var cityState = app.models.searchLoc.cityState();
-          var recentSearches = app.models.recentSearches.get();
+          var cityState = app.models.searchLoc.cityState(),
+              recentSearches = app.models.recentSearches.get();
 
           app.views.form.setTboxPlaceholder(cityState);
           app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');

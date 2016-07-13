@@ -16,10 +16,12 @@
     clear: function() {
       this.alert = document.getElementById('alert');
       this.alert.classList.add('hidden');
+
       var alertTypes = ['alert-danger', 'alert-info', 'alert-success'];
       for (var i = 0, length = alertTypes.length; i < length; i++) {
         this.alert.classList.remove(alertTypes[i]);
       }
+      
       this.alert.textContent = null;
     },
     show: function(type, msg) {

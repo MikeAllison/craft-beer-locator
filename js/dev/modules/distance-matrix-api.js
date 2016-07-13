@@ -11,13 +11,13 @@
   ***************************************************************************************************************/
   app.modules.reqMultiDistance = function(lat, lng, destinations) {
     return new Promise(function(resolve, reject) {
-      var maxDests = 25; // Google's limit of destinations for a single Distance Maxtrix request
-      var totalReqs = Math.ceil(destinations.length / maxDests);
-      var groupedResults = {};
+      var maxDests = 25, // Google's limit of destinations for a single Distance Maxtrix request
+          totalReqs = Math.ceil(destinations.length / maxDests),
+          groupedResults = {};
 
       for (i = 1; i <= totalReqs; i++) {
-        var reqGroup = [];
-        var latLngObjs = [];
+        var reqGroup = [],
+            latLngObjs = [];
 
         reqGroup = destinations.splice(0, maxDests);
 
@@ -29,13 +29,13 @@
       }
 
       function sendRequest(latLngObjs, reqNum) {
-        var service = new google.maps.DistanceMatrixService();
-        var params = {
-          origins: [new google.maps.LatLng(lat, lng)], // lat, lng from getDistanceMatrix args
-          destinations: latLngObjs,
-          travelMode: google.maps.TravelMode.DRIVING,
-          unitSystem: app.config.settings.search.unitSystem
-        };
+        var service = new google.maps.DistanceMatrixService(),
+            params = {
+              origins: [new google.maps.LatLng(lat, lng)], // lat, lng from getDistanceMatrix args
+              destinations: latLngObjs,
+              travelMode: google.maps.TravelMode.DRIVING,
+              unitSystem: app.config.settings.search.unitSystem
+            };
 
         service.getDistanceMatrix(params, function(results, status) {
           if (status != google.maps.DistanceMatrixStatus.OK) {
@@ -51,10 +51,10 @@
 
       function resolveResults(groupedResults) {
         var flattenedResults = {
-          originAddresses: [],
-          destinationAddresses: [],
-          rows: [{ elements: [] }]
-        };
+              originAddresses: [],
+              destinationAddresses: [],
+              rows: [{ elements: [] }]
+            };
 
         // Check to see if all async requests have finished before combining results
         if (Object.keys(groupedResults).length === totalReqs) {
@@ -79,15 +79,14 @@
   *************************************************************************************************************/
   app.modules.reqDrivingDistance = function(origin, destination) {
     return new Promise(function(resolve, reject) {
-      var params = {
-        origins: [new google.maps.LatLng(origin.lat, origin.lng)],
-        destinations: [new google.maps.LatLng(destination.lat, destination.lng)],
-        travelMode: google.maps.TravelMode.DRIVING,
-        unitSystem: app.config.settings.search.unitSystem
-      };
+      var service = new google.maps.DistanceMatrixService(),
+          params = {
+            origins: [new google.maps.LatLng(origin.lat, origin.lng)],
+            destinations: [new google.maps.LatLng(destination.lat, destination.lng)],
+            travelMode: google.maps.TravelMode.DRIVING,
+            unitSystem: app.config.settings.search.unitSystem
+          };
 
-      // Request the distance & pass to callback
-      var service = new google.maps.DistanceMatrixService();
       service.getDistanceMatrix(params, callback);
 
       function callback(results, status) {
@@ -108,16 +107,15 @@
   ************************************************************************************************************/
   app.modules.reqTransitDistance = function(origin, destination) {
     return new Promise(function(resolve, reject) {
-      var params = {
-        origins: [new google.maps.LatLng(origin.lat, origin.lng)],
-        destinations: [new google.maps.LatLng(destination.lat, destination.lng)],
-        travelMode: google.maps.TravelMode.TRANSIT,
-        transitOptions: { modes: [google.maps.TransitMode.SUBWAY] },
-        unitSystem: app.config.settings.search.unitSystem
-      };
+      var service = new google.maps.DistanceMatrixService(),
+          params = {
+            origins: [new google.maps.LatLng(origin.lat, origin.lng)],
+            destinations: [new google.maps.LatLng(destination.lat, destination.lng)],
+            travelMode: google.maps.TravelMode.TRANSIT,
+            transitOptions: { modes: [google.maps.TransitMode.SUBWAY] },
+            unitSystem: app.config.settings.search.unitSystem
+          };
 
-      // Request the distance & pass to callback
-      var service = new google.maps.DistanceMatrixService();
       service.getDistanceMatrix(params, callback);
 
       function callback(results, status) {

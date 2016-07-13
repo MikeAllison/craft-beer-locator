@@ -19,16 +19,16 @@
       return JSON.parse(sessionStorage.getItem('places'));
     },
     find: function(requestedPlace) {
-      var places = this.get();
+      var places = this.get(),
+          primaryPlaces = places.primary,
+          secondaryPlaces = places.secondary;
 
-      var primaryPlaces = places.primary;
       for (var i = 0, priLength = primaryPlaces.length; i < priLength; i++) {
         if (primaryPlaces[i].place_id === requestedPlace.place_id) {
           return primaryPlaces[i];
         }
       }
 
-      var secondaryPlaces = places.secondary;
       for (var j = 0, secLength = secondaryPlaces.length; j < secLength; j++) {
         if (secondaryPlaces[j].place_id === requestedPlace.place_id) {
           return secondaryPlaces[j];

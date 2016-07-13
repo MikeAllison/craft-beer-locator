@@ -92,15 +92,12 @@ var app = app || {};
 
         app.models.places.add(results);
 
-        var places = app.models.places.get();
+        var places = app.models.places.get(),
+            placesCoords = [];
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
-        var placesCoords = [];
         places.forEach(function(place) {
-          var latLng = { lat: null, lng: null };
-          latLng.lat = place.geometry.location.lat;
-          latLng.lng = place.geometry.location.lng;
-          placesCoords.push(latLng);
+          placesCoords.push({ lat: place.geometry.location.lat, lng: place.geometry.location.lng });
         });
 
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
@@ -130,8 +127,8 @@ var app = app || {};
 
         // Smooth the display of results
         window.setTimeout(function() {
-          var cityState = app.models.searchLoc.cityState();
-          var recentSearches = app.models.recentSearches.get();
+          var cityState = app.models.searchLoc.cityState(),
+              recentSearches = app.models.recentSearches.get();
 
           app.views.form.setTboxPlaceholder(cityState);
           app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
@@ -179,15 +176,12 @@ var app = app || {};
         app.views.progressModal.update(60, 'Requesting Distances');
         app.models.places.add(results);
 
-        var places = app.models.places.get();
+        var places = app.models.places.get(),
+            placesCoords = [];
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
-        var placesCoords = [];
         places.forEach(function(place) {
-          var latLng = { lat: null, lng: null };
-          latLng.lat = place.geometry.location.lat;
-          latLng.lng = place.geometry.location.lng;
-          placesCoords.push(latLng);
+          placesCoords.push({ lat: place.geometry.location.lat, lng: place.geometry.location.lng });
         });
 
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
@@ -216,8 +210,8 @@ var app = app || {};
 
         // Smooth the display of results
         window.setTimeout(function() {
-          var cityState = app.models.searchLoc.cityState();
-          var recentSearches = app.models.recentSearches.get();
+          var cityState = app.models.searchLoc.cityState(),
+              recentSearches = app.models.recentSearches.get();
 
           app.views.form.setTboxPlaceholder(cityState);
           app.views.alerts.show('success', app.models.searchLoc.totalItems + ' matches! Click on an item for more details.');
@@ -251,15 +245,12 @@ var app = app || {};
 
         app.models.places.add(results);
 
-        var places = app.models.places.get();
+        var places = app.models.places.get(),
+            placesCoords = [];
 
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
-        var placesCoords = [];
         places.forEach(function(place){
-          var latLng = { lat: null, lng: null };
-          latLng.lat = place.geometry.location.lat;
-          latLng.lng = place.geometry.location.lng;
-          placesCoords.push(latLng);
+          placesCoords.push({ lat: place.geometry.location.lat, lng: place.geometry.location.lng });
         });
 
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
@@ -323,8 +314,6 @@ var app = app || {};
   app.controllers.getDetails = function(place) {
     app.models.selectedPlace.init();
 
-    var lat = app.models.searchLoc.lat;
-    var lng = app.models.searchLoc.lng;
     var requestedPlace = app.models.places.find(place);
 
     app.models.selectedPlace.setBasicDetails(requestedPlace);
@@ -367,14 +356,13 @@ var app = app || {};
         app.models.searchLoc.lng = position.coords.longitude;
 
         var origin = {
-          lat: app.models.searchLoc.lat,
-          lng: app.models.searchLoc.lng
-        };
-
-        var destination = {
-          lat: app.models.selectedPlace.lat,
-          lng: app.models.selectedPlace.lng
-        };
+              lat: app.models.searchLoc.lat,
+              lng: app.models.searchLoc.lng
+            },
+            destination = {
+              lat: app.models.selectedPlace.lat,
+              lng: app.models.selectedPlace.lng
+            };
 
         return app.modules.reqDrivingDistance(origin, destination);
       })
@@ -389,14 +377,13 @@ var app = app || {};
         app.models.selectedPlace.setDrivingInfo(distance, duration);
 
         var origin = {
-          lat: app.models.searchLoc.lat,
-          lng: app.models.searchLoc.lng
-        };
-
-        var destination = {
-          lat: app.models.selectedPlace.lat,
-          lng: app.models.selectedPlace.lng
-        };
+            lat: app.models.searchLoc.lat,
+            lng: app.models.searchLoc.lng
+          },
+          destination = {
+            lat: app.models.selectedPlace.lat,
+            lng: app.models.selectedPlace.lng
+          };
 
         return app.modules.reqTransitDistance(origin, destination);
       })
@@ -421,10 +408,7 @@ var app = app || {};
         // Push lat, lng for places onto new destinations array ( [{lat, lng}, {lat, lng}] )
         var placesCoords = [];
         places.forEach(function(place) {
-          var latLng = { lat: null, lng: null };
-          latLng.lat = place.geometry.location.lat;
-          latLng.lng = place.geometry.location.lng;
-          placesCoords.push(latLng);
+          placesCoords.push({ lat: place.geometry.location.lat, lng: place.geometry.location.lng });
         });
 
         return app.modules.reqMultiDistance(app.models.searchLoc.lat, app.models.searchLoc.lng, placesCoords);
@@ -506,16 +490,16 @@ $(function() {
       return JSON.parse(sessionStorage.getItem('places'));
     },
     find: function(requestedPlace) {
-      var places = this.get();
+      var places = this.get(),
+          primaryPlaces = places.primary,
+          secondaryPlaces = places.secondary;
 
-      var primaryPlaces = places.primary;
       for (var i = 0, priLength = primaryPlaces.length; i < priLength; i++) {
         if (primaryPlaces[i].place_id === requestedPlace.place_id) {
           return primaryPlaces[i];
         }
       }
 
-      var secondaryPlaces = places.secondary;
       for (var j = 0, secLength = secondaryPlaces.length; j < secLength; j++) {
         if (secondaryPlaces[j].place_id === requestedPlace.place_id) {
           return secondaryPlaces[j];
@@ -536,7 +520,8 @@ $(function() {
 
   app.models.recentSearches = {
     add: function(searchLoc) {
-      var cachedSearches = this.get();
+      var cachedSearches = this.get(),
+          newLocation = {};
 
       if (!cachedSearches) {
         cachedSearches = [];
@@ -544,7 +529,6 @@ $(function() {
         cachedSearches.pop();
       }
 
-      var newLocation = {};
       newLocation.lat = searchLoc.lat;
       newLocation.lng = searchLoc.lng;
       newLocation.city = searchLoc.city;
@@ -678,13 +662,13 @@ $(function() {
   ***************************************************************************************************************/
   app.modules.reqMultiDistance = function(lat, lng, destinations) {
     return new Promise(function(resolve, reject) {
-      var maxDests = 25; // Google's limit of destinations for a single Distance Maxtrix request
-      var totalReqs = Math.ceil(destinations.length / maxDests);
-      var groupedResults = {};
+      var maxDests = 25, // Google's limit of destinations for a single Distance Maxtrix request
+          totalReqs = Math.ceil(destinations.length / maxDests),
+          groupedResults = {};
 
       for (i = 1; i <= totalReqs; i++) {
-        var reqGroup = [];
-        var latLngObjs = [];
+        var reqGroup = [],
+            latLngObjs = [];
 
         reqGroup = destinations.splice(0, maxDests);
 
@@ -696,13 +680,13 @@ $(function() {
       }
 
       function sendRequest(latLngObjs, reqNum) {
-        var service = new google.maps.DistanceMatrixService();
-        var params = {
-          origins: [new google.maps.LatLng(lat, lng)], // lat, lng from getDistanceMatrix args
-          destinations: latLngObjs,
-          travelMode: google.maps.TravelMode.DRIVING,
-          unitSystem: app.config.settings.search.unitSystem
-        };
+        var service = new google.maps.DistanceMatrixService(),
+            params = {
+              origins: [new google.maps.LatLng(lat, lng)], // lat, lng from getDistanceMatrix args
+              destinations: latLngObjs,
+              travelMode: google.maps.TravelMode.DRIVING,
+              unitSystem: app.config.settings.search.unitSystem
+            };
 
         service.getDistanceMatrix(params, function(results, status) {
           if (status != google.maps.DistanceMatrixStatus.OK) {
@@ -718,10 +702,10 @@ $(function() {
 
       function resolveResults(groupedResults) {
         var flattenedResults = {
-          originAddresses: [],
-          destinationAddresses: [],
-          rows: [{ elements: [] }]
-        };
+              originAddresses: [],
+              destinationAddresses: [],
+              rows: [{ elements: [] }]
+            };
 
         // Check to see if all async requests have finished before combining results
         if (Object.keys(groupedResults).length === totalReqs) {
@@ -746,15 +730,14 @@ $(function() {
   *************************************************************************************************************/
   app.modules.reqDrivingDistance = function(origin, destination) {
     return new Promise(function(resolve, reject) {
-      var params = {
-        origins: [new google.maps.LatLng(origin.lat, origin.lng)],
-        destinations: [new google.maps.LatLng(destination.lat, destination.lng)],
-        travelMode: google.maps.TravelMode.DRIVING,
-        unitSystem: app.config.settings.search.unitSystem
-      };
+      var service = new google.maps.DistanceMatrixService(),
+          params = {
+            origins: [new google.maps.LatLng(origin.lat, origin.lng)],
+            destinations: [new google.maps.LatLng(destination.lat, destination.lng)],
+            travelMode: google.maps.TravelMode.DRIVING,
+            unitSystem: app.config.settings.search.unitSystem
+          };
 
-      // Request the distance & pass to callback
-      var service = new google.maps.DistanceMatrixService();
       service.getDistanceMatrix(params, callback);
 
       function callback(results, status) {
@@ -775,16 +758,15 @@ $(function() {
   ************************************************************************************************************/
   app.modules.reqTransitDistance = function(origin, destination) {
     return new Promise(function(resolve, reject) {
-      var params = {
-        origins: [new google.maps.LatLng(origin.lat, origin.lng)],
-        destinations: [new google.maps.LatLng(destination.lat, destination.lng)],
-        travelMode: google.maps.TravelMode.TRANSIT,
-        transitOptions: { modes: [google.maps.TransitMode.SUBWAY] },
-        unitSystem: app.config.settings.search.unitSystem
-      };
+      var service = new google.maps.DistanceMatrixService(),
+          params = {
+            origins: [new google.maps.LatLng(origin.lat, origin.lng)],
+            destinations: [new google.maps.LatLng(destination.lat, destination.lng)],
+            travelMode: google.maps.TravelMode.TRANSIT,
+            transitOptions: { modes: [google.maps.TransitMode.SUBWAY] },
+            unitSystem: app.config.settings.search.unitSystem
+          };
 
-      // Request the distance & pass to callback
-      var service = new google.maps.DistanceMatrixService();
       service.getDistanceMatrix(params, callback);
 
       function callback(results, status) {
@@ -815,8 +797,9 @@ $(function() {
   app.modules.getGeocode = function(location) {
     return new Promise(function(resolve, reject) {
       // AJAX request for lat/lng for form submission
-      var httpRequest = new XMLHttpRequest();
-      var params = 'key=' + app.config.google.apiKey + '&address=' + encodeURIComponent(location);
+      var httpRequest = new XMLHttpRequest(),
+          params = 'key=' + app.config.google.apiKey + '&address=' + encodeURIComponent(location);
+
       httpRequest.open('GET', app.config.google.geocodingAPI.reqURL + params, true);
 
       httpRequest.onload = function() {
@@ -845,8 +828,8 @@ $(function() {
   *******************************************************/
   app.modules.reverseGeocode = function(lat, lng) {
     return new Promise(function(resolve, reject) {
-      var httpRequest = new XMLHttpRequest();
-      var params = 'key=' + app.config.google.apiKey + '&latlng=' + lat + ',' + lng;
+      var httpRequest = new XMLHttpRequest(),
+          params = 'key=' + app.config.google.apiKey + '&latlng=' + lat + ',' + lng;
 
       httpRequest.open('GET', app.config.google.geocodingAPI.reqURL + params, true);
       httpRequest.send();
@@ -916,20 +899,20 @@ $(function() {
   *********************************************************/
   app.modules.reqPlaces = function(lat, lng) {
     return new Promise(function(resolve, reject) {
-      var params = {
-        location: new google.maps.LatLng(lat, lng),
-        rankBy: app.config.settings.search.rankBy,
-        keyword: app.config.settings.search.itemType
-      };
-      var places = [];
+      // Google map isn't shown on page but is required for PlacesService constructor
+      var service = new google.maps.places.PlacesService(app.views.map),
+          params = {
+            location: new google.maps.LatLng(lat, lng),
+            rankBy: app.config.settings.search.rankBy,
+            keyword: app.config.settings.search.itemType
+          },
+          places = [];
 
       // Radius is required on request if ranked by PROMINENCE
       if (params.rankBy === google.maps.places.RankBy.PROMINENCE) {
         params.radius = app.config.settings.search.radius;
       }
 
-      // Google map isn't shown on page but is required for PlacesService constructor
-      var service = new google.maps.places.PlacesService(app.views.map);
       service.nearbySearch(params, callback);
 
       function callback(results, status, pagination) {
@@ -960,9 +943,10 @@ $(function() {
   *****************************************************************************/
   app.modules.reqPlaceDetails = function(placeId) {
     return new Promise(function(resolve, reject) {
-      var params = { placeId: placeId };
+      // Google map isn't shown on page but is required for PlacesService constructor
+      var service = new google.maps.places.PlacesService(app.views.map),
+          params = { placeId: placeId };
 
-      service = new google.maps.places.PlacesService(app.views.map);
       service.getDetails(params, callback);
 
       function callback(results, status) {
@@ -1007,18 +991,18 @@ $(function() {
     sortPlaces() - Handles processing of places returned from Google
   *******************************************************************/
   app.modules.sortPlaces = function(places) {
-    var primaryTypes = app.config.settings.search.primaryTypes;
-    var secondaryTypes = app.config.settings.search.secondaryTypes;
-    var excludedTypes = app.config.settings.search.excludedTypes;
-    var primaryResults = [];
-    var secondaryResults = [];
-    var sortedResults = { primary: null, secondary: null };
+    var primaryTypes = app.config.settings.search.primaryTypes,
+        secondaryTypes = app.config.settings.search.secondaryTypes,
+        excludedTypes = app.config.settings.search.excludedTypes,
+        primaryResults = [],
+        secondaryResults = [],
+        sortedResults = { primary: null, secondary: null };
 
     // Sorts results based on relevent/exlcuded categories in app.config.settings.search
     for (var i = 0, length = places.length; i < length; i++) {
-      var hasPrimaryType = false;
-      var hasSecondaryType = false;
-      var hasExcludedType = false;
+      var hasPrimaryType = false,
+          hasSecondaryType = false,
+          hasExcludedType = false;
 
       // Check for primary types and push onto array for primary results
       primaryTypes.forEach(function(primaryType) {
@@ -1090,10 +1074,12 @@ $(function() {
     clear: function() {
       this.alert = document.getElementById('alert');
       this.alert.classList.add('hidden');
+
       var alertTypes = ['alert-danger', 'alert-info', 'alert-success'];
       for (var i = 0, length = alertTypes.length; i < length; i++) {
         this.alert.classList.remove(alertTypes[i]);
       }
+      
       this.alert.textContent = null;
     },
     show: function(type, msg) {
@@ -1206,12 +1192,15 @@ $(function() {
   app.views.page = {
     init: function() {
       // Initialize page settings
-      var searchItemTypeCaps = '';
-      var searchItemTypes = app.config.settings.search.itemType.split(/\s+/);
+      var searchItemTypeCaps = '',
+          searchItemTypes = app.config.settings.search.itemType.split(/\s+/);
+
       searchItemTypes.forEach(function(searchItemType, i) {
         searchItemTypeCaps += ' ' + searchItemType.charAt(0).toUpperCase() + searchItemType.slice(1);
       });
+
       var pageTitle = searchItemTypeCaps + ' Finder';
+      
       document.title = pageTitle;
       document.getElementById('heading').textContent = pageTitle;
     },
@@ -1580,7 +1569,7 @@ $(function() {
       // Add secondary results to DOM
       var secondaryResultsFragment = document.createDocumentFragment(),
           secondaryPlaces = places.secondary;
-          
+
       for (var j = 0, secLength = secondaryPlaces.length; j < secLength; j++) {
         var li = document.createElement('li'),
             span = document.createElement('span');
