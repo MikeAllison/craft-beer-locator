@@ -377,13 +377,13 @@ var app = app || {};
         app.models.selectedPlace.setDrivingInfo(distance, duration);
 
         var origin = {
-            lat: app.models.searchLoc.lat,
-            lng: app.models.searchLoc.lng
-          },
-          destination = {
-            lat: app.models.selectedPlace.lat,
-            lng: app.models.selectedPlace.lng
-          };
+              lat: app.models.searchLoc.lat,
+              lng: app.models.searchLoc.lng
+            },
+            destination = {
+              lat: app.models.selectedPlace.lat,
+              lng: app.models.selectedPlace.lng
+            };
 
         return app.modules.reqTransitDistance(origin, destination);
       })
