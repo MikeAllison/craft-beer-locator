@@ -12,10 +12,10 @@
   app.modules.insertionSort = function(unsorted) {
     var length = unsorted.length;
 
-    for(var i=0; i < length; i++) {
+    for (var i=0; i < length; i++) {
       var temp = unsorted[i];
 
-      for(var j=i-1; j >= 0 && (parseFloat(unsorted[j].drivingInfo.value) > parseFloat(temp.drivingInfo.value)); j--) {
+      for (var j=i-1; j >= 0 && (parseFloat(unsorted[j].drivingInfo.value) > parseFloat(temp.drivingInfo.value)); j--) {
         unsorted[j+1] = unsorted[j];
       }
 
