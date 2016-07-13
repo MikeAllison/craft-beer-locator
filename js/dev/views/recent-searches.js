@@ -24,12 +24,15 @@
         return;
       }
 
+      var recentSearchesFragment = document.createDocumentFragment();
+
       for (var i = 0, length = recentSearches.length; i < length; i++) {
-        var li = document.createElement('li');
+        var li = document.createElement('li'),
+            span = document.createElement('span');
+
         li.classList.add('list-group-item');
         li.textContent = recentSearches[i].city + ', ' + recentSearches[i].state;
 
-        var span = document.createElement('span');
         span.classList.add('badge');
         span.textContent = recentSearches[i].totalItems;
 
@@ -63,8 +66,10 @@
           });
         })(li);
 
-        this.recentSearchesList.appendChild(li);
+        recentSearchesFragment.appendChild(li);
       }
+
+      this.recentSearchesList.appendChild(recentSearchesFragment);
     }
   };
 

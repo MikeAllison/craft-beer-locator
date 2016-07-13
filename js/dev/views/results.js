@@ -36,13 +36,16 @@
       }
 
       // Add primary results to DOM
-      var primaryPlaces = places.primary;
+      var primaryResultsFragment = document.createDocumentFragment(),
+          primaryPlaces = places.primary;
+
       for (var i = 0, priLength = primaryPlaces.length; i < priLength; i++) {
-        var li = document.createElement('li');
+        var li = document.createElement('li'),
+            span = document.createElement('span');
+
         li.classList.add('list-group-item');
         li.textContent = primaryPlaces[i].name;
 
-        var span = document.createElement('span');
         span.classList.add('badge');
         span.textContent = primaryPlaces[i].drivingInfo.distance;
 
@@ -73,17 +76,20 @@
           });
         })(li);
 
-        this.primaryResultsList.appendChild(li);
+        primaryResultsFragment.appendChild(li);
       }
 
       // Add secondary results to DOM
-      var secondaryPlaces = places.secondary;
+      var secondaryResultsFragment = document.createDocumentFragment(),
+          secondaryPlaces = places.secondary;
+          
       for (var j = 0, secLength = secondaryPlaces.length; j < secLength; j++) {
-        var li = document.createElement('li');
+        var li = document.createElement('li'),
+            span = document.createElement('span');
+
         li.classList.add('list-group-item');
         li.textContent = secondaryPlaces[j].name;
 
-        var span = document.createElement('span');
         span.classList.add('badge');
         span.textContent = secondaryPlaces[j].drivingInfo.distance;
 
@@ -114,15 +120,17 @@
           });
         })(li);
 
-        this.secondaryResultsList.appendChild(li);
+        secondaryResultsFragment.appendChild(li);
       }
 
       if (places.primary.length > 0) {
         this.primaryResults.classList.remove('hidden');
+        this.primaryResultsList.appendChild(primaryResultsFragment);
       }
 
       if (places.secondary.length > 0) {
         this.secondaryResults.classList.remove('hidden');
+        this.secondaryResultsList.appendChild(secondaryResultsFragment);
       }
       // Select results tab and panel to show new results
       $('#resultsTab').tab('show');

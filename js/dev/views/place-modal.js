@@ -99,6 +99,7 @@
       }
 
       this.placeModalHoursOpen.textContent = null;
+      var hoursOpenFragment = document.createDocumentFragment();
       if (selectedPlace.hoursOpen) {
         for (var j = 0, hrsLength = selectedPlace.hoursOpen.length; j < hrsLength; j++) {
           var li = document.createElement('li');
@@ -110,8 +111,10 @@
           if (j === currentDay) {
             li.classList.add('current-day');
           }
-          this.placeModalHoursOpen.appendChild(li);
+          hoursOpenFragment.appendChild(li);
         }
+
+        this.placeModalHoursOpen.appendChild(hoursOpenFragment);
       } else {
         this.placeModalHoursOpen.parentElement.classList.add('hidden');
       }
