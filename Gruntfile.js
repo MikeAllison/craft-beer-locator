@@ -5,11 +5,11 @@ module.exports = function(grunt) {
 
     watch: {
       scripts: {
-        files: ['js/dev/**/*.js'],
+        files: ['js/src/**/*.js'],
         tasks: ['concat', 'uglify']
       },
       css: {
-        files: ['css/dev/*.css'],
+        files: ['css/src/*.css'],
         tasks: ['concat', 'cssmin']
       }
     },
@@ -17,26 +17,26 @@ module.exports = function(grunt) {
     concat: {
       js: {
         src: [
-          'js/dev/config.js',
-          'js/dev/**/*.js',
-          'js/dev/init.js'
+          'js/src/config.js',
+          'js/src/**/*.js',
+          'js/src/init.js'
         ],
-        dest: 'js/dist/app.js'
+        dest: 'js/build/app.js'
       },
       css: {
         src: [
-          'css/dev/bootstrap.css',
-          'css/dev/icomoon.css',
-          'css/dev/custom.css'
+          'css/src/bootstrap.css',
+          'css/src/icomoon.css',
+          'css/src/custom.css'
         ],
-        dest: 'css/dist/app.css'
+        dest: 'css/build/app.css'
       }
     },
 
     uglify: {
       my_target: {
         files: {
-          'js/dist/app.min.js': ['js/dist/app.js']
+          'js/build/app.min.js': ['js/build/app.js']
         }
       }
     },
@@ -45,9 +45,9 @@ module.exports = function(grunt) {
       target: {
         files: [{
           expand: true,
-          cwd: 'css/dist',
+          cwd: 'css/build',
           src: ['*.css', '!*.min.css'],
-          dest: 'css/dist',
+          dest: 'css/build',
           ext: '.min.css'
         }]
       }

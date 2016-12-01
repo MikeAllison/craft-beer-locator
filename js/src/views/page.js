@@ -25,8 +25,8 @@
         searchItemTypeCaps += ' ' + searchItemType.charAt(0).toUpperCase() + searchItemType.slice(1);
       });
 
-      var pageTitle = searchItemTypeCaps + ' Finder';
-      
+      var pageTitle = searchItemTypeCaps + ' Locator';
+
       document.title = pageTitle;
       document.getElementById('heading').textContent = pageTitle;
     },
