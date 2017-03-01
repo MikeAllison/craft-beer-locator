@@ -1,5 +1,5 @@
 {
-  "name": "craft-beer-finder",
+  "name": "craft-beer-locator",
   "version": "1.0.0",
   "description": "JavaScript app using Google services, HTML5 geolocation, JavaScript promises, localStorage, and sessionStorage to find craft beer in a specified area (but search settings can be modified to search for almost anything)",
   "main": "index.html",
@@ -18,12 +18,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MikeAllison/craft-beer-finder.git"
+    "url": "git+https://github.com/MikeAllison/craft-beer-locator.git"
   },
   "author": "Mike Allison",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/MikeAllison/craft-beer-finder/issues"
+    "url": "https://github.com/MikeAllison/craft-beer-locator/issues"
   },
-  "homepage": "https://craft-beer-finder.5apps.com"
+  "homepage": "https://craft-beer-locator.5apps.com"
 }
