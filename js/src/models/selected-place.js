@@ -60,7 +60,7 @@
       this.setPhoneNum(place.formatted_phone_number);
       // This is needed to guard against items without opening_hours
       if (place.opening_hours) {
-        this.setOpenNow(place.opening_hours.open_now);
+        this.setOpenNow(place.opening_hours.isOpen());
         this.setHoursOpen(place.opening_hours.weekday_text);
       }
     }
