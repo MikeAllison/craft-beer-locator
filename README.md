@@ -36,7 +36,7 @@ app.config = {
       }
     };
     this.google = {
-      apiKey: 'YOUR_GOOGLE_API_KEY' // Change: Enter your Google API key
+      apiKey: 'YOUR_GOOGLE_API_KEY' // Change: Enter your Google API key (Also update in Google Maps <script> on index.html)
     };
     this.google.geocodingAPI = {
       reqURL: 'https://maps.googleapis.com/maps/api/geocode/json?' // Don't change: URL to request location's geocode from Google

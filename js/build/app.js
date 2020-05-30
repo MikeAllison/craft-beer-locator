@@ -43,7 +43,7 @@ var app = app || {};
       };
       // Set your API key for Google Maps services
       this.google = {
-        apiKey: 'AIzaSyCYnbpy3ug_hU25ps2J5Bn-KNXl381XyBg'
+        apiKey: 'AIzaSyDL1jtXcarRSvWvqBa54WVLqIbxG3aTICY'
       };
       this.google.geocodingAPI = {
         reqURL: 'https://maps.googleapis.com/maps/api/geocode/json?'
@@ -782,10 +782,9 @@ $(function() {
 
 })();
 
-/*************************************************************************************************
+/**************************************
   Code related to Google Geocoding API
-  This could be performed using a Google Maps object but I wanted to practice using AJAX requests
-**************************************************************************************************/
+***************************************/
 
 (function() {
 
@@ -886,17 +885,17 @@ $(function() {
 
 })();
 
-/*********************************************
-  Code related to Google Maps Places Library
-**********************************************/
+/***********************************
+  Code related to Google Places API
+************************************/
 
 (function() {
 
   app.modules = app.modules || {};
 
-  /********************************************************
-    reqPlaces() - Sends a lat/lng to Google Places Library
-  *********************************************************/
+  /****************************************************
+    reqPlaces() - Sends a lat/lng to Google Places API
+  *****************************************************/
   app.modules.reqPlaces = function(lat, lng) {
     return new Promise(function(resolve, reject) {
       // Google map isn't shown on page but is required for PlacesService constructor

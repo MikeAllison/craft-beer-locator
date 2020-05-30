@@ -1,14 +1,14 @@
-/*********************************************
-  Code related to Google Maps Places Library
-**********************************************/
+/***********************************
+  Code related to Google Places API
+************************************/
 
 (function() {
 
   app.modules = app.modules || {};
 
-  /********************************************************
-    reqPlaces() - Sends a lat/lng to Google Places Library
-  *********************************************************/
+  /****************************************************
+    reqPlaces() - Sends a lat/lng to Google Places API
+  *****************************************************/
   app.modules.reqPlaces = function(lat, lng) {
     return new Promise(function(resolve, reject) {
       // Google map isn't shown on page but is required for PlacesService constructor
