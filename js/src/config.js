@@ -43,7 +43,7 @@ var app = app || {};
       };
       // Set your API key for Google Maps services
       this.google = {
-        apiKey: 'AIzaSyDL1jtXcarRSvWvqBa54WVLqIbxG3aTICY'
+        apiKey: ''
       };
       this.google.geocodingAPI = {
         reqURL: 'https://maps.googleapis.com/maps/api/geocode/json?'
